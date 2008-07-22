@@ -79,13 +79,17 @@ NSMutableDictionary *timersData = nil;
 
 + (ProfilingStatistics) getStats: (NSString *)sectionName
 {
-	[[MPCodeTimer codeTimer: sectionName] endSession]; //To be sure that the last session is closed;
 	ProfilingStatistics statistics;
 	statistics.totalTime=0;
 	statistics.totalCalls=0;
 	statistics.minTimeSample=0;
 	statistics.maxTimeSample=0;
 	statistics.averageTime=0;
+	if (!timersData)
+	{
+		return statistics;
+	}
+	// [[MPCodeTimer codeTimer: sectionName] endSession]; //To be sure that the last session is closed;
 	BOOL b=YES; //Flag, which shows, is it first iteration or not.
 	//It's neccesary for finding minimum of time without perversion :)
 	NSEnumerator *enumerator = [[timersData objectForKey: sectionName] objectEnumerator];
@@ -93,6 +97,10 @@ NSMutableDictionary *timersData = nil;
 
 	while ( (td = [enumerator nextObject]) != nil ) 
 	{
+		if (![td isFinished])
+		{
+			continue;
+		}
 		int ct = (td->finishTime - td->startTime)*1000; //conversion from double here.
 		//ct - current session time in ms;
 		++(statistics.totalCalls);
