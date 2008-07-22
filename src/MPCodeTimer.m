@@ -56,7 +56,8 @@ NSMutableDictionary *timersData = nil;
 	if(timersData == nil)
 	{
 		timersData = [NSMutableDictionary dictionaryWithCapacity: 10];
-	}NSMutableArray *aTimerData;
+	}
+	NSMutableArray *aTimerData;
 	aTimerData = [timersData objectForKey: sectionName];
 	//aTimerData contains now info about current section.
 	//Or there is still no info; then array must be created.
@@ -88,7 +89,7 @@ NSMutableDictionary *timersData = nil;
 	BOOL b=YES; //Flag, which shows, is it first iteration or not.
 	//It's neccesary for finding minimum of time without perversion :)
 	NSEnumerator *enumerator = [[timersData objectForKey: sectionName] objectEnumerator];
-	MPTimerData* td;
+	MPTimerData *td;
 
 	while ( (td = [enumerator nextObject]) != nil ) 
 	{
@@ -157,4 +158,11 @@ NSMutableDictionary *timersData = nil;
 }
 
 @end
+
+void printCodeTimerStats(NSString *sectionName)
+{
+	printf("Statistics for \"%s\":\n", [sectionName UTF8String]);
+	[MPCodeTimer printStats: [MPCodeTimer getStats: sectionName]];
+	printf("\n");
+}
 

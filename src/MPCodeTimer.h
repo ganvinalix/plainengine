@@ -29,3 +29,5 @@ typedef struct
 - (void) dealloc;
 @end
 
+void printCodeTimerStats(NSString *sectionName);
+
