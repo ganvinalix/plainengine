@@ -1,0 +1,23 @@
+1) system (I think it will be just toolkit library)
+	+1) log system
+	2) file system
+	+3) core profiling
+	4) less complex functions for sleep
+	5) MPDictionary with raw-C representation
+2) core objects
+	1) message system
+	2) object system
+		and features
+	3) subject manager
+		and subjects
+	4) features (and messages) like rawdata+dictionary
+3) application (also outer API)
+	1) interface for adding subjects with threads (subject manager)
+	2) log system (synchronized)
+	3) (maybe) file system (synchronized)
+	4) interface for message system (interface to NSNotificationCenter)
+	5) interface for model (MPObject etc.)
+4) linker
+	1) automatically search new modules and get subjects from them.
+	2) puts vector with API functions into new module
+5) resource checker (load time + offline)
