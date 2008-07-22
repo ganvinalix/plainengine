@@ -4,9 +4,6 @@
 //Information about one timer section stores in NSMutableArray of MPTimerData
 //And all section information stored in NSMutableDictionary named timersData;
 
-//!!! Coding style
-//!!! Variable names (you give very similar names for variables, that contains MPTimerData, and NSArray of Timer aTimerData. FUCK MY BRAIN!!!)
-
 NSMutableDictionary *timersData = nil; 
 
 @interface MPTimerData : NSObject
