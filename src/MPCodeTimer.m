@@ -5,7 +5,7 @@
 //And all section information stored in NSMutableDictionary named timersData;
 
 //!!! Coding style
-//!!! Variable names (you give very similar names for variables, that contains MPTimerData, and NSArray of Timer data. FUCK MY BRAIN!!!)
+//!!! Variable names (you give very similar names for variables, that contains MPTimerData, and NSArray of Timer aTimerData. FUCK MY BRAIN!!!)
 
 NSMutableDictionary *timersData = nil; 
 
@@ -44,56 +44,44 @@ NSMutableDictionary *timersData = nil;
 @implementation MPCodeTimer
 - init
 {
-	[super init];
-	if(timersData == nil)
-	{
-		timersData = [NSMutableDictionary dictionaryWithCapacity: 1];
-	}
-	return self;
+	return [self initWithSection: @"default"];
 }
 
 - (void) dealloc
 {
-	[timerData release]; //!!! makes pair with [data retain]. added by nekro.
+	[timerData release]; 
 	[super dealloc];
 }
 
-/*!!!- (id) autorelease;
+- (id) initWithSection: (NSString*)sectionName;
 {
-	return [super autorelease];
+	[super init];
+	if(timersData == nil)
+	{
+		timersData = [NSMutableDictionary dictionaryWithCapacity: 10];
+	}NSMutableArray *aTimerData;
+	aTimerData = [timersData objectForKey: sectionName];
+	//aTimerData contains now info about current section.
+	//Or there is still no info; then array must be created.
+	if (aTimerData == nil)
+	{
+		aTimerData = [NSMutableArray arrayWithCapacity: 5];
+		[timersData setObject: aTimerData forKey: sectionName];
+	}
+	timerData = [aTimerData retain]; //Timer contains only link to section info.
+	//So, we wouldn't need to search for it;
+
+	return self;
 }
-*/
+
 + (id <MPCodeTimer>) codeTimer: (NSString *)sectionName
 {
-	//At first start - initialization of timersData;
-	if (!timersData)
-	{
-		timersData = [NSMutableDictionary dictionaryWithCapacity: 10]; //!!! 10, not 1
-	}
-
-	NSMutableArray *data;
-	data = [timersData objectForKey: sectionName];
-	//data contains now info about current section.
-	//Or there is still no info; then array must be created.
-	if (data == nil)
-	{
-		data = [NSMutableArray arrayWithCapacity: 5]; //!!! why zero? 5 at least!
-		[timersData setObject: data forKey: sectionName];
-	}
-	
-	MPCodeTimer* newTimer = [[[MPCodeTimer alloc] init] autorelease];
-	newTimer->timerData = [data retain]; //Timer contains only link to section info. //!!! WTF??? O_o where "retain" was?
-	//So, we wouldn't need to search for it;
-	return newTimer;
+	return [[[MPCodeTimer alloc] initWithSection: sectionName] autorelease];
 }
 
 + (ProfilingStatistics) getStats: (NSString *)sectionName
 {
-	[[MPCodeTimer codeTimer: sectionName] /*autorelease]*/ endSession]; //To be sure that the last session is closed; ///!!! WTF??? O_o 
-	/*!!! 
-		1) autorelease dosen't necessary here	
-		2) you create ANOTHER timer! or not? O_o
-	*/
+	[[MPCodeTimer codeTimer: sectionName] endSession]; //To be sure that the last session is closed;
 	ProfilingStatistics statistics;
 	statistics.totalTime=0;
 	statistics.totalCalls=0;
@@ -105,7 +93,7 @@ NSMutableDictionary *timersData = nil;
 	NSEnumerator *enumerator = [[timersData objectForKey: sectionName] objectEnumerator];
 	MPTimerData* td;
 
-	while ( (td = [enumerator nextObject]) != nil ) //!!! "!= nil"
+	while ( (td = [enumerator nextObject]) != nil ) 
 	{
 		int ct = (td->finishTime - td->startTime)*1000; //conversion from double here.
 		//ct - current session time in ms;
@@ -129,7 +117,7 @@ NSMutableDictionary *timersData = nil;
 			}
 		};
 	}
-	if (statistics.totalCalls) //Without division by zero; //!!! yes, good boy ;D
+	if (statistics.totalCalls) //Without division by zero; // yes, good boy ;D
 	{
 		statistics.averageTime = statistics.totalTime / statistics.totalCalls;
 	}
@@ -149,11 +137,11 @@ NSMutableDictionary *timersData = nil;
 
 - (void) beginSession
 {
-	MPTimerData *data;
-	data = [[[MPTimerData alloc] init] autorelease]; ///!!! autorelease
-	data->startTime = [[NSDate date] /*autorelease]*/ timeIntervalSince1970];
+	MPTimerData *aTimerData;
+	aTimerData = [[[MPTimerData alloc] init] autorelease]; 
+	aTimerData->startTime = [[NSDate date]  timeIntervalSince1970];
 	[self endSession]; //To be sure that the last session is closed;
-	[timerData addObject: data];
+	[timerData addObject: aTimerData];
 }
 
 - (void) endSession
@@ -162,12 +150,12 @@ NSMutableDictionary *timersData = nil;
 	{
 		return;
 	}
-	MPTimerData *data;
-	data = [timerData lastObject];
-	if (![data isFinished])
+	MPTimerData *aTimerData;
+	aTimerData = [timerData lastObject];
+	if (![aTimerData isFinished])
 	{
-		data->finishTime = [[NSDate date]/* autorelease]*/ timeIntervalSince1970];
-		data->finished = YES;
+		aTimerData->finishTime = [[NSDate date] timeIntervalSince1970];
+		aTimerData->finished = YES;
 	}
 }
 

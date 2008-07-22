@@ -14,6 +14,7 @@ typedef struct
 + (ProfilingStatistics) getStats: (NSString*)sectionName;
 + (void) printStats: (ProfilingStatistics)statistics;
 
+- (id) initWithSection: (NSString*)sectionName;
 - (void) beginSession;
 - (void) endSession;
 
