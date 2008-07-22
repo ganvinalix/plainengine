@@ -53,6 +53,7 @@ NSMutableDictionary *timersData = nil;
 - (id) initWithSection: (NSString*)sectionName;
 {
 	[super init];
+	//create timersData dictionary at first run
 	if(timersData == nil)
 	{
 		timersData = [NSMutableDictionary dictionaryWithCapacity: 10];
@@ -77,7 +78,7 @@ NSMutableDictionary *timersData = nil;
 	return [[[MPCodeTimer alloc] initWithSection: sectionName] autorelease];
 }
 
-+ (ProfilingStatistics) getStats: (NSString *)sectionName
++ (ProfilingStatistics) getStatisticsByName: (NSString *)sectionName
 {
 	ProfilingStatistics statistics;
 	statistics.totalTime=0;
@@ -87,7 +88,7 @@ NSMutableDictionary *timersData = nil;
 	statistics.averageTime=0;
 	if (!timersData)
 	{
-		return statistics;
+		return statistics; //quit when timersData is not created;
 	}
 	// [[MPCodeTimer codeTimer: sectionName] endSession]; //To be sure that the last session is closed;
 	BOOL b=YES; //Flag, which shows, is it first iteration or not.
@@ -130,9 +131,12 @@ NSMutableDictionary *timersData = nil;
 	return statistics;
 }
 
-+ (void) printStats: (ProfilingStatistics)statistics
++ (void) printStatisticsByName: (NSString*)sectionName
 {
-	printf("Total calls: %d \nTotal time: %d \nMaximum time: %d \nMinimum time: %d \nAverage time: %d \n",
+	ProfilingStatistics statistics;
+	statistics = [self getStatisticsByName: sectionName];
+	printf("Code timer statistics for \"%s\":\n", [sectionName UTF8String]);
+	printf("Total calls: %d \nTotal time: %d \nMaximum time: %d \nMinimum time: %d \nAverage time: %d \n\n",
 		statistics.totalCalls,
 		statistics.totalTime,
 		statistics.maxTimeSample,
@@ -166,11 +170,4 @@ NSMutableDictionary *timersData = nil;
 }
 
 @end
-
-void printCodeTimerStats(NSString *sectionName)
-{
-	printf("Statistics for \"%s\":\n", [sectionName UTF8String]);
-	[MPCodeTimer printStats: [MPCodeTimer getStats: sectionName]];
-	printf("\n");
-}
 

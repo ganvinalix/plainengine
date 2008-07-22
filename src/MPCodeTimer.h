@@ -11,8 +11,8 @@ typedef struct
 
 @protocol MPCodeTimer < NSObject >
 + (id <MPCodeTimer>) codeTimer: (NSString*)sectionName;
-+ (ProfilingStatistics) getStats: (NSString*)sectionName;
-+ (void) printStats: (ProfilingStatistics)statistics;
++ (ProfilingStatistics) getStatisticsByName: (NSString*)sectionName;
++ (void) printStatisticsByName: (NSString*)sectionName;
 
 - (id) initWithSection: (NSString*)sectionName;
 - (void) beginSession;
@@ -28,6 +28,4 @@ typedef struct
 - init;
 - (void) dealloc;
 @end
-
-void printCodeTimerStats(NSString *sectionName);
 
