@@ -1,6 +1,7 @@
 #import <common.h>
 #import <MPObject.h>
 #import <MPCodeTimer.h>
+#import <math.h>
 
 int main(int argc, const char *argv[]) 
 {
@@ -10,11 +11,43 @@ int main(int argc, const char *argv[])
 		[gLog addChannel: [MPFileLogChannel fileLogChannelWithFilename: @"./hist.log"]];
 		[gLog add: notice withFormat: @"Startting..."];
 		
-		//NSString *str = @"Text";
-		//[NSThread sleepUntilDate: [NSDate dateWithTimeIntervalSinceNow: 2]];
-		//[gLog add: notice withFormat: @"%@", [[NSDate date] descriptionWithCalendarFormat:@"%S-%F" timeZone:nil locale: nil]];
-		//[gLog add: notice withFormat: @"%@", [[NSDate date] descriptionWithCalendarFormat:@"%S-%F" timeZone:nil locale: nil]];
-		printf("%u\n", (-1) );
+		long long int s;
+		int i, j;
+		
+		MPCodeTimer *timer, *timercopy, *megatimer, *timer2;
+		timer = [MPCodeTimer codeTimer: @"test"];
+		timercopy = [[MPCodeTimer alloc] initWithSection: @"test"];
+		megatimer = [MPCodeTimer codeTimer: @"mega"];
+		[megatimer beginSession];
+		for (j=0; j<100; ++j)
+		{
+			[timer beginSession];
+			for (i=0; i<100*j; ++i)
+			{
+				s += sqrt(i);
+			}
+			[timer endSession];
+		}
+		for (j=0; j<100; ++j)
+		{
+			[timercopy beginSession];
+			for (i=0; i<100*j; ++i)
+			{
+				s += sqrt(i+s);
+			}
+			[timercopy endSession];
+		}
+		[timercopy release];
+
+		timer2 = [MPCodeTimer codeTimer: @"qq"];
+		[timer2 beginSession];
+		MP_SLEEP(4);
+		[timer2 endSession];
+
+		[megatimer endSession];
+		[MPCodeTimer printStatisticsByName: @"test"];
+		[MPCodeTimer printStatisticsByName: @"mega"];
+		[MPCodeTimer printStatisticsByName: @"qq"];
 	}
 	@catch(NSException *exc)
 	{
