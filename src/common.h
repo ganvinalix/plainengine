@@ -7,5 +7,5 @@
 #import <MPConfigDictionary.h>
 #import <MPNotifications.h>
 
-#define MP_SLEEP(x) [NSThread sleepUntilDate: [NSDate dateWithTimeIntervalSinceNow: (float)(x)/1000]];
+#define MP_SLEEP(x) [NSThread sleepUntilDate: [NSDate dateWithTimeIntervalSinceNow: (float)(x)/1000]]
 
