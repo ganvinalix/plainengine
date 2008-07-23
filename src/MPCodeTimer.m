@@ -73,7 +73,12 @@ NSMutableDictionary *timersData = nil;
 	return self;
 }
 
-+ (id) codeTimer: (NSString *)sectionName
++ (id) codeTimer
+{
+	return [[[MPCodeTimer alloc] init] autorelease];
+}
+
++ (id) codeTimerWithSectionName: (NSString *)sectionName
 {
 	return [[[MPCodeTimer alloc] initWithSectionByName: sectionName] autorelease];
 }

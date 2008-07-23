@@ -15,9 +15,9 @@ int main(int argc, const char *argv[])
 		int i, j;
 		
 		MPCodeTimer *timer, *timercopy, *megatimer, *timer2;
-		timer = [MPCodeTimer codeTimer: @"test"];
+		timer = [MPCodeTimer codeTimerWithSectionName: @"test"];
 		timercopy = [[MPCodeTimer alloc] initWithSectionByName: @"test"];
-		megatimer = [MPCodeTimer codeTimer: @"mega"];
+		megatimer = [MPCodeTimer codeTimerWithSectionName: @"mega"];
 		[megatimer beginSession];
 		for (j=0; j<100; ++j)
 		{
@@ -39,7 +39,7 @@ int main(int argc, const char *argv[])
 		}
 		[timercopy release];
 
-		timer2 = [MPCodeTimer codeTimer: @"qq"];
+		timer2 = [MPCodeTimer codeTimerWithSectionName: @"qq"];
 		[timer2 beginSession];
 		MP_SLEEP(38);
 		[timer2 endSession];

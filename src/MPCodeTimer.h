@@ -15,13 +15,15 @@ typedef struct
 	NSMutableArray* timerData;
 }
 - init;
+- (id) initWithSectionByName: (NSString*)sectionName;
 - (void) dealloc;
 
-+ (id) codeTimer: (NSString*)sectionName;
++ (id) codeTimer;
++ (id) codeTimerWithSectionName: (NSString*)sectionName;
+
 + (ProfilingStatistics) getStatisticsByName: (NSString*)sectionName;
 + (void) printStatisticsByName: (NSString*)sectionName;
 
-- (id) initWithSectionByName: (NSString*)sectionName;
 - (void) beginSession;
 - (void) endSession;
 @end
