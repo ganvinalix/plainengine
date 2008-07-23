@@ -9,23 +9,20 @@ typedef struct
 	unsigned averageTime;
 } ProfilingStatistics;
 
-@protocol MPCodeTimer < NSObject >
-+ (id <MPCodeTimer>) codeTimer: (NSString*)sectionName;
-+ (ProfilingStatistics) getStatisticsByName: (NSString*)sectionName;
-+ (void) printStatisticsByName: (NSString*)sectionName;
-
-- (id) initWithSection: (NSString*)sectionName;
-- (void) beginSession;
-- (void) endSession;
-
-@end
-
-@interface MPCodeTimer : NSObject < MPCodeTimer >
+@interface MPCodeTimer : NSObject 
 {
 @private
 	NSMutableArray* timerData;
 }
 - init;
 - (void) dealloc;
+
++ (id) codeTimer: (NSString*)sectionName;
++ (ProfilingStatistics) getStatisticsByName: (NSString*)sectionName;
++ (void) printStatisticsByName: (NSString*)sectionName;
+
+- (id) initWithSection: (NSString*)sectionName;
+- (void) beginSession;
+- (void) endSession;
 @end
 
