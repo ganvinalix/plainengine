@@ -41,7 +41,7 @@ NSMutableDictionary *timersData = nil;
 @implementation MPCodeTimer
 - init
 {
-	return [self initWithSection: @"default"];
+	return [self initWithSectionByName: @"default"];
 }
 
 - (void) dealloc
@@ -50,7 +50,7 @@ NSMutableDictionary *timersData = nil;
 	[super dealloc];
 }
 
-- (id) initWithSection: (NSString*)sectionName;
+- (id) initWithSectionByName: (NSString*)sectionName;
 {
 	[super init];
 	//create timersData dictionary at first run
@@ -75,7 +75,7 @@ NSMutableDictionary *timersData = nil;
 
 + (id) codeTimer: (NSString *)sectionName
 {
-	return [[[MPCodeTimer alloc] initWithSection: sectionName] autorelease];
+	return [[[MPCodeTimer alloc] initWithSectionByName: sectionName] autorelease];
 }
 
 + (ProfilingStatistics) getStatisticsByName: (NSString *)sectionName
