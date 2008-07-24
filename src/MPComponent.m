@@ -71,7 +71,7 @@
 
 		printf("\"hi there!\" says %s thread\n", [[[NSThread currentThread] description] UTF8String] );
 		NSNotification *notification = nil;
-		while( notification = [notifications getTop] )
+		while( (notification = [notifications getTop]) != nil )
 		{
 			printf("Notification: [%s] has been received by %s\n", [[notification name] UTF8String], [[[NSThread currentThread] description] UTF8String] );
 			[notifications popTop];
