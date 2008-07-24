@@ -136,18 +136,21 @@ NSMutableDictionary *timersData = nil;
 	return statistics;
 }
 
-+ (void) printStatisticsByName: (NSString*)sectionName
++ (NSString*) printStatisticsByName: (NSString*)sectionName
 {
+	NSMutableString *str;
+	str = [NSMutableString stringWithCapacity: 100];
 	ProfilingStatistics statistics;
 	statistics = [self getStatisticsByName: sectionName];
-	printf("Code timer statistics for \"%s\":\n", [sectionName UTF8String]);
-	printf("Total calls: %d \nTotal time: %d \nMaximum time: %d \nMinimum time: %d \nAverage time: %d \n\n",
+	[str appendFormat: @"Code timer statistics for \"%@\":\n", sectionName];
+	[str appendFormat: @"Total calls: %d \nTotal time: %d \nMaximum time: %d \nMinimum time: %d \nAverage time: %d \n",
 		statistics.totalCalls,
 		statistics.totalTime,
 		statistics.maxTimeSample,
 		statistics.minTimeSample,
 		statistics.averageTime
-		);
+		];
+	return str;
 }
 
 - (void) beginSession

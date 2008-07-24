@@ -22,7 +22,7 @@ typedef struct
 + (id) codeTimerWithSectionName: (NSString*)sectionName;
 
 + (ProfilingStatistics) getStatisticsByName: (NSString*)sectionName;
-+ (void) printStatisticsByName: (NSString*)sectionName;
++ (NSString*) printStatisticsByName: (NSString*)sectionName;
 
 - (void) beginSession;
 - (void) endSession;

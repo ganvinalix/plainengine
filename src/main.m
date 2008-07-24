@@ -45,9 +45,9 @@ int main(int argc, const char *argv[])
 		[timer2 endSession];
 
 		[megatimer endSession];
-		[MPCodeTimer printStatisticsByName: @"test"];
-		[MPCodeTimer printStatisticsByName: @"mega"];
-		[MPCodeTimer printStatisticsByName: @"qq"];
+		[gLog add: notice withFormat: [MPCodeTimer printStatisticsByName: @"test"]];
+		[gLog add: notice withFormat: [MPCodeTimer printStatisticsByName: @"mega"]];
+		[gLog add: notice withFormat: [MPCodeTimer printStatisticsByName: @"qq"]];
 	}
 	@catch(NSException *exc)
 	{
