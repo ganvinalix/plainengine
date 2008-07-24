@@ -35,7 +35,6 @@ int main(int argc, const char *argv[])
 			{
 				s += sqrt(i+s);
 			}
-			[timercopy endSession];
 		}
 		[timercopy release];
 

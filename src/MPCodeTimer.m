@@ -4,7 +4,7 @@
 //Information about one timer section stores in NSMutableArray of MPTimerData
 //And all section information stored in NSMutableDictionary named timersData;
 
-NSMutableDictionary *timersData = nil; 
+NSMutableDictionary *timersData = nil;
 
 @interface MPTimerData : NSObject
 {
@@ -13,7 +13,7 @@ NSMutableDictionary *timersData = nil;
 	BOOL finished;
 }
 - init;
-- (void) dealloc; 
+- (void) dealloc;
 - (BOOL) isFinished;
 @end
 
@@ -46,7 +46,7 @@ NSMutableDictionary *timersData = nil;
 
 - (void) dealloc
 {
-	[timerData release]; 
+	[timerData release];
 	[super dealloc];
 }
 
@@ -91,64 +91,113 @@ NSMutableDictionary *timersData = nil;
 	statistics.minTimeSample=0;
 	statistics.maxTimeSample=0;
 	statistics.averageTime=0;
+
+	statistics.totalTimeUnfinished=0;
+	statistics.totalCallsUnfinished=0;
+	statistics.minTimeSampleUnfinished=0;
+	statistics.maxTimeSampleUnfinished=0;
+	statistics.averageTimeUnfinished=0;
+
 	if (!timersData)
 	{
 		return statistics; //quit when timersData is not created;
 	}
-	// [[MPCodeTimer codeTimer: sectionName] endSession]; //To be sure that the last session is closed;
+	
+	
+	//To be sure that the last session is closed:
+	MPTimerData *aTimerData;
+	NSMutableArray *aSection;
+	aSection = [timersData objectForKey: sectionName]; 
+	if ([aSection count])
+	{
+		aTimerData = [aSection lastObject];
+		if (![aTimerData isFinished])
+		{
+			aTimerData->finishTime = [[NSDate date] timeIntervalSince1970];
+		}
+	}
+
+
 	BOOL b=YES; //Flag, which shows, is it first iteration or not.
 	//It's neccesary for finding minimum of time without perversion :)
 	NSEnumerator *enumerator = [[timersData objectForKey: sectionName] objectEnumerator];
 	MPTimerData *td;
 
-	while ( (td = [enumerator nextObject]) != nil ) 
+	while ( (td = [enumerator nextObject]) != nil )
 	{
-		if (![td isFinished])
-		{
-			continue;
-		}
 		int ct = (td->finishTime - td->startTime)*1000; //conversion from double here.
 		//ct - current session time in ms;
-		++(statistics.totalCalls);
-		statistics.totalTime += ct;
+	
+		unsigned *aTotalCalls,
+			 *aTotalTime,
+			 *aMinTimeSample,
+			 *aMaxTimeSample;
+
+		if ([td isFinished])
+		{
+			aTotalCalls	= &(statistics.totalCalls);
+			aTotalTime	= &(statistics.totalTime);
+			aMinTimeSample	= &(statistics.minTimeSample);
+			aMaxTimeSample	= &(statistics.maxTimeSample);
+		}
+		else
+		{
+			aTotalCalls	= &(statistics.totalCallsUnfinished);
+			aTotalTime	= &(statistics.totalTimeUnfinished);
+			aMinTimeSample	= &(statistics.minTimeSampleUnfinished);
+			aMaxTimeSample	= &(statistics.maxTimeSampleUnfinished);
+		}
+		++(*aTotalCalls);
+		(*aTotalTime) += ct;
 		if (b)
 		{
-			statistics.minTimeSample = ct;
-			statistics.maxTimeSample = ct;
+			(*aMinTimeSample) = ct;
+			(*aMaxTimeSample) = ct;
 			b = NO;
 		}
 		else
 		{
-			if (ct < statistics.minTimeSample)
+			if (ct < (*aMinTimeSample))
 			{
-				statistics.minTimeSample = ct;
+				(*aMinTimeSample) = ct;
 			}
-			if (ct > statistics.maxTimeSample)
+			if (ct > (*aMaxTimeSample))
 			{
-				statistics.maxTimeSample = ct;
+				(*aMaxTimeSample) = ct;
 			}
 		};
 	}
-	if (statistics.totalCalls) //Without division by zero; // yes, good boy ;D
+	if (statistics.totalTime) //Without division by zero; // yes, good boy ;D
 	{
 		statistics.averageTime = statistics.totalTime / statistics.totalCalls;
 	}
+
+	if (statistics.totalTimeUnfinished)
+	{
+		statistics.averageTimeUnfinished = statistics.totalTimeUnfinished / statistics.totalCallsUnfinished;
+	}
+
 	return statistics;
 }
 
 + (NSString*) printStatisticsByName: (NSString*)sectionName
 {
 	NSMutableString *str;
-	str = [NSMutableString stringWithCapacity: 100];
+	str = [NSMutableString stringWithCapacity: 225];
 	ProfilingStatistics statistics;
 	statistics = [self getStatisticsByName: sectionName];
 	[str appendFormat: @"Code timer statistics for \"%@\":\n", sectionName];
-	[str appendFormat: @"Total calls: %d \nTotal time: %d \nMaximum time: %d \nMinimum time: %d \nAverage time: %d \n",
+	[str appendFormat: @"Total calls: %d (%d - unfinished sessions) \nTotal time: %d (%d - unfinished sessions) \nMaximum time: %d (%d - unfinished sessions) \nMinimum time: %d (%d - unfinished sessions) \nAverage time: %d (%d - unfinished sessions) \n",
 		statistics.totalCalls,
+		statistics.totalCallsUnfinished,
 		statistics.totalTime,
+		statistics.totalTimeUnfinished,
 		statistics.maxTimeSample,
+		statistics.maxTimeSampleUnfinished,
 		statistics.minTimeSample,
-		statistics.averageTime
+		statistics.minTimeSampleUnfinished,
+		statistics.averageTime,
+		statistics.averageTimeUnfinished
 		];
 	return str;
 }
@@ -156,9 +205,17 @@ NSMutableDictionary *timersData = nil;
 - (void) beginSession
 {
 	MPTimerData *aTimerData;
-	aTimerData = [[[MPTimerData alloc] init] autorelease]; 
+	if ([timerData count])
+	{
+		aTimerData = [timerData lastObject];
+		if (![aTimerData isFinished])
+		{
+			aTimerData->finishTime = [[NSDate date] timeIntervalSince1970];
+		}
+	}
+	aTimerData = [[[MPTimerData alloc] init] autorelease];
 	aTimerData->startTime = [[NSDate date]  timeIntervalSince1970];
-	[self endSession]; //To be sure that the last session is closed;
+	//[self endSession]; //To be sure that the last session is closed;
 	[timerData addObject: aTimerData];
 }
 

@@ -7,6 +7,12 @@ typedef struct
 	unsigned maxTimeSample;
 	unsigned minTimeSample;
 	unsigned averageTime;
+
+	unsigned totalTimeUnfinished;
+	unsigned totalCallsUnfinished;
+	unsigned maxTimeSampleUnfinished;
+	unsigned minTimeSampleUnfinished;
+	unsigned averageTimeUnfinished;
 } ProfilingStatistics;
 
 @interface MPCodeTimer : NSObject 
