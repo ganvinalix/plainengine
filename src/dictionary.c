@@ -7,15 +7,16 @@
 
 dictionary_node *talloc()
 {
-	return ((dictionary_node *) malloc(sizeof(dictionary_node)));
+	dictionary_node* dict;
+	dict = ((dictionary_node *) malloc(sizeof(dictionary_node)));
+	dict->key = malloc(1);
+	dict->value = malloc(1);
 }
 
 dictionary_node *dict_getempty()
 {
 	dictionary_node *new;
 	new = talloc();
-	new->key=malloc(1);
-	new->value=malloc(1);
 	new->left=NULL;
 	new->right=NULL;
 	return new;
@@ -51,9 +52,6 @@ void dict_insert_real(dictionary_node *tree, char *key, char *value, dictionary_
 	if (!tree)
 	{
 		tree = talloc();
-
-		tree->key = malloc(1);
-		tree->value = malloc(1);
 
 		strcpy(tree->key, key);
 		strcpy(tree->value, value);
@@ -183,3 +181,35 @@ void dict_remove(dictionary_node *tree, char *key)
 {
 	dict_remove_real(tree, key, NULL, 0);
 }
+
+void dict_clear(dictionary_node *tree)
+{
+	if (!tree)
+	{
+		return;
+	}
+	dictionary_node *l, *r;
+	l = tree->left;
+	r = tree->right;
+	free(tree->key);
+	free(tree->value);
+	free(tree);
+	dict_clear(l);
+	dict_clear(r);
+}
+
+dictionary_node *dict_copy(dictionary_node *source)
+{
+	if (!source)
+	{
+		return NULL;
+	}
+	dictionary_node *newnode;
+	newnode = talloc();
+	strcpy(newnode->key, source->key);
+	strcpy(newnode->value, source->value);
+	newnode->left = dict_copy(source->left);
+	newnode->right = dict_copy(source->right);
+	return newnode;
+}
+
