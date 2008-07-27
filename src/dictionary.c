@@ -77,13 +77,17 @@ void dict_insert_real(dictionary_node *tree, char *key, char *value, dictionary_
 	int t;
 	t = strcmp(key, tree->key);
 
-	if (t>=0)
+	if (t>0)
 	{
 		dict_insert_real(tree->right, key, value, tree, 1);
 	}
-	else
+	else if (t<0)
 	{
 		dict_insert_real(tree->left, key, value, tree, -1);
+	}
+	else
+	{
+		strcpy(tree->value, value);
 	}
 
 }
