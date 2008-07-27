@@ -22,6 +22,24 @@ dictionary_node *dict_getempty()
 	return new;
 }
 
+void dict_size_real(dictionary_node *tree, int *counter)
+{
+	if (!tree)
+	{
+		return;
+	}
+	++(*counter);
+	dict_size_real(tree->left, counter);
+	dict_size_real(tree->right, counter);
+}
+
+int dict_size(dictionary_node *tree)
+{
+	int counter=-1;
+	dict_size_real(tree, &counter);
+	return counter;
+}
+
 int dict_find(dictionary_node *tree, char *key, char *valuebuf)
 {
 	if (!tree)
