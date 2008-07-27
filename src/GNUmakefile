@@ -12,10 +12,14 @@ MPLog.m \
 MPNotificationQueue.m \
 MPComponent.m \
 MPCodeTimer.m \
+MPDictionary.m \
 
+plainEngine_C_FILES = \
+dictionary.c \
 
 plainEngine_HEADER_FILES = \
 common.h \
+dictionary.h \
 MPLog.h \
 MPConfigDictionary.h \
 MPNotificationQueue.h \
@@ -25,6 +29,7 @@ MPComponent.h \
 MPFeature.h \
 MPObject.h \
 MPCodeTimer.h \
+MPDictionary.h \
 
 
 include $(GNUSTEP_MAKEFILES)/tool.make

@@ -1,6 +1,7 @@
 #import <common.h>
 #import <MPObject.h>
 #import <MPCodeTimer.h>
+#import <MPDictionary.h>
 #import <math.h>
 
 int main(int argc, const char *argv[]) 
@@ -8,17 +9,19 @@ int main(int argc, const char *argv[])
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	@try
 	{
+		MPCodeTimer *megatimer;
+		megatimer = [MPCodeTimer codeTimerWithSectionName: @"mega"];
+		[megatimer beginSession];
+
 		[gLog addChannel: [MPFileLogChannel fileLogChannelWithFilename: @"./hist.log"]];
 		[gLog add: notice withFormat: @"Startting..."];
 		
 		long long int s;
 		int i, j;
 		
-		MPCodeTimer *timer, *timercopy, *megatimer, *timer2;
+		MPCodeTimer *timer, *timercopy, *timer2;
 		timer = [MPCodeTimer codeTimerWithSectionName: @"test"];
 		timercopy = [[MPCodeTimer alloc] initWithSectionByName: @"test"];
-		megatimer = [MPCodeTimer codeTimerWithSectionName: @"mega"];
-		[megatimer beginSession];
 		for (j=0; j<100; ++j)
 		{
 			[timer beginSession];
@@ -33,8 +36,9 @@ int main(int argc, const char *argv[])
 			[timercopy beginSession];
 			for (i=0; i<100*j; ++i)
 			{
-				s += sqrt(i+s);
+				s += sqrt(i);
 			}
+			[timercopy endSession];
 		}
 		[timercopy release];
 
@@ -43,10 +47,36 @@ int main(int argc, const char *argv[])
 		MP_SLEEP(38);
 		[timer2 endSession];
 
+		MPCodeTimer *logtimer;
+		logtimer = [MPCodeTimer codeTimerWithSectionName: @"log"];
+
+		[logtimer beginSession];
+		[gLog add: info withFormat: [MPCodeTimer printStatisticsByName: @"test"]];
+		[gLog add: info withFormat: [MPCodeTimer printStatisticsByName: @"qq"]];
+		[logtimer endSession];
+		[gLog add: info withFormat: [MPCodeTimer printStatisticsByName: @"log"]];
+
+		//MPCodeTimer *tt;
+		//tt = [MPCodeTimer codeTimerWithSectionName: @"tt"];
+		
+
+		MPMutableDictionary *dict, *dicttwo;
+		dict = [[MPMutableDictionary alloc] init];
+		
+		[dict setObject: @"btest" forKey: @"test"];
+		[dict setObject: @"btast" forKey: @"tast"];
+		[dict setObject: @"btbst" forKey: @"tbst"];
+		[dict setObject: @"btcst" forKey: @"tcst"];
+
+		
+		//dicttwo = [[MPMutableDictionary alloc] initWithDictionary: dict];
+		
+		[gLog add: info withFormat: [dict objectForKey: @"tast"]];
+
+		[dict writeToFile: @"/home/chaox/documents/dict.txt" atomically: YES];
+
 		[megatimer endSession];
-		[gLog add: notice withFormat: [MPCodeTimer printStatisticsByName: @"test"]];
-		[gLog add: notice withFormat: [MPCodeTimer printStatisticsByName: @"mega"]];
-		[gLog add: notice withFormat: [MPCodeTimer printStatisticsByName: @"qq"]];
+		[gLog add: info withFormat: [MPCodeTimer printStatisticsByName: @"mega"]];
 	}
 	@catch(NSException *exc)
 	{

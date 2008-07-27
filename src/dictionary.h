@@ -13,7 +13,7 @@ typedef struct
 } dictionary;
 
 typedef void (DICT_ENUM)(char*, void*); /*	
-					  Enumeration function; type 
+					  Enumeration function type 
 					  First parameter contains current key or value;
 					  Second - tag that contains user information;
 					 */
