@@ -6,13 +6,27 @@ typedef struct
 	struct dictionary_node *left, *right;
 } dictionary_node;
 
-dictionary_node *dict_getempty();
-dictionary_node *dict_copy(dictionary_node *source);
+typedef struct
+{
+	dictionary_node *root;
+	unsigned size;
+} dictionary;
 
-int dict_size(dictionary_node *tree);
+typedef void (DICT_ENUM)(char*, void*); /*	
+					  Enumeration function; type 
+					  First parameter contains current key or value;
+					  Second - tag that contains user information;
+					 */
 
-int dict_find(dictionary_node *tree, char *key, char *valuebuf);
-void dict_insert(dictionary_node *tree, char *key, char *value);
-void dict_remove(dictionary_node *tree, char *key);
-void dict_clear(dictionary_node *tree);
+dictionary *dict_getempty();
+dictionary *dict_copy(dictionary *source);
+
+unsigned dict_size(dictionary *tree);
+
+int dict_find(dictionary *tree, char *key, char *valuebuf);
+void dict_insert(dictionary *tree, char *key, char *value);
+void dict_remove(dictionary *tree, char *key);
+void dict_clear(dictionary *tree);
+void dict_enumerate_keys(dictionary *tree, void *tag, DICT_ENUM func);
+void dict_enumerate_values(dictionary *tree, void *tag, DICT_ENUM func);
 
