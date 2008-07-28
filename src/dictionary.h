@@ -25,7 +25,7 @@ typedef struct
 	dict_enumerator_data *current;
 } dict_enumerator;
 
-typedef dict_enumerator_data* dict_enumerator_store_type;
+//typedef dict_enumerator_data* dict_enumerator_store_type;
 
 dictionary *dict_getempty();
 dictionary *dict_copy(dictionary *source);
@@ -44,8 +44,10 @@ dict_enumerator *dict_get_valueenumerator(dictionary *tree);
 
 char *dict_enumerator_next(dict_enumerator *enumerator);
 
+/*
 dict_enumerator_store_type dict_store_enumerator(dict_enumerator *enumerator);
 void dict_restore_enumerator(dict_enumerator_store_type stamp, dict_enumerator *enumerator);
+*/
 
 void dict_free_enumerator(dict_enumerator *enumerator);
 

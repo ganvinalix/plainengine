@@ -4,7 +4,8 @@
 @interface MPDictionaryEnumerator : NSEnumerator
 {
 	dict_enumerator *enumerator;
-	unsigned long dictionary_size;
+	unsigned dictionary_size;
+	unsigned step;
 }
 - (NSArray*) allObjects;
 - (id) nextObject;

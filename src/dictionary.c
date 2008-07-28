@@ -345,6 +345,7 @@ char *dict_enumerator_next(dict_enumerator *enumerator)
 	return c;
 }
 
+/*
 dict_enumerator_store_type dict_store_enumerator(dict_enumerator *enumerator)
 {
 	return enumerator->current;
@@ -354,6 +355,7 @@ void dict_restore_enumerator(dict_enumerator_store_type stamp, dict_enumerator *
 {
 	enumerator->current = stamp;	
 }
+*/
 
 void dict_free_enumerator_data(dict_enumerator_data *data)
 {

@@ -33,16 +33,13 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 -(NSArray*) allObjects
 {
 	NSMutableArray *objs;
-	objs = [[[NSMutableArray alloc] initWithCapacity: dictionary_size] autorelease];
-	dict_enumerator_store_type stamp;
-	stamp = dict_store_enumerator(enumerator);
+	objs = [[[NSMutableArray alloc] initWithCapacity: dictionary_size-step] autorelease];
 
 	char *c;
 	while ((c = (dict_enumerator_next(enumerator))) != NULL )
 	{
 		[objs addObject: [NSString stringWithUTF8String: c]];
 	}
-	dict_restore_enumerator(stamp, enumerator);
 
 	return objs;
 }
@@ -54,6 +51,7 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 	{
 		return nil;
 	}
+	++step;
 	NSString *str;
 	str = [NSString stringWithUTF8String: v];
 	return str;
@@ -64,6 +62,7 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 	[super init];
 	enumerator = NULL;
 	dictionary_size = 0;
+	step = 0;
 	return self;
 }
 
