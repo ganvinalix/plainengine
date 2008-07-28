@@ -24,7 +24,7 @@ dictionary *dict_getempty()
 	return dict;
 }
 
-unsigned dict_size(dictionary *tree)
+long unsigned dict_size(dictionary *tree)
 {
 	return tree->size;
 }
@@ -281,5 +281,117 @@ void dict_enumerate_values(dictionary *tree, void *tag, DICT_ENUM func)
 {
 	dict_enumerate_values_real(tree->root->left, tag, func);
 	dict_enumerate_values_real(tree->root->right, tag, func);
+}
+
+void dict_key_fill_enumerator(dict_enumerator_data **cur, dictionary_node *tree)
+{
+	if (!tree)
+	{
+		(*cur)->next = NULL;
+		return;
+	}
+	dict_enumerator_data *dat;
+	(*cur)->next = malloc(sizeof(dict_enumerator_data));
+	dat = (*cur)->next;
+	dat->val = malloc(1);
+	strcpy(dat->val, tree->key);
+	(*cur) = dat;
+	dict_key_fill_enumerator(cur, tree->left);
+	dict_key_fill_enumerator(cur, tree->right);
+}
+
+dict_enumerator *dict_get_keyenumerator(dictionary *tree)
+{
+	dict_enumerator *newenumer;
+	newenumer = malloc(sizeof(dict_enumerator));
+	dict_enumerator_data *first, *cur;
+	first = malloc(sizeof(dict_enumerator_data));
+	cur = first;
+	dict_key_fill_enumerator(&cur, tree->root->left);
+	dict_key_fill_enumerator(&cur, tree->root->right);
+	cur = first;
+	first = first->next;
+	free(cur);
+	/* Any other way is even worser than this. Let it be so. */
+	newenumer->first = newenumer->current = first;
+}
+
+void dict_value_fill_enumerator(dict_enumerator_data **cur, dictionary_node *tree)
+{
+	if (!tree)
+	{
+		(*cur)->next = NULL;
+		return;
+	}
+	dict_enumerator_data *dat;
+	(*cur)->next = malloc(sizeof(dict_enumerator_data));
+	dat = (*cur)->next;
+	dat->val = malloc(1);
+	strcpy(dat->val, tree->value);
+	(*cur) = dat;
+	dict_value_fill_enumerator(cur, tree->left);
+	dict_value_fill_enumerator(cur, tree->right);
+}
+
+dict_enumerator *dict_get_valueenumerator(dictionary *tree)
+{
+	dict_enumerator *newenumer;
+	newenumer = malloc(sizeof(dict_enumerator));
+	dict_enumerator_data *first, *cur;
+	first = malloc(sizeof(dict_enumerator_data));
+	cur = first;
+	dict_value_fill_enumerator(&cur, tree->root->left);
+	dict_value_fill_enumerator(&cur, tree->root->right);
+	cur = first;
+	first = first->next;
+	free(cur);
+	/* Any other way is even worser than this. Let it be so. */
+	newenumer->first = newenumer->current = first;
+}
+
+
+char *dict_enumerator_next(dict_enumerator *enumerator)
+{
+	if (!(enumerator->current))
+	{
+		return NULL;
+	}
+	char *c;
+	c = enumerator->current->val;
+	enumerator->current = enumerator->current->next;
+	return c;
+}
+
+dict_enumerator_store_type dict_store_enumerator(dict_enumerator *enumerator)
+{
+	return enumerator->current;
+}
+
+void dict_restore_enumerator(dict_enumerator_store_type stamp, dict_enumerator *enumerator)
+{
+	enumerator->current = stamp;	
+}
+
+void dict_free_enumerator_data(dict_enumerator_data *data)
+{
+	if (!data)
+	{
+		return;
+	}
+	dict_enumerator_data *next;
+	free(data->val);
+	next = data->next;
+	free(data);
+	dict_free_enumerator_data(next);
+}
+
+void dict_free_enumerator(dict_enumerator *enumerator)
+{
+	if (!enumerator)
+	{
+		return;
+	}
+	dict_free_enumerator_data(enumerator->first);
+	free(enumerator);
 }
 

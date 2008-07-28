@@ -16,6 +16,7 @@ int main(int argc, const char *argv[])
 		[gLog addChannel: [MPFileLogChannel fileLogChannelWithFilename: @"./hist.log"]];
 		[gLog add: notice withFormat: @"Startting..."];
 		
+		/*
 		long long int s;
 		int i, j;
 		
@@ -58,25 +59,33 @@ int main(int argc, const char *argv[])
 
 		//MPCodeTimer *tt;
 		//tt = [MPCodeTimer codeTimerWithSectionName: @"tt"];
-		
-
-		MPMutableDictionary *dict, *dicttwo;
+		*/
+		MPCodeTimer *dicttimer = [MPCodeTimer codeTimerWithSectionName: @"dict"];
+		MPMutableDictionary *dict;
 		dict = [[MPMutableDictionary alloc] init];
 		
 		[dict setObject: @"btest" forKey: @"test"];
 		[dict setObject: @"btast" forKey: @"tast"];
 		[dict setObject: @"btbst" forKey: @"tbst"];
 		[dict setObject: @"btcst" forKey: @"tcst"];
-
 		
-		//dicttwo = [[MPMutableDictionary alloc] initWithDictionary: dict];
-		
-		[gLog add: info withFormat: [dict objectForKey: @"tast"]];
+		[dicttimer beginSession];
+		NSEnumerator *enumer;
+		NSString *str;
+		enumer = [dict keyEnumerator];
+		while ((str = [enumer nextObject]) != nil)
+		{
+			[gLog add: info withFormat: str];
+		}
+		[dicttimer endSession];
 
-		[dict writeToFile: @"/home/chaox/documents/dict.txt" atomically: YES];
+		[dict writeToFile: @"dict.txt" atomically: YES];
 
+		[gLog add: info withFormat: [MPCodeTimer printStatisticsByName: @"dict"]];
+		/*
 		[megatimer endSession];
 		[gLog add: info withFormat: [MPCodeTimer printStatisticsByName: @"mega"]];
+		*/
 	}
 	@catch(NSException *exc)
 	{

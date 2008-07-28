@@ -3,6 +3,7 @@
 #import <malloc.h>
 #import <string.h>
 
+/*
 void DictionaryEnumeratorFunction(char *val, void *tag)
 {
 	DictionaryEnumeratorData ***data;
@@ -14,6 +15,7 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 	(**data)->next = NULL;
 	*data = &((**data)->next);
 }
+*/
 
 @implementation MPDictionaryEnumerator
 
@@ -21,55 +23,58 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 {
 	NSMutableArray *objs;
 	objs = [[[NSMutableArray alloc] initWithCapacity: dictionary_size] autorelease];
-	DictionaryEnumeratorData *en=currentVal;
-	while (en)
+	dict_enumerator_store_type stamp;
+	stamp = dict_store_enumerator(enumerator);
+
+	char *c;
+	while ((c = (dict_enumerator_next(enumerator))) != NULL )
 	{
-		[objs addObject: [NSString stringWithUTF8String: en->val]];
-		en = en->next;
+		[objs addObject: [NSString stringWithUTF8String: c]];
 	}
+	dict_restore_enumerator(stamp, enumerator);
+
 	return objs;
 }
 
 -(id) nextObject
 {
-	if (!currentVal)
+	char *v;
+	if (!(v = dict_enumerator_next(enumerator)))
 	{
 		return nil;
 	}
 	NSString *str;
-	str = [NSString stringWithUTF8String: currentVal->val];
-	currentVal = currentVal->next;
+	str = [NSString stringWithUTF8String: v];
 	return str;
 }
 
 - init
 {
 	[super init];
-	enumeratorData = NULL;
-	currentVal = NULL;
+	enumerator = NULL;
 	dictionary_size = 0;
 	return self;
 }
 
-- initWithCDictionary: (dictionary*)newdict
+- initWithCDictionaryAsKeyEnumerator: (dictionary*)newdict
 {
 	[self init];
-	DictionaryEnumeratorData **data;
-	data = &enumeratorData;
-	dict_enumerate_keys(newdict, &data, &DictionaryEnumeratorFunction);
-	currentVal = enumeratorData;
 	dictionary_size = dict_size(newdict);
+	enumerator = dict_get_keyenumerator(newdict);
+	return self;
+}
+
+- initWithCDictionaryAsValueEnumerator: (dictionary*)newdict
+{
+	[self init];
+	dictionary_size = dict_size(newdict);
+	enumerator = dict_get_valueenumerator(newdict);
+	return self;
 }
 
 - (void) dealloc
 {
-	DictionaryEnumeratorData *dat;
-	while (enumeratorData)
-	{
-		dat = enumeratorData->next;
-		free(enumeratorData);
-		enumeratorData = dat;
-	}
+	dict_free_enumerator(enumerator);
 	[super dealloc];
 }
 
@@ -128,7 +133,13 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 
 - (NSEnumerator*) keyEnumerator
 {
-	return [[[MPMutableDictionary alloc] initWithCDictionary: dict] autorelease];
+	return [[[MPDictionaryEnumerator alloc] initWithCDictionaryAsKeyEnumerator: dict] autorelease];
+}
+
+
+- (NSEnumerator*) objectEnumerator
+{
+	return [[[MPDictionaryEnumerator alloc] initWithCDictionaryAsValueEnumerator: dict] autorelease];
 }
 
 - (dictionary*) getCDictionary

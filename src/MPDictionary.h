@@ -1,23 +1,17 @@
 #import <Foundation/Foundation.h>
 #import <dictionary.h>
 
-typedef struct
-{
-	char *val;
-	struct DictionaryEnumeratorData *next;
-
-} DictionaryEnumeratorData;
-
 @interface MPDictionaryEnumerator : NSEnumerator
 {
-	DictionaryEnumeratorData *enumeratorData, *currentVal;
-	unsigned dictionary_size;
+	dict_enumerator *enumerator;
+	unsigned long dictionary_size;
 }
 -(NSArray*) allObjects;
 -(id) nextObject;
 
 - init;
-- initWithCDictionary: (dictionary*)newdict;
+- initWithCDictionaryAsKeyEnumerator: (dictionary*)newdict;
+- initWithCDictionaryAsValueEnumerator: (dictionary*)newdict;
 - (void) dealloc;
 @end;
 
@@ -36,6 +30,7 @@ typedef struct
 	       forKeys: (id*)keys
 		 count: (unsigned)count;
 - (NSEnumerator*) keyEnumerator;
+- (NSEnumerator*) objectEnumerator;
 
 - (dictionary*) getCDictionary;
 
