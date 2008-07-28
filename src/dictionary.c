@@ -9,8 +9,8 @@ dictionary_node *talloc()
 {
 	dictionary_node* dict;
 	dict = ((dictionary_node *) malloc(sizeof(dictionary_node)));
-	dict->key = malloc(1);
-	dict->value = malloc(1);
+	dict->key = malloc(0);
+	dict->value = malloc(0);
 	dict->left = NULL;
 	dict->right = NULL;
 }
@@ -48,12 +48,10 @@ int dict_find_real(dictionary_node *tree, char *key, char *valuebuf)
 	{
 		return dict_find_real(tree->left, key, valuebuf);
 	}
-	else if (t>0)
+	else /*if (t>0)*/
 	{
 		return dict_find_real(tree->right, key, valuebuf);
 	}
-	/*OMG WTF???*/
-	return 0;
 }
 
 int dict_find(dictionary *tree, char *key, char *valuebuf)
@@ -97,14 +95,11 @@ int dict_insert_real(dictionary_node *tree, char *key, char *value, dictionary_n
 	{
 		return dict_insert_real(tree->left, key, value, tree, -1);
 	}
-	else
+	else /*if (t==0)*/
 	{
 		strcpy(tree->value, value);
 		return 0;
 	}
-
-	return 0; /* This should not happen */
-
 }
 
 
@@ -145,7 +140,7 @@ int dict_remove_real(dictionary_node *tree, char *key, dictionary_node *parent, 
 	{
 		return dict_remove_real(tree->left, key, tree, -1);
 	}
-	else
+	else /*if (t==0)*/
 	{
 		if (tree->left && tree->right)
 		{
@@ -198,8 +193,6 @@ int dict_remove_real(dictionary_node *tree, char *key, dictionary_node *parent, 
 			return 1;
 		}
 	}
-	
-	return 1; /* This should not happen */
 }
 
 void dict_remove(dictionary *tree, char *key)
@@ -268,42 +261,6 @@ dictionary *dict_copy(dictionary *source)
 	return new;
 }
 
-/*
-void dict_enumerate_keys_real(dictionary_node *tree, void *tag, DICT_ENUM func)
-{
-	if (!tree)
-	{
-		return;
-	}
-	func(tree->key, tag);
-	dict_enumerate_keys_real(tree->left, tag, func);
-	dict_enumerate_keys_real(tree->right, tag, func);
-}
-
-void dict_enumerate_keys(dictionary *tree, void *tag, DICT_ENUM func)
-{
-	dict_enumerate_keys_real(tree->root->left, tag, func);
-	dict_enumerate_keys_real(tree->root->right, tag, func);
-}
-
-void dict_enumerate_values_real(dictionary_node *tree, void *tag, DICT_ENUM func)
-{
-	if (!tree)
-	{
-		return;
-	}
-	func(tree->value, tag);
-	dict_enumerate_values_real(tree->left, tag, func);
-	dict_enumerate_values_real(tree->right, tag, func);
-}
-
-void dict_enumerate_values(dictionary *tree, void *tag, DICT_ENUM func)
-{
-	dict_enumerate_values_real(tree->root->left, tag, func);
-	dict_enumerate_values_real(tree->root->right, tag, func);
-}
-*/
-
 void dict_close(dictionary *tree)
 {
 	tree->ismutable = 0;
@@ -319,7 +276,7 @@ void dict_key_fill_enumerator(dict_enumerator_data **cur, dictionary_node *tree)
 	dict_enumerator_data *dat;
 	(*cur)->next = malloc(sizeof(dict_enumerator_data));
 	dat = (*cur)->next;
-	dat->val = malloc(1);
+	dat->val = malloc(0);
 	strcpy(dat->val, tree->key);
 	(*cur) = dat;
 	dict_key_fill_enumerator(cur, tree->left);
@@ -352,7 +309,7 @@ void dict_value_fill_enumerator(dict_enumerator_data **cur, dictionary_node *tre
 	dict_enumerator_data *dat;
 	(*cur)->next = malloc(sizeof(dict_enumerator_data));
 	dat = (*cur)->next;
-	dat->val = malloc(1);
+	dat->val = malloc(0);
 	strcpy(dat->val, tree->value);
 	(*cur) = dat;
 	dict_value_fill_enumerator(cur, tree->left);

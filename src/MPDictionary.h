@@ -6,8 +6,8 @@
 	dict_enumerator *enumerator;
 	unsigned long dictionary_size;
 }
--(NSArray*) allObjects;
--(id) nextObject;
+- (NSArray*) allObjects;
+- (id) nextObject;
 
 - init;
 - initWithCDictionaryAsKeyEnumerator: (dictionary*)newdict;
@@ -17,9 +17,22 @@
 @end;
 
 @interface MPDictionary : NSDictionary
+{
+@private
+	dictionary *dict;
+}
 
 - (dictionary*) getCDictionary;
 
+- (unsigned) count;
+- (id) objectForKey: (id)aKey;
+
+- (NSEnumerator*) keyEnumerator;
+- (NSEnumerator*) objectEnumerator;
+
+- (id) initWithObjects: (id*)objects
+	       forKeys: (id*)keys
+		 count: (unsigned)count;
 - init;
 - (void) dealloc;
 
@@ -34,6 +47,7 @@
 - (id) objectForKey: (id)aKey;
 - (void) setObject: (id)anObject forKey: (id)aKey;
 - (void) removeObjectForKey: (id)aKey;
+- (void) removeAllObjects;
 
 - (unsigned) count;
 - (id) initWithObjects: (id*)objects
@@ -41,7 +55,6 @@
 		 count: (unsigned)count;
 - (NSEnumerator*) keyEnumerator;
 - (NSEnumerator*) objectEnumerator;
-
 
 - (dictionary*) getCDictionary;
 
