@@ -21,6 +21,7 @@ dictionary *dict_getempty()
 	dict = malloc(sizeof(dictionary));
 	dict->root = talloc();
 	dict->size = 0;
+	dict->ismutable = 1;
 	return dict;
 }
 
@@ -109,6 +110,10 @@ int dict_insert_real(dictionary_node *tree, char *key, char *value, dictionary_n
 
 void dict_insert(dictionary *tree, char *key, char *value)
 {
+	if (!(tree->ismutable))
+	{
+		return;
+	}
 	tree->size += dict_insert_real(tree->root, key, value, NULL, 0);
 }
 
@@ -199,6 +204,10 @@ int dict_remove_real(dictionary_node *tree, char *key, dictionary_node *parent, 
 
 void dict_remove(dictionary *tree, char *key)
 {
+	if (!(tree->ismutable))
+	{
+		return;
+	}
 	tree->size -= dict_remove_real(tree->root, key, NULL, 0);
 }
 
@@ -220,9 +229,19 @@ void dict_clear_real(dictionary_node *tree)
 
 void dict_clear(dictionary *tree)
 {
+	if (!(tree->ismutable))
+	{
+		return;
+	}
 	dict_clear_real(tree->root);
 	tree->root = talloc(); /* TODO: Optimize later */
 	tree->size = 0;
+}
+
+void dict_free(dictionary *tree)
+{
+	dict_clear_real(tree->root);
+	free(tree);
 }
 
 dictionary_node *dict_copy_real(dictionary_node *source)
@@ -249,6 +268,7 @@ dictionary *dict_copy(dictionary *source)
 	return new;
 }
 
+/*
 void dict_enumerate_keys_real(dictionary_node *tree, void *tag, DICT_ENUM func)
 {
 	if (!tree)
@@ -281,6 +301,12 @@ void dict_enumerate_values(dictionary *tree, void *tag, DICT_ENUM func)
 {
 	dict_enumerate_values_real(tree->root->left, tag, func);
 	dict_enumerate_values_real(tree->root->right, tag, func);
+}
+*/
+
+void dict_close(dictionary *tree)
+{
+	tree->ismutable = 0;
 }
 
 void dict_key_fill_enumerator(dict_enumerator_data **cur, dictionary_node *tree)

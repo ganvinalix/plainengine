@@ -8,11 +8,12 @@ typedef struct
 
 typedef struct
 {
+	int ismutable;
 	dictionary_node *root;
 	long unsigned size;
 } dictionary;
 
-typedef void (DICT_ENUM)(char*, void*); /*	
+/*typedef void (DICT_ENUM)(char*, void*);	
 					  Enumeration function type 
 					  First parameter contains current key or value;
 					  Second - tag that contains user information;
@@ -40,11 +41,12 @@ long unsigned dict_size(dictionary *tree);
 int dict_find(dictionary *tree, char *key, char *valuebuf);
 void dict_insert(dictionary *tree, char *key, char *value);
 void dict_remove(dictionary *tree, char *key);
+void dict_close(dictionary *tree);
 void dict_clear(dictionary *tree);
+void dict_free(dictionary *tree);
 
-
-void dict_enumerate_keys(dictionary *tree, void *tag, DICT_ENUM func);
-void dict_enumerate_values(dictionary *tree, void *tag, DICT_ENUM func);
+// void dict_enumerate_keys(dictionary *tree, void *tag, DICT_ENUM func);
+// void dict_enumerate_values(dictionary *tree, void *tag, DICT_ENUM func);
 
 dict_enumerator *dict_get_keyenumerator(dictionary *tree);
 dict_enumerator *dict_get_valueenumerator(dictionary *tree);

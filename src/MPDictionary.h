@@ -13,7 +13,17 @@
 - initWithCDictionaryAsKeyEnumerator: (dictionary*)newdict;
 - initWithCDictionaryAsValueEnumerator: (dictionary*)newdict;
 - (void) dealloc;
+
 @end;
+
+@interface MPDictionary : NSDictionary
+
+- (dictionary*) getCDictionary;
+
+- init;
+- (void) dealloc;
+
+@end
 
 @interface MPMutableDictionary : NSMutableDictionary
 {
@@ -32,9 +42,11 @@
 - (NSEnumerator*) keyEnumerator;
 - (NSEnumerator*) objectEnumerator;
 
+
 - (dictionary*) getCDictionary;
 
 - init;
+- (id) initWithCapacity: (unsigned)numItems;
 - (void) dealloc;
 
 @end

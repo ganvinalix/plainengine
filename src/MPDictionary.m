@@ -80,8 +80,39 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 
 @end
 
-@implementation MPMutableDictionary
+@implementation MPDictionary
 
+- (dictionary*) getCDictionary
+{
+	dictionary *dict;
+	dict = dict_getempty();
+
+
+	NSEnumerator *enumer;
+	NSString *str;
+	enumer = [self keyEnumerator];
+	while ((str = [enumer nextObject]) != nil)
+	{
+		dict_insert(dict, [str UTF8String], [[self objectForKey: str] UTF8String]);
+	}
+	dict_close(dict);
+
+	return dict;
+}
+
+- init
+{
+	return [super init];
+}
+
+- (void) dealloc
+{
+	[super dealloc];
+}
+
+@end
+
+@implementation MPMutableDictionary
 
 - (id) objectForKey: (id)aKey
 {
@@ -154,9 +185,14 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 	return self;
 }
 
+- (id) initWithCapacity: (unsigned)numItems
+{
+	return [self init];
+}
+
 - (void) dealloc
 {
-	dict_clear(dict);
+	dict_free(dict);
 	[super dealloc];
 }
 
