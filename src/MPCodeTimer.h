@@ -34,3 +34,10 @@ typedef struct
 - (void) endSession;
 @end
 
+#define CT_BEGIN(name) \
+	MPCodeTimer *_ct_##name = [MPCodeTimer codeTimerWithSectionName: [NSString stringWithUTF8String: #name]]; \
+	[_ct_##name beginSession];
+
+#define CT_END(name) \
+	[_ct_##name endSession];
+
