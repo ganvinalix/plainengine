@@ -3,7 +3,7 @@
 	2) file system
 	+3) core profiling
 	+4) less complex functions for sleep
-	5) MPDictionary with raw-C representation
+	+5) MPDictionary with raw-C representation
 2) core objects
 	+1) message system
 	2) object system
