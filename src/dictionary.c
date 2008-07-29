@@ -27,6 +27,10 @@ dictionary *dict_getempty()
 
 long unsigned dict_size(dictionary *tree)
 {
+	if (!tree)
+	{
+		return 0;
+	}
 	return tree->size;
 }
 
@@ -56,6 +60,10 @@ int dict_find_real(dictionary_node *tree, char *key, char *valuebuf)
 
 int dict_find(dictionary *tree, char *key, char *valuebuf)
 {
+	if (!tree)
+	{
+		return 0;
+	}
 	return dict_find_real(tree->root, key, valuebuf);
 }
 
@@ -105,6 +113,10 @@ int dict_insert_real(dictionary_node *tree, char *key, char *value, dictionary_n
 
 void dict_insert(dictionary *tree, char *key, char *value)
 {
+	if (!tree)
+	{
+		return;
+	}
 	if (!(tree->ismutable))
 	{
 		return;
@@ -197,6 +209,10 @@ int dict_remove_real(dictionary_node *tree, char *key, dictionary_node *parent, 
 
 void dict_remove(dictionary *tree, char *key)
 {
+	if (!tree)
+	{
+		return;
+	}
 	if (!(tree->ismutable))
 	{
 		return;
@@ -221,7 +237,11 @@ void dict_clear_real(dictionary_node *tree)
 }
 
 void dict_clear(dictionary *tree)
-{
+{	
+	if (!tree)
+	{
+		return;
+	}
 	if (!(tree->ismutable))
 	{
 		return;
@@ -233,6 +253,10 @@ void dict_clear(dictionary *tree)
 
 void dict_free(dictionary *tree)
 {
+	if (!tree)
+	{
+		return;
+	}
 	dict_clear_real(tree->root);
 	free(tree);
 }
@@ -254,15 +278,24 @@ dictionary_node *dict_copy_real(dictionary_node *source)
 
 dictionary *dict_copy(dictionary *source)
 {
+	if (!source)
+	{
+		return NULL;
+	}
 	dictionary *new;
 	new = malloc(sizeof(dictionary));
 	new->size = source->size;
+	new->ismutable = 1;
 	new->root = dict_copy_real(source->root);
 	return new;
 }
 
 void dict_close(dictionary *tree)
 {
+	if (!tree)
+	{
+		return;
+	}
 	tree->ismutable = 0;
 }
 
@@ -285,6 +318,10 @@ void dict_key_fill_enumerator(dict_enumerator_data **cur, dictionary_node *tree)
 
 dict_enumerator *dict_get_keyenumerator(dictionary *tree)
 {
+	if (!tree)
+	{
+		return NULL;
+	}
 	dict_enumerator *newenumer;
 	newenumer = malloc(sizeof(dict_enumerator));
 	dict_enumerator_data *first, *cur;

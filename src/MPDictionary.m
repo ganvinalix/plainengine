@@ -150,7 +150,7 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 	return str;
 }
 
-- (unsigned) count
+- (NSUInteger) count
 {
 	return dict_size(dict);
 }
@@ -191,11 +191,36 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 	return dict;
 }
 
+- (id) copy
+{
+	return [self retain];
+}
+
+- (id) mutableCopy
+{
+	MPMutableDictionary *new;
+	new = [[MPMutableDictionary alloc] initWithCDictionary: dict shouldCopy: YES];
+	return new;
+}
+
 - init
 {
 	[super init];
-	dict = dict_getempty();
-	dict_close(dict);
+	dict = NULL;//dict_getempty();
+	return self;
+}
+
+- initWithCDictionary: (dictionary*)newDict shouldCopy: (BOOL)shouldCopy
+{
+	[super init];
+	if (shouldCopy)
+	{
+		dict = dict_copy(newDict);
+	}
+	else
+	{
+		dict = newDict;
+	}
 	return self;
 }
 
@@ -248,7 +273,7 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 	dict_clear(dict);
 }
 
-- (unsigned) count
+- (NSUInteger) count
 {
 	return dict_size(dict);
 }
@@ -282,10 +307,39 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 	return dict;
 }
 
+- (id) mutableCopy
+{
+	MPMutableDictionary *new;
+	new = [[MPMutableDictionary alloc] initWithCDictionary: dict shouldCopy: YES];
+	return new;
+}
+
+- (id) copy
+{
+	MPMutableDictionary *new;
+	new = [[MPMutableDictionary alloc] initWithCDictionary: dict shouldCopy: YES];
+	dict_close(new->dict);
+	return new;
+}
+
 - init
 {
 	[super init];
 	dict = dict_getempty();
+	return self;
+}
+
+- initWithCDictionary: (dictionary*)newDict shouldCopy: (BOOL)shouldCopy
+{
+	[super init];
+	if (shouldCopy)
+	{
+		dict = dict_copy(newDict);
+	}
+	else
+	{
+		dict = newDict;
+	}
 	return self;
 }
 
