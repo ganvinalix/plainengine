@@ -9,9 +9,9 @@ int main(int argc, const char *argv[])
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	@try
 	{
-		MPCodeTimer *megatimer;
+		/*MPCodeTimer *megatimer;
 		megatimer = [MPCodeTimer codeTimerWithSectionName: @"mega"];
-		[megatimer beginSession];
+		[megatimer beginSession];*/
 
 		[gLog addChannel: [MPFileLogChannel fileLogChannelWithFilename: @"./hist.log"]];
 		[gLog add: notice withFormat: @"Startting..."];
@@ -60,7 +60,6 @@ int main(int argc, const char *argv[])
 		//MPCodeTimer *tt;
 		//tt = [MPCodeTimer codeTimerWithSectionName: @"tt"];
 		*/
-		MPCodeTimer *dicttimer = [MPCodeTimer codeTimerWithSectionName: @"dict"];
 		MPMutableDictionary *dict;
 		dict = [[MPMutableDictionary alloc] init];
 		
@@ -69,17 +68,17 @@ int main(int argc, const char *argv[])
 		[dict setObject: @"btbst" forKey: @"tbst"];
 		[dict setObject: @"btcst" forKey: @"tcst"];
 		
-		[dicttimer beginSession];
 		NSEnumerator *enumer;
 		NSString *str;
+		CT_BEGIN(dict);
 		enumer = [dict keyEnumerator];
 		while ((str = [enumer nextObject]) != nil)
 		{
 			[gLog add: info withFormat: str];
 		}
-		[dicttimer endSession];
-
 		[dict writeToFile: @"dict.txt" atomically: YES];
+
+		CT_END(dict);
 
 		[gLog add: info withFormat: [MPCodeTimer printStatisticsByName: @"dict"]];
 		/*
