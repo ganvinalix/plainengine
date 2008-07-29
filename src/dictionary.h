@@ -1,25 +1,28 @@
+#ifndef _DICTIONARY_C_
+#define _DICTIONARY_C_
+
 #include <stdlib.h>
 
-typedef struct
+typedef struct tagDN 
 {
 	char *key, *value;
-	struct dictionary_node *left, *right;
+	struct tagDN *left, *right;
 } dictionary_node;
 
-typedef struct
+typedef struct tagD
 {
 	int ismutable;
 	dictionary_node *root;
 	long unsigned size;
 } dictionary;
 
-typedef struct
+typedef struct tagDED
 {
 	char *val;
-	struct dict_enumerator_data *next;
+	struct tagDED *next;
 } dict_enumerator_data;
 
-typedef struct
+typedef struct tagDE
 {
 	dict_enumerator_data *first;
 	dict_enumerator_data *current;
@@ -50,4 +53,6 @@ void dict_restore_enumerator(dict_enumerator_store_type stamp, dict_enumerator *
 */
 
 void dict_free_enumerator(dict_enumerator *enumerator);
+
+#endif
 

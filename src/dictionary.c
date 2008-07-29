@@ -13,6 +13,8 @@ dictionary_node *talloc()
 	dict->value = malloc(0);
 	dict->left = NULL;
 	dict->right = NULL;
+
+	return dict;
 }
 
 dictionary *dict_getempty()
@@ -334,6 +336,8 @@ dict_enumerator *dict_get_keyenumerator(dictionary *tree)
 	free(cur);
 	/* Any other way is even worser than this. Let it be so. */
 	newenumer->first = newenumer->current = first;
+
+	return newenumer; //!!! is it ok? (by nekro)
 }
 
 void dict_value_fill_enumerator(dict_enumerator_data **cur, dictionary_node *tree)
@@ -367,6 +371,8 @@ dict_enumerator *dict_get_valueenumerator(dictionary *tree)
 	free(cur);
 	/* Any other way is even worser than this. Let it be so. */
 	newenumer->first = newenumer->current = first;
+
+	return newenumer; //!!! is it ok? (by nekro)
 }
 
 
