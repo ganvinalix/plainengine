@@ -47,7 +47,10 @@ int dict_find_real(dictionary_node *tree, const char *key, char *valuebuf)
 	
 	if (t==0)
 	{
-		strcpy(valuebuf, tree->value);
+		if (valuebuf)
+		{
+			strcpy(valuebuf, tree->value);
+		}
 		return 1;
 	}
 	else if (t<0)
