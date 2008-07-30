@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <dictionary.h>
-#import <common.h>
+#import <numeric_types.h>
 
 @interface MPDictionaryEnumerator : NSEnumerator
 {

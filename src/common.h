@@ -6,14 +6,9 @@
 #import <MPFileLogChannel.h>
 #import <MPConfigDictionary.h>
 #import <MPNotifications.h>
+#import <MPCodeTimer.h>
+#import <MPDictionary.h>
 
-#define MP_SLEEP(x) [NSThread sleepUntilDate: [NSDate dateWithTimeIntervalSinceNow: (float)(x)/1000]]
-
-#if __LP64__ || NS_BUILD_32_LIKE_64
-typedef long NSInteger;
-typedef unsigned long NSUInteger;
-#else
-typedef int NSInteger;
-typedef unsigned int NSUInteger;
-#endif
+#import <common_defines.h>
+#import <numeric_types.h>
 

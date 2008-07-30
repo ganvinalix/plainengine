@@ -13,12 +13,16 @@ MPNotificationQueue.m \
 MPComponent.m \
 MPCodeTimer.m \
 MPDictionary.m \
+error_names.m \
 
 plainEngine_C_FILES = \
 dictionary.c \
 
 plainEngine_HEADER_FILES = \
 common.h \
+common_defines.h \
+numeric_types.h \
+error_names.h \
 dictionary.h \
 MPLog.h \
 MPConfigDictionary.h \

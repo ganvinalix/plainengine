@@ -3,6 +3,7 @@
 #import <dictionary.h>
 #import <malloc.h>
 #import <string.h>
+#import <error_names.h>
 
 /*
 void DictionaryEnumeratorFunction(char *val, void *tag)
@@ -21,7 +22,7 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 #define MP_NSSTRING_CHECK(x) \
 	if (![[x class] isSubclassOfClass: [NSString class]])\
 	{\
-		NSException *exc = [NSException exceptionWithName: @"Must be NSString"\
+		NSException *exc = [NSException exceptionWithName: MPIsNotNSString\
 						reason: @"Parameter \""#x"\" must be NSString"\
 						userInfo: nil];\
 		@throw exc;\
