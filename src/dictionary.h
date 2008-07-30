@@ -35,9 +35,9 @@ dictionary *dict_copy(dictionary *source);
 
 long unsigned dict_size(dictionary *tree);
 
-int dict_find(dictionary *tree, char *key, char *valuebuf);
-void dict_insert(dictionary *tree, char *key, char *value);
-void dict_remove(dictionary *tree, char *key);
+int dict_find(dictionary *tree, const char *key, char *valuebuf);
+void dict_insert(dictionary *tree, const char *key, const char *value);
+void dict_remove(dictionary *tree, const char *key);
 void dict_close(dictionary *tree);
 void dict_clear(dictionary *tree);
 void dict_free(dictionary *tree);

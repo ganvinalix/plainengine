@@ -36,7 +36,7 @@ long unsigned dict_size(dictionary *tree)
 	return tree->size;
 }
 
-int dict_find_real(dictionary_node *tree, char *key, char *valuebuf)
+int dict_find_real(dictionary_node *tree, const char *key, char *valuebuf)
 {
 	if (!tree)
 	{
@@ -60,7 +60,7 @@ int dict_find_real(dictionary_node *tree, char *key, char *valuebuf)
 	}
 }
 
-int dict_find(dictionary *tree, char *key, char *valuebuf)
+int dict_find(dictionary *tree, const char *key, char *valuebuf)
 {
 	if (!tree)
 	{
@@ -69,7 +69,7 @@ int dict_find(dictionary *tree, char *key, char *valuebuf)
 	return dict_find_real(tree->root, key, valuebuf);
 }
 
-int dict_insert_real(dictionary_node *tree, char *key, char *value, dictionary_node *prev, int direction)
+int dict_insert_real(dictionary_node *tree, const char *key, const char *value, dictionary_node *prev, int direction)
 {
 	if (!tree)
 	{
@@ -113,7 +113,7 @@ int dict_insert_real(dictionary_node *tree, char *key, char *value, dictionary_n
 }
 
 
-void dict_insert(dictionary *tree, char *key, char *value)
+void dict_insert(dictionary *tree, const char *key, const char *value)
 {
 	if (!tree)
 	{
@@ -136,7 +136,7 @@ dictionary_node* dict_get_leftest(dictionary_node *tree, dictionary_node **paren
 	return dict_get_leftest(tree->left, parent);
 }
 
-int dict_remove_real(dictionary_node *tree, char *key, dictionary_node *parent, int direction)
+int dict_remove_real(dictionary_node *tree, const char *key, dictionary_node *parent, int direction)
 {
 	if (!tree)
 	{
@@ -209,7 +209,7 @@ int dict_remove_real(dictionary_node *tree, char *key, dictionary_node *parent, 
 	}
 }
 
-void dict_remove(dictionary *tree, char *key)
+void dict_remove(dictionary *tree, const char *key)
 {
 	if (!tree)
 	{

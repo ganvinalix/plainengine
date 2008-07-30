@@ -137,12 +137,10 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 - (id) objectForKey: (id)aKey
 {
 	MP_NSSTRING_CHECK(aKey);
-	char *buf, *key;
-	buf = malloc(0);
-	key = [aKey UTF8String];
+	char *buf;
 	NSString* str;
 	str = nil;
-	if (dict_find(dict, key, buf))
+	if (dict_find(dict, [aKey UTF8String], buf))
 	{
 		str = [NSString stringWithUTF8String: buf];
 	}
@@ -162,14 +160,11 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 	[super init];
 	dict = dict_getempty();
 	unsigned i;
-	char *key, *value;
 	for (i=0; i<count; ++i)
 	{
 		MP_NSSTRING_CHECK(objects[i]);
 		MP_NSSTRING_CHECK(keys[i]);
-		key = [keys[i] UTF8String];
-		value = [objects[i] UTF8String];
-		dict_insert(dict, key, value);
+		dict_insert(dict, [keys[i] UTF8String], [objects[i] UTF8String]);
 	}
 	dict_close(dict);
 	return self;
@@ -237,12 +232,11 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 - (id) objectForKey: (id)aKey
 {
 	MP_NSSTRING_CHECK(aKey);
-	char *buf, *key;
+	char *buf;
 	buf = malloc(0);
-	key = [aKey UTF8String];
 	NSString* str;
 	str = nil;
-	if (dict_find(dict, key, buf))
+	if (dict_find(dict, [aKey UTF8String], buf))
 	{
 		str = [NSString stringWithUTF8String: buf];
 	}
@@ -254,18 +248,13 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 {
 	MP_NSSTRING_CHECK(anObject);
 	MP_NSSTRING_CHECK(aKey);
-	char *key, *value;
-	key = [aKey UTF8String];
-	value = [anObject UTF8String];
-	dict_insert(dict, key, value);
+	dict_insert(dict, [aKey UTF8String], [anObject UTF8String]);
 }
 
 - (void) removeObjectForKey: (id)aKey
 {
 	MP_NSSTRING_CHECK(aKey);
-	char *key;
-	key = [aKey UTF8String];
-	dict_remove(dict, key);
+	dict_remove(dict, [aKey UTF8String]);
 }
 
 - (void) removeAllObjects
