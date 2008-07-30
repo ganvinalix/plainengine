@@ -38,3 +38,6 @@ MPDictionary.h \
 
 include $(GNUSTEP_MAKEFILES)/tool.make
 
+error_names.h : error_names.txt
+	../sc_gen_src/obj/scgen error_names.txt
+
