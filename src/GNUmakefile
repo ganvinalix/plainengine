@@ -36,10 +36,8 @@ MPObject.h \
 MPCodeTimer.h \
 MPDictionary.h \
 
-error_names : error_names.txt
-	../sc_gen_src/obj/scgen error_names.txt
-	make plainEngine
-
 include $(GNUSTEP_MAKEFILES)/tool.make
 
+before-all::
+	../sc_gen_src/obj/scgen error_names.txt
 
