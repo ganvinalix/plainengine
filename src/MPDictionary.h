@@ -9,17 +9,18 @@
 	unsigned dictionary_size;
 	unsigned step;
 }
-/** Returns all objects still not enumerated; Enumerator sets to end of dictionary */
+/** Returns all objects that are still not enumerated; Enumerator sets to end of dictionary */
 - (NSArray*) allObjects;
 /** Returns current object and moves enumerator 1 position closer to end */
 - (id) nextObject;
 
-/** Does nothing useful. Never call it */
+/** Initializes enumerator as NULL enumerator. Useless NULL enumerator. */
 - init;
 /** Initializes enumerator and configures it to enumerate keys of given c-dictionary */
 - initWithCDictionaryAsKeyEnumerator: (dictionary*)newdict;
 /** Initializes enumerator and configures it to enumerate values of given c-dictionary */
 - initWithCDictionaryAsValueEnumerator: (dictionary*)newdict;
+/** Deallocates reciever */
 - (void) dealloc;
 
 @end;

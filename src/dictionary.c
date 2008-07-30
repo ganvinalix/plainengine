@@ -359,6 +359,10 @@ void dict_value_fill_enumerator(dict_enumerator_data **cur, dictionary_node *tre
 
 dict_enumerator *dict_get_valueenumerator(dictionary *tree)
 {
+	if (!tree)
+	{
+		return NULL;
+	}
 	dict_enumerator *newenumer;
 	newenumer = malloc(sizeof(dict_enumerator));
 	dict_enumerator_data *first, *cur;
@@ -378,6 +382,10 @@ dict_enumerator *dict_get_valueenumerator(dictionary *tree)
 
 char *dict_enumerator_next(dict_enumerator *enumerator)
 {
+	if (!enumerator)
+	{
+		return NULL;
+	}
 	if (!(enumerator->current))
 	{
 		return NULL;
