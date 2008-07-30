@@ -4,6 +4,7 @@ USE_OBJC_EXCEPTIONS = yes
 ADDITIONAL_OBJCFLAGS = -fgnu-runtime -fconstant-string-class=NSConstantString
 
 TOOL_NAME = plainEngine
+
 plainEngine_OBJC_FILES = \
 main.m \
 MPConfigDictionary.m \
@@ -35,9 +36,10 @@ MPObject.h \
 MPCodeTimer.h \
 MPDictionary.h \
 
+error_names : error_names.txt
+	../sc_gen_src/obj/scgen error_names.txt
+	make plainEngine
 
 include $(GNUSTEP_MAKEFILES)/tool.make
 
-error_names.h : error_names.txt
-	../sc_gen_src/obj/scgen error_names.txt
 
