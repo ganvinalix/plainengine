@@ -1,5 +1,6 @@
 #import <Foundation/Foundation.h>
 
+/** This class represents the queue of notifications */
 @interface MPNotificationQueue : NSObject
 {
 	// the FIFO
@@ -7,16 +8,18 @@
 	// synchronization object
 	NSLock *theLock;
 }
-// receives notifications and adds them to the FIFO
+/** Receives notifications and adds them to the FIFO */
 - (void) receiveNotification: (NSNotification *)anNotification;
 
-// gets the element from FIFO's top
-// (method just returns pointer and doesn't retain object)
+/**
+  * Gets the element from FIFO's top
+  * (method just returns pointer and doesn't retain object)
+  */
 - (NSNotification *) getTop;
-// removes the top element of FIFO
+/** Removes the top element of FIFO */
 - (void) popTop;
 
-// factory method
+/** Factory method */
 + notificationQueue;
 @end
 
