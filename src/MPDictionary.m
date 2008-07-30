@@ -216,6 +216,7 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 	else
 	{
 		dict = newDict;
+		dict_close(newDict);
 	}
 	return self;
 }

@@ -39,6 +39,14 @@ NSMutableDictionary *timersData = nil;
 
 
 @implementation MPCodeTimer
+
++ (void) load
+{
+	timersData = [[NSMutableDictionary alloc] initWithCapacity: 10];
+	//timersData would exist ALWAYS. So, we don't need to release or autorelease it
+	//More than that, autorelease pool even doesn't still exist
+}
+
 - init
 {
 	return [self initWithSectionByName: @"default"];
@@ -50,14 +58,14 @@ NSMutableDictionary *timersData = nil;
 	[super dealloc];
 }
 
-- (id) initWithSectionByName: (NSString*)sectionName;
+- (id) initWithSectionByName: (NSString*)sectionName
 {
 	[super init];
 	//create timersData dictionary at first run
-	if(timersData == nil)
-	{
-		timersData = [NSMutableDictionary dictionaryWithCapacity: 10];
-	}
+	//if(timersData == nil)
+	//{
+	//	timersData = [NSMutableDictionary dictionaryWithCapacity: 10];
+	//}
 	NSMutableArray *aTimerData;
 	aTimerData = [timersData objectForKey: sectionName];
 	//aTimerData contains now info about current section.
@@ -98,10 +106,10 @@ NSMutableDictionary *timersData = nil;
 	statistics.maxTimeSampleUnfinished=0;
 	statistics.averageTimeUnfinished=0;
 
-	if (!timersData)
-	{
-		return statistics; //quit when timersData is not created;
-	}
+	//if (!timersData)
+	//{
+	//	return statistics; //quit when timersData is not created;
+	//}
 	
 	
 	//To be sure that the last session is closed:
