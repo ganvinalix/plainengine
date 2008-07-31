@@ -43,19 +43,19 @@ dictionary *dict_copy(dictionary *source);
 long unsigned dict_size(dictionary *tree);
 
 /** Searches tree for object with given key and writes result in valuebuf.
-  * valuebuf must contain legal address or be NULL (then result isn't storied)
+  * valuebuf must contain legal address or be NULL (then result isn't stored)
   * Returns 1 if succeed, 0 if failed. Returns 0 if tree is NULL;
   */
 int dict_find(dictionary *tree, const char *key, char *valuebuf);
-/** Inserts pair (key, value) into dcitionary tree, if such a key exists, replaces; Does nothing if tree is NULL*/
+/** Inserts pair (key, value) into dcitionary tree, if such a key exists, replaces. Does nothing if tree is NULL*/
 void dict_insert(dictionary *tree, const char *key, const char *value);
-/** Removes entry with given key; Does nothing if tree is NULL */
+/** Removes entry with given key. Does nothing if tree is NULL */
 void dict_remove(dictionary *tree, const char *key);
-/** Closes dictionary, making it read-only. Any changes will give no result; Does nothing if tree is NULL */
+/** Closes dictionary, making it read-only. Any changes will give no result. Does nothing if tree is NULL */
 void dict_close(dictionary *tree);
-/** Empties dictionary; Does nothing if tree is NULL */
+/** Empties dictionary. Does nothing if tree is NULL */
 void dict_clear(dictionary *tree);
-/** Frees memory, used by dictionary; Does nothing if tree is NULL */
+/** Frees memory, used by dictionary. Does nothing if tree is NULL */
 void dict_free(dictionary *tree);
 
 /** Returns key enumerator for dictionary. Order is undefined. Does nothing if tree is NULL */
@@ -64,11 +64,11 @@ dict_enumerator *dict_get_keyenumerator(dictionary *tree);
 dict_enumerator *dict_get_valueenumerator(dictionary *tree);
 
 /** Returns current enumerator value or NULL if enumeration finished;
-  * Enumerator position increased; Does nothing if enumerator is NULL
+  * Enumerator position increased. Does nothing if enumerator is NULL
   */
 char *dict_enumerator_next(dict_enumerator *enumerator);
 
-/** Frees memory, used by enumerator; Does nothing if enumerator is NULL */
+/** Frees memory, used by enumerator. Does nothing if enumerator is NULL */
 void dict_free_enumerator(dict_enumerator *enumerator);
 
 #endif //_DICTIONARY_C_

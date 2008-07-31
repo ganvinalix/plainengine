@@ -195,7 +195,7 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 - (id) mutableCopy
 {
 	MPMutableDictionary *new;
-	new = [[MPMutableDictionary alloc] initWithCDictionary: dict shouldCopy: YES];
+	new = [[MPMutableDictionary alloc] initWithCDictionary: dict];
 	return new;
 }
 
@@ -206,18 +206,10 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 	return self;
 }
 
-- initWithCDictionary: (dictionary*)newDict shouldCopy: (BOOL)shouldCopy
+- initWithCDictionary: (dictionary*)newDict 
 {
 	[super init];
-	if (shouldCopy)
-	{
-		dict = dict_copy(newDict);
-	}
-	else
-	{
-		dict = newDict;
-		dict_close(newDict);
-	}
+	dict = dict_copy(newDict);
 	return self;
 }
 
@@ -301,14 +293,14 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 - (id) mutableCopy
 {
 	MPMutableDictionary *new;
-	new = [[MPMutableDictionary alloc] initWithCDictionary: dict shouldCopy: YES];
+	new = [[MPMutableDictionary alloc] initWithCDictionary: dict];
 	return new;
 }
 
 - (id) copy
 {
 	MPMutableDictionary *new;
-	new = [[MPMutableDictionary alloc] initWithCDictionary: dict shouldCopy: YES];
+	new = [[MPMutableDictionary alloc] initWithCDictionary: dict];
 	dict_close(new->dict);
 	return new;
 }
@@ -320,17 +312,10 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 	return self;
 }
 
-- initWithCDictionary: (dictionary*)newDict shouldCopy: (BOOL)shouldCopy
+- initWithCDictionary: (dictionary*)newDict
 {
 	[super init];
-	if (shouldCopy)
-	{
-		dict = dict_copy(newDict);
-	}
-	else
-	{
-		dict = newDict;
-	}
+	dict = dict_copy(newDict);
 	return self;
 }
 

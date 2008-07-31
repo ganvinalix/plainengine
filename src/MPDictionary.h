@@ -25,23 +25,31 @@
 
 @end;
 
+/** Protocol which means that object can be represented as pure-C dictionary (see dictionary.h for details) */
+@protocol MPCDictionaryRepresentable
+
+/** Returns pointer to pure-C dictionary, equal to this dictionary. You must not free it when you finish! */
+- (dictionary*) getCDictionary;
+
+/** Initializes this dictionary with copy of content stored in newDict */
+- initWithCDictionary: (dictionary*)newDict;
+
+@end
+
 /**
  * Class which repeats functions of NSDictionary except:
- * 1) Permits only NSString as keys and objects; Throws exception with name "MPIsNotNSString" if don't follow this;
+ * 1) Permits only NSString as keys and objects; Throws exception with name MPIsNotNSString if don't follow this;
  * 2) Has ability to get pointer to dictionary structure with elements of MPDictionary which can be used in pure-C code
  */
-@interface MPDictionary : NSDictionary
+@interface MPDictionary : NSDictionary <MPCDictionaryRepresentable>
 {
 @private
 	dictionary *dict;
 }
 
-/** Returns pointer to pure-C dictionary, equal to this dictionary. You must not free it when you finish! */
-- (dictionary*) getCDictionary;
-
 /** Returns number of objects */
 - (NSUInteger) count;
-/** Returns object for guven key */
+/** Returns object for given key */
 - (id) objectForKey: (id)aKey;
 
 /** Returns key enumertor */
@@ -60,12 +68,7 @@
 		 count: (unsigned)count;
 /** Initializes this dictionary as empty (And never it can be filled with data later) */
 - init;
-/** Initializes this dictionary with content stored in newDict.
- *  If shouldCopy flag set to YES, this dictionary gets copy of it and newDict can be used in any way after.
- *  If shouldCopy flag set to NO, this dictionary gets link to newDict and newDict becomes closed (can't be changed.)
- *  You must not free newDict; After performing this method consider newDict as a value returned by getCDictionary;
- */
-- initWithCDictionary: (dictionary*)newDict shouldCopy: (BOOL)shouldCopy;
+
 /** Deallocates reciever */
 - (void) dealloc;
 
@@ -73,10 +76,11 @@
 
 /**
  * Class which repeats functions of NSMutableDictionary except:
- * 1) Permits only NSString as keys and objects; Throws exception with name "MPIsNotNSString" if don't follow this;
+ * 1) Permits only NSString as keys and objects; Throws exception with name MPIsNotNSString if don't follow this;
  * 2) Has ability to get pointer to dictionary structure with elements of MPDictionary which can be used in pure-C code
+ * WARNING: This class isn't derived from NSDictionary!
  */
-@interface MPMutableDictionary : NSMutableDictionary
+@interface MPMutableDictionary : NSMutableDictionary <MPCDictionaryRepresentable>
 {
 @private
 	dictionary *dict;
@@ -102,11 +106,6 @@
 /** Returns object enumertor */
 - (NSEnumerator*) objectEnumerator;
 
-/** Returns pointer to pure-C dictionary, equal to this. Any change will cause change in this dictionary.
- * You must not free it when you finish!
- */
-- (dictionary*) getCDictionary;
-
 /** Returns copy of this dictionary */
 - (id) mutableCopy;
 /** Returns immutable MPDictionary copy of this dictionary */
@@ -114,12 +113,7 @@
 
 /** Initializes this as an empty dictionary */
 - init;
-/** Initializes this dictionary with content stored in newDict.
- *  If shouldCopy flag set to YES, this dictionary gets copy of it and newDict can be used in any way after.
- *  If shouldCopy flag set to NO, this dictionary gets link to newDict.
- *  You must not free newDict; After performing this method consider newDict as a value returned by getCDictionary;
- */
-- initWithCDictionary: (dictionary*)newDict shouldCopy: (BOOL)shouldCopy;
+
 /** Initializes this dictionary as empty dictionary and allocates enough memory to place numItems inside */
 - (id) initWithCapacity: (unsigned)numItems;
 /** Deallocates reciever */
