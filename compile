@@ -1,0 +1,7 @@
+. ./src/envsetup.sh
+cd sc_gen_src
+make
+cd ../src
+make
+cd ..
+

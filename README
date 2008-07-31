@@ -1,10 +1,12 @@
 Plain Engine planed as a simple to use casual-game engine 
 
-To compile follow these steps from project root directory:
+To compile just run ./compile or follow these steps from project root directory:
 
 1) . ./src/envsetup.sh
 2) cd sc_gen_src
 3) make
 4) cd ../src
 5) make
+
+To create GNUstep documentation for project run ./createdoc.sh
 

@@ -18,7 +18,7 @@ int main(int argc, const char *argv[])
 		[dict setObject: @"btast" forKey: @"tast"];
 		[dict setObject: @"btbst" forKey: @"tbst"];
 		[dict setObject: @"btcst" forKey: @"tcst"];
-		
+
 		NSEnumerator *enumer;
 		NSString *str;
 
