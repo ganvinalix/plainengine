@@ -1,7 +1,5 @@
 all:
-	cd ./src/
-	make GNUmakefile
-	cd ..
+	./compile
 clean:
 	cd ./src
 	make clean
