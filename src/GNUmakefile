@@ -11,7 +11,6 @@ MPConfigDictionary.m \
 MPFileLogChannel.m \
 MPLog.m \
 MPNotificationQueue.m \
-MPComponent.m \
 MPCodeTimer.m \
 MPDictionary.m \
 error_names.m \
@@ -30,7 +29,6 @@ MPConfigDictionary.h \
 MPNotificationQueue.h \
 MPNotifications.h \
 MPFileLogChannel.h \
-MPComponent.h \
 MPFeature.h \
 MPObject.h \
 MPCodeTimer.h \
