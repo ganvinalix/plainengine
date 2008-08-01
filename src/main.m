@@ -11,7 +11,7 @@ int main(int argc, const char *argv[])
 		[gLog addChannel: [MPFileLogChannel fileLogChannelWithFilename: @"./hist.log"]];
 		[gLog add: notice withFormat: @"Startting..."];
 		
-		MPMutableDictionary dict;
+		MPMutableDictionary *dict;
 		dict = [[MPMutableDictionary alloc] init];
 		
 		[dict setObject: @"btest" forKey: @"test"];

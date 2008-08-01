@@ -121,3 +121,6 @@
 
 @end
 
+/** Typedef for all dictionaries that conforms to MPCDictionaryRepresentable protocol (MPDictionary, MPMutableDictionary) */
+typedef NSDictionary <MPCDictionaryRepresentable> MPCDictionaryRepresentable;
+
