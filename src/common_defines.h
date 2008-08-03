@@ -12,3 +12,18 @@
 /** Ends MPCodeTimer session of section with given name, created by and only by MP_BEGIN_PROGILE; This macros must be used once per code block*/
 #define MP_END_PROFILE(name) [_ct_##name endSession]
 
+/** Macroses for assertions */
+#define MP_ASSERT NSAssert
+
+#ifdef _DEBUG
+#define compiler_assert(x) {\
+		const int _value = (x) ? 1:0;\
+		switch (x)\
+		{\
+			case 0: \
+			case _value: \
+			default: break;\
+		};} 
+#else
+	#define compiler_assert(x) /**/
+#endif
