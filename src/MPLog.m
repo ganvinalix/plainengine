@@ -1,5 +1,6 @@
 #import <MPLog.h>
 #import <stdarg.h>
+#import <common_defines.h>
 
 // default log channel
 @interface MPDefaultLogChannel : NSObject < MPLogChannel >

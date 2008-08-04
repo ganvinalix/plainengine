@@ -16,7 +16,7 @@
 #define MP_ASSERT NSAssert
 
 #ifdef _DEBUG
-#define compiler_assert(x) {\
+#define MP_COMPILE_ASSERT(x) {\
 		const int _value = (x) ? 1:0;\
 		switch (x)\
 		{\
@@ -25,5 +25,5 @@
 			default: break;\
 		};} 
 #else
-	#define compiler_assert(x) /**/
+	#define MP_COMPILE_ASSERT(x) /**/
 #endif
