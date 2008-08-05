@@ -15,15 +15,3 @@
 /** Macroses for assertions */
 #define MP_ASSERT NSAssert
 
-#ifdef _DEBUG
-#define MP_COMPILE_ASSERT(x) {\
-		const int _value = (x) ? 1:0;\
-		switch (x)\
-		{\
-			case 0: \
-			case _value: \
-			default: break;\
-		};} 
-#else
-	#define MP_COMPILE_ASSERT(x) /**/
-#endif

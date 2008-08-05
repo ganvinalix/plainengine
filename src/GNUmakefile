@@ -1,7 +1,7 @@
 include $(GNUSTEP_MAKEFILES)/common.make
 
 USE_OBJC_EXCEPTIONS = yes
-ADDITIONAL_OBJCFLAGS = -fgnu-runtime -fconstant-string-class=NSConstantString -D_DEBUG
+ADDITIONAL_OBJCFLAGS = -fgnu-runtime -fconstant-string-class=NSConstantString 
 
 TOOL_NAME = plainEngine
 

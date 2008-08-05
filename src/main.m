@@ -7,7 +7,6 @@ int main(int argc, const char *argv[])
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	@try
 	{
-		MP_COMPILE_ASSERT(0 == 0);
 		[gLog addChannel: [MPFileLogChannel fileLogChannelWithFilename: @"./hist.log"]];
 		[gLog add: notice withFormat: @"Startting..."];
 		
