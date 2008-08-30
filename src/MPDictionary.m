@@ -5,6 +5,8 @@
 #import <error_names.h>
 
 /*
+An example how you should NOT do: 
+
 void DictionaryEnumeratorFunction(char *val, void *tag)
 {
 	DictionaryEnumeratorData ***data;
@@ -30,7 +32,7 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 
 @implementation MPDictionaryEnumerator
 
--(NSArray*) allObjects
+-(NSArray *) allObjects
 {
 	NSMutableArray *objs;
 	objs = [[[NSMutableArray alloc] initWithCapacity: dictionary_size-step] autorelease];
@@ -92,53 +94,11 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 
 @implementation MPDictionary
 
-/*
-- (dictionary*) getCDictionary
-{
-	dictionary *dict;
-	dict = dict_getempty();
-
-
-	NSEnumerator *enumer;
-	NSString *str;
-	enumer = [self keyEnumerator];
-	while ((str = [enumer nextObject]) != nil)
-	{
-		dict_insert(dict, [str UTF8String], [[self objectForKey: str] UTF8String]);
-	}
-	dict_close(dict);
-
-	return dict;
-}
-- (dictionary*) getCDictionary;
-
-- (unsigned) count;
-- (id) objectForKey: (id)aKey;
-
-- (NSEnumerator*) keyEnumerator;
-- (NSEnumerator*) objectEnumerator;
-
-- (id) initWithObjects: (id*)objects
-	       forKeys: (id*)keys
-		 count: (unsigned)count;
-
-- init
-{
-	return [super init];
-}
-
-- (void) dealloc
-{
-	[super dealloc];
-}
-*/
-
-
 - (id) objectForKey: (id)aKey
 {
 	MP_NSSTRING_CHECK(aKey);
 	char *buf;
-	NSString* str;
+	NSString *str;
 	str = nil;
 	if (dict_find(dict, [aKey UTF8String], buf))
 	{
@@ -153,8 +113,8 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 	return dict_size(dict);
 }
 
-- (id) initWithObjects: (id*)objects
-	       forKeys: (id*)keys
+- (id) initWithObjects: (id *)objects
+	       forKeys: (id *)keys
 		 count: (unsigned)count
 {
 	[super init];
@@ -170,18 +130,17 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 	return self;
 }
 
-- (NSEnumerator*) keyEnumerator
+- (NSEnumerator *) keyEnumerator
 {
 	return [[[MPDictionaryEnumerator alloc] initWithCDictionaryAsKeyEnumerator: dict] autorelease];
 }
 
-
-- (NSEnumerator*) objectEnumerator
+- (NSEnumerator *) objectEnumerator
 {
 	return [[[MPDictionaryEnumerator alloc] initWithCDictionaryAsValueEnumerator: dict] autorelease];
 }
 
-- (dictionary*) getCDictionary
+- (dictionary *) getCDictionary
 {
 	return dict;
 }
@@ -201,11 +160,11 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 - init
 {
 	[super init];
-	dict = NULL;//dict_getempty();
+	dict = NULL;
 	return self;
 }
 
-- initWithCDictionary: (dictionary*)newDict 
+- initWithCDictionary: (dictionary *)newDict 
 {
 	[super init];
 	dict = dict_copy(newDict);
@@ -227,7 +186,7 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 	MP_NSSTRING_CHECK(aKey);
 	char *buf;
 	buf = malloc(0);
-	NSString* str;
+	NSString *str;
 	str = nil;
 	if (dict_find(dict, [aKey UTF8String], buf))
 	{
@@ -260,8 +219,8 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 	return dict_size(dict);
 }
 
-- (id) initWithObjects: (id*)objects
-	       forKeys: (id*)keys
+- (id) initWithObjects: (id *)objects
+	       forKeys: (id *)keys
 		 count: (unsigned)count
 {
 	[self init];
@@ -273,18 +232,18 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 	return self;
 }
 
-- (NSEnumerator*) keyEnumerator
+- (NSEnumerator *) keyEnumerator
 {
 	return [[[MPDictionaryEnumerator alloc] initWithCDictionaryAsKeyEnumerator: dict] autorelease];
 }
 
 
-- (NSEnumerator*) objectEnumerator
+- (NSEnumerator *) objectEnumerator
 {
 	return [[[MPDictionaryEnumerator alloc] initWithCDictionaryAsValueEnumerator: dict] autorelease];
 }
 
-- (dictionary*) getCDictionary
+- (dictionary *) getCDictionary
 {
 	return dict;
 }
@@ -311,7 +270,7 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 	return self;
 }
 
-- initWithCDictionary: (dictionary*)newDict
+- initWithCDictionary: (dictionary *)newDict
 {
 	[super init];
 	dict = dict_copy(newDict);

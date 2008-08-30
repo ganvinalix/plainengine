@@ -4,12 +4,12 @@
 
 #include "dictionary.h"
 
-dictionary_node *talloc()
+dictionary_node *talloc(unsigned long keylength, unsigned long valuelength)
 {
 	dictionary_node* dict;
 	dict = ((dictionary_node *) malloc(sizeof(dictionary_node)));
-	dict->key = malloc(0);
-	dict->value = malloc(0);
+	dict->key = malloc(keylength);
+	dict->value = malloc(valuelength);
 	dict->left = NULL;
 	dict->right = NULL;
 
@@ -20,7 +20,7 @@ dictionary *dict_getempty()
 {
 	dictionary *dict;
 	dict = malloc(sizeof(dictionary));
-	dict->root = talloc();
+	dict->root = talloc(0, 0);
 	dict->size = 0;
 	dict->ismutable = 1;
 	return dict;
@@ -75,7 +75,7 @@ int dict_insert_real(dictionary_node *tree, const char *key, const char *value, 
 {
 	if (!tree)
 	{
-		tree = talloc();
+		tree = talloc(strlen(key), strlen(value));
 
 		strcpy(tree->key, key);
 		strcpy(tree->value, value);
@@ -251,7 +251,7 @@ void dict_clear(dictionary *tree)
 		return;
 	}
 	dict_clear_real(tree->root);
-	tree->root = talloc(); /* TODO: Optimize later */
+	tree->root = talloc(0, 0); /* TODO: Optimize later */
 	tree->size = 0;
 }
 
@@ -272,7 +272,7 @@ dictionary_node *dict_copy_real(dictionary_node *source)
 		return NULL;
 	}
 	dictionary_node *newnode;
-	newnode = talloc();
+	newnode = talloc(strlen(source->key), strlen(source->value));
 	strcpy(newnode->key, source->key);
 	strcpy(newnode->value, source->value);
 	newnode->left = dict_copy_real(source->left);
@@ -397,18 +397,6 @@ char *dict_enumerator_next(dict_enumerator *enumerator)
 	enumerator->current = enumerator->current->next;
 	return c;
 }
-
-/*
-dict_enumerator_store_type dict_store_enumerator(dict_enumerator *enumerator)
-{
-	return enumerator->current;
-}
-
-void dict_restore_enumerator(dict_enumerator_store_type stamp, dict_enumerator *enumerator)
-{
-	enumerator->current = stamp;	
-}
-*/
 
 void dict_free_enumerator_data(dict_enumerator_data *data)
 {

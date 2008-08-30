@@ -49,7 +49,7 @@ typedef struct
 /** Gathers code execution time statistics of section given in parameter and returns them in structure*/
 + (ProfilingStatistics) getStatisticsByName: (NSString*)sectionName;
 /** Gathers code execution time statistics of section given in parameter and returns them in printable string*/
-+ (NSString*) printStatisticsByName: (NSString*)sectionName;
++ (NSString *) printStatisticsByName: (NSString*)sectionName;
 
 /** Begins new session. If there is still unfinished session, marks it as "unfinished"*/
 - (void) beginSession;

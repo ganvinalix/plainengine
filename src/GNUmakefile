@@ -13,6 +13,8 @@ MPLog.m \
 MPNotificationQueue.m \
 MPCodeTimer.m \
 MPDictionary.m \
+MPThread.m \
+MPSubjectManager.m \
 error_names.m \
 
 plainEngine_C_FILES = \

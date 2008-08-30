@@ -188,7 +188,7 @@ NSMutableDictionary *timersData = nil;
 	return statistics;
 }
 
-+ (NSString*) printStatisticsByName: (NSString*)sectionName
++ (NSString *) printStatisticsByName: (NSString*)sectionName
 {
 	NSMutableString *str;
 	str = [NSMutableString stringWithCapacity: 225];

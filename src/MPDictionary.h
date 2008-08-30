@@ -10,7 +10,7 @@
 	unsigned step;
 }
 /** Returns all objects that are still not enumerated; Enumerator sets to end of dictionary */
-- (NSArray*) allObjects;
+- (NSArray *) allObjects;
 /** Returns current object and moves enumerator 1 position closer to end */
 - (id) nextObject;
 
@@ -29,7 +29,7 @@
 @protocol MPCDictionaryRepresentable
 
 /** Returns pointer to pure-C dictionary, equal to this dictionary. You must not free it when you finish! */
-- (dictionary*) getCDictionary;
+- (dictionary *) getCDictionary;
 
 /** Initializes this dictionary with copy of content stored in newDict */
 - initWithCDictionary: (dictionary*)newDict;
@@ -53,9 +53,9 @@
 - (id) objectForKey: (id)aKey;
 
 /** Returns key enumertor */
-- (NSEnumerator*) keyEnumerator;
+- (NSEnumerator *) keyEnumerator;
 /** Returns object enumertor */
-- (NSEnumerator*) objectEnumerator;
+- (NSEnumerator *) objectEnumerator;
 
 /** Returns MPMutableDictionary with data equal to data stored in this dictionary */
 - (id) mutableCopy;
@@ -63,8 +63,8 @@
 - (id) copy;
 
 /** Initializes this dictionary with data, given in arrays keys[] and objects[] */
-- (id) initWithObjects: (id*)objects
-	       forKeys: (id*)keys
+- (id) initWithObjects: (id *)objects
+	       forKeys: (id *)keys
 		 count: (unsigned)count;
 /** Initializes this dictionary as empty (And never it can be filled with data later) */
 - init;
@@ -98,13 +98,13 @@
 /** Returns number of objects */
 - (NSUInteger) count;
 /** Initializes this dictionary with data, given in arrays keys[] and objects[] */
-- (id) initWithObjects: (id*)objects
-	       forKeys: (id*)keys
+- (id) initWithObjects: (id *)objects
+	       forKeys: (id *)keys
 		 count: (unsigned)count;
 /** Returns key enumertor */
-- (NSEnumerator*) keyEnumerator;
+- (NSEnumerator *) keyEnumerator;
 /** Returns object enumertor */
-- (NSEnumerator*) objectEnumerator;
+- (NSEnumerator *) objectEnumerator;
 
 /** Returns copy of this dictionary */
 - (id) mutableCopy;
