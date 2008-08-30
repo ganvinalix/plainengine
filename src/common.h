@@ -8,6 +8,7 @@
 #import <MPNotifications.h>
 #import <MPCodeTimer.h>
 #import <MPDictionary.h>
+#import <MPSubject.h>
 
 #import <common_defines.h>
 #import <numeric_types.h>
