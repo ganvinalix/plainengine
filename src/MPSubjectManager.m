@@ -153,15 +153,15 @@
 	MPThread *thr;
 	while ( (thr = [enumer nextObject]) != nil )
 	{
-		[thr dealloc];
+		[thr release];
 	}
 
 	[subjectToThread removeAllObjects];
 
-	[accessMutex dealloc];
-	[threads dealloc];
-	[subjectToThread dealloc];
-	[super dealloc];
+	[accessMutex release];
+	[threads release];
+	[subjectToThread release];
+	[super release];
 }
 
 + (id) subjectManager

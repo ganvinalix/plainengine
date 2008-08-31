@@ -15,6 +15,7 @@ MPCodeTimer.m \
 MPDictionary.m \
 MPThread.m \
 MPSubjectManager.m \
+MPObject.m \
 error_names.m \
 
 plainEngine_C_FILES = \
@@ -31,7 +32,7 @@ MPConfigDictionary.h \
 MPNotificationQueue.h \
 MPNotifications.h \
 MPFileLogChannel.h \
-MPFeature.h \
+MPBaseObject.h \
 MPObject.h \
 MPCodeTimer.h \
 MPDictionary.h \
