@@ -161,7 +161,7 @@
 	[accessMutex release];
 	[threads release];
 	[subjectToThread release];
-	[super release];
+	[super dealloc];
 }
 
 + (id) subjectManager

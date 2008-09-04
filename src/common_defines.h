@@ -15,3 +15,6 @@
 /** Macroses for assertions */
 #define MP_ASSERT NSAssert
 
+/** Macros for logging (sends message as "info");*/
+#define MP_LOG(x) [gLog add: info withFormat: x]
+
