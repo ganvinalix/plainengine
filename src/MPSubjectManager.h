@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <common.h>
-#import <MPSubject.h>
+#import <MPSubject.p>
 #import <MPThread.h>
 
 /** Subject manager class */

@@ -35,76 +35,6 @@ void printObjectTree(id<MPObject> root)
 	printObjectTreeReal(root, 0);
 }
 
-/*
-@interface MPObjectEncoder : NSObject <NSCoding>
-{
-	NSArray *arr;
-}
-+(MPObjectEncoder*) objectEncoderWithObjectArray: (NSArray*)anObjectArray;
-+(MPObjectEncoder*) objectEncoder;
--(id) initWithObjectArray: (NSArray *)anObjectArray;
--(id) init;
--(void) dealloc;
-@end
-
-@implementation MPObjectEncoder
-
-+(MPObjectEncoder*) objectEncoderWithObjectArray: (NSArray*)anObjectArray
-{
-	return [[[MPObjectEncoder alloc] initWithObjectArray: anObjectArray] autorelease];
-}
-
-+(MPObjectEncoder*) objectEncoder
-{
-	return [[[MPObjectEncoder alloc] init] autorelease];
-}
-
--(id) initWithObjectArray: (NSArray *)anObjectArray
-{
-	[super init];
-	arr = [anObjectArray retain];
-	return self;
-}
-
--(id) init
-{
-	[super init];
-	arr = nil;
-	return self;
-}
-
--(void) dealloc
-{
-	[arr release];
-	[super dealloc];
-}
-
--(void) encodeWithCoder: (NSCoder *)encoder
-{
-	unsigned cnt = [arr count];
-	[encoder encodeInt: cnt forKey: @"MPObject__count"];
-	for (;cnt>0;--cnt)
-	{
-		MP_LOG([[arr objectAtIndex: cnt] getName]);
-		//[encoder encodeObject: [arr objectAtIndex: cnt] forKey: [NSString stringWithFormat: @"MPObject__obj%d", cnt]];
-	}
-}
-
--(id) initWithCoder: (NSCoder *)decoder
-{
-	unsigned cnt,i;
-	cnt = [decoder decodeIntForKey: @"MPObject__count"];
-	for (i=0;i<cnt;++i)
-	{
-		[decoder decodeObjectForKey: [NSString stringWithFormat: @"MPObject__obj%d", i]];
-	}
-	return nil;
-}
-
-@end
-
-*/
-
 @implementation MPBaseObject
 
 @end
@@ -270,7 +200,7 @@ void printObjectTree(id<MPObject> root)
 	return [[features copy] autorelease];
 }
   
--(id) copy
+-(id) copyWithZone: (NSZone *)zone
 {
 	NSMutableString *newname;
 	newname = [NSMutableString stringWithString: [self getName]];
@@ -280,7 +210,7 @@ void printObjectTree(id<MPObject> root)
 	}
 	while ([MPObject getObjectByName: newname]);
 	MPObject *newobj;
-	newobj = [[MPObject alloc] initWithName: newname
+	newobj = [[MPObject allocWithZone: zone] initWithName: newname
 				     rootObject: [self getParent]
 			      manuallyDeletable: deletable];
 

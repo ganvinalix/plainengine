@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#import <MPObject.h>
+#import <MPObject.p>
 
 @protocol MPAPI
 - (void) yield: (NSTimeInterval)anInterval;

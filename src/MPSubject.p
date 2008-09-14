@@ -1,8 +1,8 @@
 #import <Foundation/Foundation.h>
-#import <MPAPI.h>
+#import <MPAPI.p>
 
 @protocol MPSubject
-- initWithAPI: (id<MPAPI>)anAPI;
+- (void) receiveAPI: (id<MPAPI>)anAPI;
 - (void) kill;
 - (void) update;
 @end

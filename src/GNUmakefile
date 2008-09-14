@@ -33,11 +33,14 @@ MPNotificationQueue.h \
 MPNotifications.h \
 MPFileLogChannel.h \
 MPBaseObject.h \
+MPBaseObject.p \
 MPObject.h \
+MPObject.p \
 MPCodeTimer.h \
 MPDictionary.h \
 MPSubjectManager.h \
-MPSubject.h \
+MPSubject.p \
+MPAPI.p \
 
 include $(GNUSTEP_MAKEFILES)/tool.make
 

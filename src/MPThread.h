@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <MPNotificationQueue.h>
-#import <MPSubject.h>
+#import <MPSubject.p>
 
 @interface MPThread : NSObject
 {

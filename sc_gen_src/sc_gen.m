@@ -32,7 +32,7 @@ int main(int argc, char **argv)
 
 	NSMutableString *outm = nil, *outh = nil;
 	outh = [NSMutableString stringWithString: @"#import <Foundation/Foundation.h>\n\n"];
-	outm = [NSMutableString stringWithFormat:@"#import <%@.h>\n\n", outputFileName];
+	outm = [NSMutableString stringWithFormat: @"#import <%@.h>\n\n", outputFileName];
 
 	NSEnumerator *enumer = [constantsNames objectEnumerator];
 	NSString *currentName = nil;
