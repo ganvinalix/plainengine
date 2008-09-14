@@ -36,6 +36,8 @@ MPBaseObject.h \
 MPObject.h \
 MPCodeTimer.h \
 MPDictionary.h \
+MPSubjectManager.h \
+MPSubject.h \
 
 include $(GNUSTEP_MAKEFILES)/tool.make
 
