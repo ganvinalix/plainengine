@@ -1,4 +1,5 @@
 #import <Foundation/Foundation.h>
+#import <numeric_types.h>
 
 /** This class grants interface for working with pairs of objects. It supports comparison with another pair.*/
 @interface MPPair : NSObject <NSCopying>

@@ -11,8 +11,11 @@
 #define MP_STRING_CONST_INIT(name, value) NSString *const name = @#value
 
 /** Sleeps for x milliseconds */
-//#define MP_SLEEP(x) [NSThread sleepUntilDate: [NSDate dateWithTimeIntervalSinceNow: (float)(x)/1000]]
-#define MP_SLEEP(x) [NSThread sleepForTimeInterval: (float)(x)/1000]
+#ifdef MP_OLDGNUSTEPSUPPORT
+	#define MP_SLEEP(x) [NSThread sleepUntilDate: [NSDate dateWithTimeIntervalSinceNow: (float)(x)/1000]]
+#else
+	#define MP_SLEEP(x) [NSThread sleepForTimeInterval: (float)(x)/1000]
+#endif
 
 /** Macros for logging (sends message as "info");*/
 #define MP_LOG(x) [gLog add: info withFormat: @"%@", x]

@@ -1,4 +1,5 @@
 #import <Foundation/Foundation.h>
+#import <numeric_types.h>
 
 typedef id (*converterFunction)(id);
 
