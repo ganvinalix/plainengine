@@ -128,7 +128,7 @@
 		case type_int:
 			intComputed = YES;
 			//Tambourine for old GNUstep versions;
-			#ifdef MP_OLD_LIBRARIES_SUPPORT
+			#ifdef MP_OLDGNUSTEPSUPPORT
 			if (![theStringValue respondsToSelector: @selector(integerValue)])
 			{
 				theIntegerValue = [theStringValue intValue]; 
@@ -194,7 +194,7 @@
 				break;
 			case type_string:
 				//Tambourine for old GNUstep versions;
-				#ifdef MP_OLD_LIBRARIES_SUPPORT
+				#ifdef MP_OLDGNUSTEPSUPPORT
 				if (![theStringValue respondsToSelector: @selector(integerValue)])
 				{
 					theIntegerValue = [theStringValue intValue]; 
