@@ -14,6 +14,13 @@
 - (void) dealloc
 {
 	[theLock release];
+	/*NSEnumerator *enm = [notifications objectEnumerator];
+	NSNotification *curr = nil;
+	while( (curr = [enm nextObject]) != nil)
+	{
+		printf("%s\n", [[curr description] UTF8String]);
+	}
+	printf("%i\n", [notifications count]);*/
 	[notifications release];
 	[super dealloc];
 }

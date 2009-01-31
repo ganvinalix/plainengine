@@ -1,218 +1,553 @@
-#import <MPObject.h>
+#import <Foundation/Foundation.h>
 #import <common.h>
+#import <core_constants.h>
+#import <MPObject.h>
+#import <MPNotifications.h>
+#import <MPUtility.h>
 
-MPObject *rootObject;
-unsigned defaultNameCount;
-NSMutableDictionary *allObjects;
-NSMutableDictionary *featuresMap;
-NSMutableArray *orderedObjects;
-
-void printObjectTreeReal(id<MPObject> root, unsigned step)
+id handleToString(id handle)
 {
-	NSMutableString *line;
-	line = [[NSMutableString alloc] init];
-	unsigned i;
-	for (i=0; i<step; ++i)
-	{
-		[line appendString: @"-"];
-	}
-
-	[line appendString: [root getName]];
-	[gLog add: info withFormat: line];
-	[line release];
-
-	NSEnumerator *enumer;
-	enumer = [[root getSubObjects] objectEnumerator];
-	id<MPObject> obj;
-	while ( (obj = [enumer nextObject]) != nil )
-	{
-		printObjectTreeReal(obj, step+1);
-	}
+	return [handle stringValue];
 }
 
-void printObjectTree(id<MPObject> root)
-{
-	printObjectTreeReal(root, 0);
-}
+MPMapper *handleMapper;
+MPHandle handleCounter;
+NSUInteger defaultNameCount;
+NSMutableArray *delegatesArray;
+NSMutableDictionary *delegatesByFeature;
+NSMutableDictionary *featuresByDelegate;
+NSMutableArray *objectsArray;
+NSMutableDictionary *featureByObjectName;
+NSMutableDictionary *objectByHandle;
+NSMutableDictionary *objectByName;
+NSRecursiveLock *objectClassMutex;
 
-@implementation MPBaseObject
+@interface MPCounter: NSObject
+{
+@public
+	NSUInteger value;
+}
+-init;
+@end
+
+@implementation MPCounter
+
+-init
+{
+	value = 1;
+	return [super init];
+}
 
 @end
 
 @implementation MPObject
 
+#ifndef MPOBJECT_ENABLESYNCHRONISATION
+
+#define MPO_LOCK
+#define MPO_UNLOCK
+#define MPOC_LOCK
+#define MPOC_UNLOCK
+
+#else
+
+#ifdef MP_USE_EXCEPTIONS
+
+#define MPO_LOCK \
+	[accessMutex lock];\
+	@try\
+	{
+
+#define MPO_UNLOCK \
+	}\
+	@finally\
+	{\
+		[accessMutex unlock];\
+	}
+
+#define MPOC_LOCK \
+	[objectClassMutex lock];\
+	@try\
+	{
+
+#define MPOC_UNLOCK \
+	}\
+	@finally\
+	{\
+		[objectClassMutex unlock];\
+	}
+
+#else
+
+#define MPO_LOCK [accessMutex lock];
+#define MPO_UNLOCK [accessMutex unlock];
+#define MPOC_LOCK [objectClassMutex lock];
+#define MPOC_UNLOCK [objectClassMutex unlock];
+
+#endif
+
+#endif
+
+#ifdef MPOBJECT_DETAILLOGGING
+	#define MPO_DETAILLOG(x) [gLog add: info withFormat: x]
+#else
+	#define MPO_DETAILLOG(x) 
+#endif
+
 +(void) load
 {
-	allObjects = [[NSMutableDictionary alloc] init];
-	featuresMap = [[NSMutableDictionary alloc] init];
-	orderedObjects = [[NSMutableArray alloc] init];
-
-	rootObject = [[MPObject alloc] initWithName: @"*" rootObject: nil manuallyDeletable: NO];
-	rootObject->root = rootObject;
-
-	[allObjects setObject: rootObject forKey: @"*"];
-
+	handleMapper = [[MPMapper alloc] initWithConverter: &handleToString];
 	defaultNameCount = 0;
+	handleCounter = 0;
+	delegatesArray = [NSMutableArray new];
+	delegatesByFeature = [NSMutableDictionary new];
+	featuresByDelegate = [NSMutableDictionary new];
+	objectsArray = [NSMutableArray new];
+	objectByHandle = [NSMutableDictionary new];
+	objectByName = [NSMutableDictionary new];
+	featureByObjectName = [NSMutableDictionary new];
+	objectClassMutex = [NSRecursiveLock new];
 }
 
-+(NSArray *) getAllObjects
++(void) cleanup
 {
-	return [orderedObjects copy];
+	MPOC_LOCK;
+	MPO_DETAILLOG(@"MPObject: cleanup started");
+
+	MPO_DETAILLOG(@"MPObject: cleanup phase 1 (cleaning internal reference counter of all objects)");
+	NSUInteger i, count = [objectsArray count];
+	for (i=0;i<count;++i)
+	{
+		((MPObject *)[objectsArray objectAtIndex: i])->internalRetainCount=0;
+	}
+
+	MPO_DETAILLOG(@"MPObject: cleanup phase 2 (deregistering all objects)");
+	[objectByHandle removeAllObjects];
+	[objectByName removeAllObjects];
+	[featureByObjectName removeAllObjects];
+	[objectsArray removeAllObjects];
+
+	MPO_DETAILLOG(@"MPObject: cleanup finished");
+	MPOC_UNLOCK;
 }
 
-+(id<MPObject>) getObjectByName: (NSString *)name
++(BOOL) existsObjectWithName: (NSString *)name
 {
-	return [allObjects objectForKey: name];
+	return [MPObject getObjectByName: name] != nil;
 }
 
-+(id<MPObject>) getRootObject
++newObjectWithName: (NSString *)name
 {
-	return [MPObject getObjectByName: @"*"];
-}
-
-+(NSArray *) getObjectsByFeature: (NSString *)name
-{
-	return [[featuresMap objectForKey: name] copy];
-}
-
--(NSString *) getName
-{
-	return [[objectName copy] autorelease];
+	return [[self alloc] initWithName: name];
 }
 
 -init
 {
-	return [self initWithName: [NSString stringWithFormat: @"default%d", defaultNameCount++]];
+	NSMutableString *newName = [NSMutableString new];
+	[newName appendFormat: @"object%llu", handleCounter++];
+	id obj = [self initWithName: newName];
+	[newName release];
+	return obj;
 }
 
--initWithName: (NSString *)newName
+-initWithName: (NSString *)aName
 {
-	return [self initWithName: newName rootObject: rootObject];
+	return [self initWithName: aName withHandle: [[[NSNumber alloc] INIT_WITH_MPHANDLE: handleCounter++] autorelease]];
 }
 
--initWithName: (NSString *)newName rootObject: (MPObject *)aRootObject
+-initWithName: (NSString *)aName withHandle: (NSNumber *)handle
 {
-	return [self initWithName: newName rootObject: aRootObject manuallyDeletable: YES];
-}
-
--initWithName: (NSString *)newName rootObject: (MPObject *)aRootObject manuallyDeletable: (BOOL)manuallyDeletable
-{
-	//NSLog(@"init:");
-	//NSLog(newName);
-	MPObject *obj;
-	obj = [allObjects objectForKey: newName];
-	if (obj)
+	[super init];
+	objectHandle = [handle copy];
+	objectName = [aName copy];
+	features = [NSMutableDictionary new];
+	delegates = [NSMutableArray new];
+	accessMutex = [NSRecursiveLock new];
+	delegatesPerCount = [NSMutableDictionary new];
+	removed = NO;
+	internalRetainCount = 0;
+	id obj;
+	if ((obj = [MPObject getObjectByName: aName]) != nil)
 	{
+		[gLog add: warning withFormat: @"Attempt to recreate object \"%@\"", aName];
+		removed = YES;
 		[self release];
-		return obj;
+		return [obj retain];
 	}
-	[allObjects setObject: self forKey: newName];
-	[orderedObjects addObject: self];
-	deletable = manuallyDeletable;
-	objectName = [newName copy];
-	if (aRootObject)
+	else
 	{
-		[aRootObject->subObjects addObject: self];
+		MPOC_LOCK;
+		[objectsArray addObject: self];
+		[objectByHandle setObject: self forKey: objectHandle];
+		[objectByName setObject: self forKey: objectName];
+		internalRetainCount += 3;
+
+		//enumerate delegates and call setLocalDelegate;
+		NSUInteger i, count = [delegatesArray count];
+		for (i=0; i<count; ++i)
+		{
+			[self setLocalDelegate: [delegatesArray objectAtIndex: i]];
+		}
+		MPOC_UNLOCK;
+		MPMutableDictionary *params;
+		params = [[MPMutableDictionary alloc] init];
+		[params setObject: objectName								forKey: MPParamObjectName];
+		[params setObject: [handleMapper getObject: objectHandle]	forKey: MPParamObjectHandle];
+		MPPostNotification(MPObjectCreatedMessage, params);
+		[params release];
+
+		#ifdef MPOBJECT_DETAILLOGGING
+		[gLog add: info withFormat: @"MPObject: object created: \"%@\" [%@]", objectName, handle];
+		#endif
+
+		return self;
 	}
-	subObjects = [[NSMutableArray alloc] init];
-	features = [[NSMutableDictionary alloc] init];
-	root = aRootObject;
-	return self;
 }
 
--(void) encodeWithCoder: (NSCoder *)encoder
+-(NSUInteger) getLocalDelegateIndex: (Class)delegate
 {
-	//NSString *str = ([NSString stringWithFormat: @"encoded: %@;", [self getName]]);
-	//MP_LOG(str);
-	[encoder encodeConditionalObject:	[root getName]		forKey: @"MPObject_root"];
-	[encoder encodeObject:			[self getName]		forKey: @"MPObject_name"];
-	[encoder encodeObject:			[self getAllFeatures]	forKey: @"MPObject_features"];
-	[encoder encodeBool:			deletable		forKey: @"MPObject_deletable"];
-}
-
--(id) initWithCoder: (NSCoder *)decoder
-{
-	NSString *newRoot, *newName;
-	NSDictionary *newFeatures;
-	BOOL del;
-	
-	del = [decoder decodeBoolForKey: @"MPObject_deletable"];
-	newRoot = [decoder decodeObjectForKey: @"MPObject_root"];
-	newName = [[decoder decodeObjectForKey: @"MPObject_name"] retain];
-	newFeatures = [[decoder decodeObjectForKey: @"MPObject_features"] retain];
-	
-	if (!([newRoot compare: newName] == NSOrderedSame))
+	NSUInteger i, count = [delegates count];
+	for (i=0; i<count; ++i)
 	{
-		[self initWithName: newName rootObject: [MPObject getObjectByName: newRoot] manuallyDeletable: del];
+		if ([[delegates objectAtIndex: i] isMemberOfClass: delegate])
+		{
+			return i;
+		}
 	}
+	return NSNotFound;
+}
 
-	NSEnumerator *enumer;
-	enumer = [newFeatures keyEnumerator];
-
-	NSString *obj;
-	while ( (obj = [enumer nextObject]) != nil )
+-(void) setLocalDelegate: (Class)delegate
+{
+	MPCounter *cntr = [delegatesPerCount objectForKey: delegate];
+	if (cntr && (cntr->value))
 	{
-		[self setFeature: [obj copy] data: [[newFeatures objectForKey: obj] copy]];
-		//[gLog add: info withFormat: @"feature added: %@ - %@", obj, [newFeatures objectForKey: obj]];
+		#ifdef MPOBJECT_DETAILLOGGING
+		[gLog add: info withFormat: @"MPObject: local delegate \"%@\" of object \"%@\" reference counter increased;",
+			delegate, self];
+		#endif
+		++(cntr->value);
+		return;
 	}
-	//MP_LOG(@"______");
-	return self;
-}
 
--(id<MPObject>) getParent
-{
-	return root;
-}
-
--(NSArray *) getSubObjects
-{
-	return [[subObjects copy] autorelease];
-}
-
--(void) setFeature: (NSString *)name data: (MPFeatureData *)data
-{
-	NSMutableArray *featuresArray = [featuresMap objectForKey: name];
-	if (!featuresArray)
+	MPO_LOCK;
+	cntr = [MPCounter new];
+	[delegatesPerCount setObject: cntr forKey: delegate];
+	[cntr release];
+	id localDelegate;
+	if ([delegate respondsToSelector: @selector(newDelegateWithObject:)])
 	{
-		featuresArray = [[NSMutableArray alloc] init];
-		[featuresMap setObject: featuresArray forKey: name];
+		localDelegate = [delegate performSelector: @selector(newDelegateWithObject:) withObject: self];
 	}
-	if (![featuresArray containsObject: self])
+	else
 	{
-		[featuresArray addObject: self];
+		localDelegate = [delegate new];
 	}
-	[features setObject: data forKey: name];
+	[delegates addObject: localDelegate];
+	#ifdef MPOBJECT_DETAILLOGGING
+	[gLog add: info withFormat: @"MPObject: local delegate \"%@\" of object \"%@\" added;",
+		delegate, self];
+	#endif
+	[localDelegate release];
+	MPO_UNLOCK;
 }
 
--(void) removeFeature: (NSString *)name
+-(void) removeLocalDelegate: (Class)delegate
 {
-	[features removeObjectForKey: name];
-	[[featuresMap objectForKey: name] removeObject: self];
+	MPCounter *cntr = [delegatesPerCount objectForKey: delegate];
+	if (!cntr)
+	{
+		return;
+	}
+	MPO_LOCK;
+	--(cntr->value);
+	#ifdef MPOBJECT_DETAILLOGGING
+	[gLog add: info withFormat: @"MPObject: local delegate \"%@\" of object \"%@\" reference counter decreased;",
+		delegate, self];
+	#endif
+	if (!(cntr->value))
+	{
+		NSUInteger index = [self getLocalDelegateIndex: delegate];
+		if (index != NSNotFound)
+		{
+			[delegates removeObjectAtIndex: index];
+			#ifdef MPOBJECT_DETAILLOGGING
+			[gLog add: info withFormat: @"MPObject: local delegate \"%@\" of object \"%@\" removed;",
+				delegate, self];
+			#endif
+		}
+	}
+	MPO_UNLOCK;
 }
 
--(MPFeatureData *) getFeatureData: (NSString *)name
++(void) registerDelegate: (Class)delegate
 {
-	return [features objectForKey: name];
+	MPOC_LOCK;
+	NSUInteger oldindex = [delegatesArray indexOfObject: delegate];
+	if (oldindex == NSNotFound)
+	{
+		[delegatesArray addObject: delegate];
+		NSArray *objects = [MPObject getAllObjects];
+		NSUInteger i, count = [objects count];
+		for (i=0; i<count; ++i)
+		{
+			[[objects objectAtIndex: i] setLocalDelegate: delegate];
+		}
+		[gLog add: notice withFormat: @"MPObject: delegate \"%@\" added;", delegate];
+	}
+	else
+	{
+		[gLog add: warning withFormat: @"MPObject: attempt to re-add delegate \"%@\";", delegate];
+	}
+	MPOC_UNLOCK;
 }
 
--(NSDictionary *) getAllFeatures
++(BOOL) removeDelegate: (Class)delegate
 {
-	return [[features copy] autorelease];
+	NSUInteger oldindex = [delegatesArray indexOfObject: delegate];
+	if (oldindex != NSNotFound)
+	{
+		MPOC_LOCK;
+		NSArray *objects = [MPObject getAllObjects];
+		NSUInteger i, count = [objects count];
+		for (i=0; i<count; ++i)
+		{
+			[[objects objectAtIndex: i] removeLocalDelegate: delegate];
+		}
+		[delegatesArray removeObject: delegate];
+		MPOC_UNLOCK;
+		[gLog add: notice withFormat: @"MPObject: delegate \"%@\" removed;", delegate];
+		return YES;
+	}
+	else
+	{
+		[gLog add: warning withFormat: @"MPObject: attempt to remove delegate \"%@\" which doesn't exists;", delegate];
+		return NO;
+	}
 }
-  
+
++(void) registerDelegate: (Class)delegate forFeature: (NSString *)feature
+{
+	MPOC_LOCK;
+	NSMutableArray *delegs = [delegatesByFeature objectForKey: feature];
+	if (!delegs)
+	{
+		delegs = [NSMutableArray new];
+		[delegatesByFeature setObject: delegs forKey: feature];
+		NSMutableArray *features = [featuresByDelegate objectForKey: delegate];
+		if (!features)
+		{
+			features = [NSMutableArray new];
+			[featuresByDelegate setObject: features forKey: delegate];
+			[features release];
+		}
+		[features addObject: features];
+		[delegs release];
+	}
+	if (![delegs containsObject: delegate])
+	{
+		[delegs addObject: delegate];
+		NSArray *objsbyfeature = [self getObjectsByFeature: feature];
+		NSUInteger i, count = [objsbyfeature count];
+		for (i=0; i<count; ++i)
+		{
+			[[objsbyfeature objectAtIndex: i] setLocalDelegate: delegate];
+		}
+		[gLog add: notice withFormat: @"MPObject: delegate \"%@\" added for feature \"%@\";", delegate, feature];
+	}
+	else
+	{
+		[gLog add: warning withFormat: @"MPObject: attempt to re-add delegate \"%@\" for feature \"%@\";", delegate, feature];
+	}
+	MPOC_UNLOCK;
+}
+
+
++(void) registerDelegate: (Class)delegate forFeatures: (NSArray *)features
+{
+	NSUInteger i, count = [features count];
+	for (i=0; i<count; ++i)
+	{
+		[self registerDelegate: delegate forFeature: [features objectAtIndex: i]];
+	}
+}
+
++(void) removeDelegate: (Class)delegate forFeatures: (NSArray *)features
+{
+	NSUInteger i, count = [features count];
+	for (i=0; i<count; ++i)
+	{
+		[self removeDelegate: delegate forFeature: [features objectAtIndex: i]];
+	}
+}
+
++(BOOL) removeDelegate: (Class)delegate forFeature: (NSString *)feature
+{
+	NSMutableArray *delegs;
+	BOOL ret = NO;
+	MPOC_LOCK;
+	delegs = [delegatesByFeature objectForKey: feature];
+	if (delegs && [delegs containsObject: delegate])
+	{
+		[delegs removeObject: delegate];
+		[[featuresByDelegate objectForKey: delegate] removeObject: feature];
+
+		//delegate may be removed while removing another delegate (by removing feature, e.g.)
+		//so, we need to create copy of delegates array which can't be changed 
+		NSArray *objsbyfeature = [self getObjectsByFeature: feature];
+		NSUInteger i, count = [objsbyfeature count];
+		for (i=0; i<count; ++i)
+		{
+			[[objsbyfeature objectAtIndex: i] removeLocalDelegate: delegate];
+		}
+		[gLog add: notice withFormat: @"MPObject: delegate \"%@\" removed for feature \"%@\";", delegate, feature];
+		ret = YES;
+	}
+	else
+	{
+		[gLog add: warning withFormat: @"MPObject: attempt to remove delegate \"%@\" for feature \"%@\" which doesn't exists",
+		   	delegate, feature];
+	}
+	MPOC_UNLOCK;
+	return ret;
+}
+
++(void) unregisterDelegateFromAll: (Class)delegate
+{
+	MPOC_LOCK;
+	if ([delegatesArray containsObject: delegate])
+	{
+		[self removeDelegate: delegate];
+	}
+	[self removeDelegate: delegate forFeatures: [[[featuresByDelegate objectForKey: delegate] copy] autorelease]];
+	MPOC_UNLOCK;
+}
+
+-(void) forwardInvocation: (NSInvocation *)anInvocation
+{
+	SEL aSelector = [anInvocation selector];
+	BOOL responded = NO;
+	NSArray *delegatesCopy;
+	MPO_LOCK;
+	delegatesCopy = [[NSArray alloc] initWithArray: delegates]; //TODO: Optimize later
+	int i, count = [delegatesCopy count];
+	for (i=count-1; i>=0; --i)
+	{
+		id delegate = [delegatesCopy objectAtIndex: i];
+		if ([delegate respondsToSelector: aSelector])
+		{
+			[anInvocation invokeWithTarget: delegate];
+			responded = YES;
+		}
+	}
+	[delegatesCopy release];
+	MPO_UNLOCK;
+	if (!responded)
+	{
+		[anInvocation invokeWithTarget: nil];
+		[gLog add: warning withFormat: @"MPObject: no delegate to respond to selector: \"%s\";", sel_getName(aSelector)];
+	}
+}
+
+-(BOOL) respondsToSelector: (SEL)aSelector
+{
+	BOOL ret=NO;
+	MPO_LOCK;
+	if ([super respondsToSelector: aSelector])
+	{
+		ret = YES;
+	}
+	else
+	{
+		NSUInteger i, count = [delegates count];
+		for (i=0; i<count; ++i)
+		{
+			if ([[delegates objectAtIndex: i] respondsToSelector: aSelector])
+			{
+				ret = YES;
+				break;
+			}
+		}
+	}
+	MPO_UNLOCK;
+	return ret;
+}
+
++(NSArray *) getAllObjects
+{
+	return objectsArray;
+}
+
++(NSArray *) getObjectsByFeature: (NSString *)name
+{
+	NSArray *objectsByFeature;
+	MPOC_LOCK;
+	objectsByFeature = [featureByObjectName objectForKey: name];
+	if (!objectsByFeature)
+	{
+		objectsByFeature = [NSMutableArray new];
+		[featureByObjectName setObject: objectsByFeature forKey: name];
+		[objectsByFeature release];
+	}
+	MPOC_UNLOCK;
+	return [NSArray arrayWithArray: objectsByFeature];
+}
+
++(id<MPObject>) getObjectByName: (NSString *)name
+{
+	return [objectByName objectForKey: name];
+}
+
++(id<MPObject>) getObjectByHandle: (NSNumber *)handle
+{
+	return [objectByHandle objectForKey: handle];
+}
+
+-(id) copy
+{
+	return [self copyWithZone: NULL];
+}
+
+-(id) copyWithName: (NSString *)newname
+{
+	return [self copyWithZone: NULL copyName: newname];
+}
+
 -(id) copyWithZone: (NSZone *)zone
 {
-	NSMutableString *newname;
-	newname = [NSMutableString stringWithString: [self getName]];
+	NSMutableString *nname;
+	nname = [[NSMutableString alloc] initWithString: objectName];
 	do
 	{
-		[newname appendString: @"_"];
+		[nname appendString: @"_"];
 	}
-	while ([MPObject getObjectByName: newname]);
+	while ([MPObject existsObjectWithName: nname]);
+	id copied = [self copyWithZone: zone copyName: nname];
+	[nname release];
+	return copied;
+}
+
+-(id) copyWithZone: (NSZone *)zone copyName: (NSString*) newname;
+{
 	MPObject *newobj;
-	newobj = [[MPObject allocWithZone: zone] initWithName: newname
-				     rootObject: [self getParent]
-			      manuallyDeletable: deletable];
+	MPO_LOCK;
+	if ([MPObject existsObjectWithName: newname])
+	{
+		[gLog add: warning withFormat: @"<MPObject> Attempt to copy existing object \"%@\""
+										"to zone \"%@\"",
+			objectName, NSZoneName(zone)];
+		return nil;
+	
+	}
+	#ifdef MPOBJECT_DETAILLOGGING
+	[gLog add: info withFormat: @"MPObject: copying \"%@\" to zone \"%@\"; New name: \"%@\"",
+		objectName, NSZoneName(zone), newname];
+	#endif
+	
+	NSAutoreleasePool *pool;
+	pool = [[NSAutoreleasePool alloc] init];
+
+	newobj = [[MPObject allocWithZone: zone] initWithName: newname];
 
 	NSEnumerator *enumer;
 	NSDictionary *feat;
@@ -222,124 +557,331 @@ void printObjectTree(id<MPObject> root)
 	NSString *str;
 	while ( (str = [enumer nextObject]) != nil )
 	{
-		[newobj setFeature: str data: [feat objectForKey: str]];
+		[newobj setFeature: str toValue: [feat objectForKey: str]];
 	}
 
-	enumer = [[self getSubObjects] objectEnumerator];
-	MPObject *sub;
-	while ( (sub = [enumer nextObject]) != nil )
-	{
-		[newobj moveSubObject: [sub copy]];
-	}
+	[pool release];
+	MPO_UNLOCK;
 	return newobj;
 }
 
--(void) moveSubObject: (id<MPObject>)object
+
+
+-(void) encodeWithCoder: (NSCoder *)encoder
 {
-	[subObjects addObject: object];
-	MPObject *obj;
-	obj = [object getParent];
-	[obj->subObjects removeObject: object];
-	((MPObject *)object)->root = self;
+	MPO_LOCK;
+	[encoder encodeObject:	objectName		forKey: @"MPObject_name"];
+	[encoder encodeObject:	objectHandle	forKey: @"MPObject_handle"];
+	[encoder encodeObject:	features		forKey: @"MPObject_features"];
+	MPO_UNLOCK;
 }
 
-+(void) saveToFile: (NSString *)fileName
+-(id) initWithCoder: (NSCoder *)decoder
 {
-	/*
-	MP_LOG(@"|---");
-	NSEnumerator *enumer;
-	enumer = [allObjects objectEnumerator];
-	MPObject *obj;
+	id<MPObject> curobj;
+	MPO_LOCK;
+	NSString *newName;
+	NSDictionary *newFeatures;
+	NSNumber *newHandle;
 	
-	while ( (obj = [enumer nextObject]) != nil )
+	newName		=	[decoder decodeObjectForKey:	@"MPObject_name"];
+	newFeatures	=	[decoder decodeObjectForKey:	@"MPObject_features"];
+	newHandle	=	[decoder decodeObjectForKey:	@"MPObject_handle"];
+
+	#ifdef MPOBJECT_DETAILLOGGING
+	[gLog add: info withFormat: @"MPObject: decoding object: \"%@\"...", newName];
+	#endif
+
+	curobj = [self initWithName: newName withHandle: newHandle];
+
+	if (handleCounter < [newHandle MPHANDLE_VALUE])
 	{
-		MP_LOG([obj getName]);
+		handleCounter = [newHandle MPHANDLE_VALUE];
 	}
 
-	MP_LOG(@"--|");
-	*/	
-	//[NSKeyedArchiver archiveRootObject: allObjects toFile: fileName];
-	[NSKeyedArchiver archiveRootObject: orderedObjects toFile: fileName];
-}
-
-+(void) loadFromFile: (NSString *)fileName
-{
-	[self removeAllObjects];
-	[NSKeyedUnarchiver unarchiveObjectWithFile: fileName];
-}
-
-+(void) removeAllObjects
-{
-	//reset
-	rootObject->deletable = YES;
-	[rootObject removeWholeNode];
-
-	[featuresMap release];
-	[allObjects release];
-	[orderedObjects release];
-	[MPObject load];
-}
-
--(BOOL) remove
-{
-	if (!deletable)
-	{
-		return NO;
-	}
-	[root->subObjects addObjectsFromArray: subObjects];
-	[subObjects removeAllObjects];
-	[self unregister];
-	return YES;
-}
-
--(BOOL) removeWholeNode
-{
-	if (!deletable)
-	{
-		return NO;
-	}
-	[self unregister];
-	return YES;
-}
-
--(void) unregister 
-{
-	[allObjects removeObjectForKey: objectName];
-	[orderedObjects removeObject: self];
 	NSEnumerator *enumer;
-	enumer = [features keyEnumerator];
+	enumer = [newFeatures keyEnumerator];
 
 	NSString *obj;
 	while ( (obj = [enumer nextObject]) != nil )
 	{
-		[self removeFeature: obj];
+		[curobj setFeature: [obj copy] toValue: [[newFeatures objectForKey: obj] copy]];
 	}
-	[root->subObjects removeObject: self];
-	[self release];
+	MPO_UNLOCK;
+	return curobj;
 }
 
--(void) dealloc
-{	
-	NSEnumerator *enumer;
-	enumer = [subObjects objectEnumerator];
 
-	MPObject *obj;
-	while ( (obj = [enumer nextObject]) != nil )
+-(NSString *) getName
+{
+	return [[objectName copy] autorelease];
+}
+
+-(NSNumber *) getHandle
+{
+	return [[objectHandle copy] autorelease];
+}
+
+-(NSDictionary *) getAllFeatures
+{
+	return [[features copy] autorelease];
+}
+
+-(id<MPVariant>) getFeatureData: (NSString *)name
+{
+	id val;
+	MPO_LOCK;
+	val = [[[features objectForKey: name] copy] autorelease];
+	if (!val)
 	{
-		[obj release];
+		val = [MPVariant variantWithString: @""];
 	}
-		
-	enumer = [features keyEnumerator];
+	MPO_UNLOCK;
+	return val;
+}
 
+-(BOOL) hasFeature: (NSString *)name
+{
+	return ([features objectForKey: name] != nil);
+}
+
+-(void) setFeature: (NSString *)name
+{
+	[self setFeature: name toValue: [MPVariant variant]];
+}
+
+-(void) setFeature: (NSString *)name toValue: (id<MPVariant>)data
+{
+	[self setFeature: name toValue: data userInfo: nil];
+}
+
+-(void) setFeature: (NSString *)name toValue: (id<MPVariant>)data userInfo: (MPCDictionaryRepresentable *)userInfo
+{
+	MPO_LOCK;
+	[userInfo retain];
+	NSMutableArray *featuresArray;
+	MPOC_LOCK;
+	featuresArray = [featureByObjectName objectForKey: name];
+	if (!featuresArray)
+	{
+		featuresArray = [[NSMutableArray alloc] init];
+		[featureByObjectName setObject: featuresArray forKey: name];
+	}
+	if (![featuresArray containsObject: self])
+	{
+		[featuresArray addObject: self];
+		++internalRetainCount;
+
+		NSArray *dels = [delegatesByFeature objectForKey: name];
+		NSUInteger i, count=[dels count];
+		for (i=0; i<count; ++i)
+		{
+			[self setLocalDelegate: [dels objectAtIndex: i]];
+		}
+
+		#ifdef MPOBJECT_DETAILLOGGING
+		[gLog add: info withFormat: @"MPObject: \"%@\": Feature \"%@\" added", objectName, name];
+		#endif
+	}
+	MPOC_UNLOCK;
+	id<MPVariant> newData = [data copy];
+	
+	NSUInteger i, count = [delegates count];
+	for (i=0; i<count; ++i)
+	{
+		id delegate = [delegates objectAtIndex: i];
+		if ([delegate respondsToSelector: @selector(setFeature:toValue:userInfo:)])
+		{
+			[delegate setFeature: name toValue: data userInfo: userInfo];
+		}
+		else if ([delegate respondsToSelector: @selector(setFeature:toValue:)])
+		{
+			[delegate setFeature: name toValue: data];
+		}
+	}
+
+	[features setObject: newData forKey: name];
+	#ifdef MPOBJECT_DETAILLOGGING
+	[gLog add: info withFormat: @"MPObject: \"%@\": Feature \"%@\" set to \"%@\" with params: \"%@\"",
+		objectName, name, [data stringValue], userInfo];
+	#endif
+	[userInfo release];
+	MPO_UNLOCK;
+}
+
+-(void) removeFeature: (NSString *)name
+{
+	[self removeFeature: name userInfo: nil];
+}
+
+-(void) removeFeature: (NSString *)name userInfo: (MPCDictionaryRepresentable *)userInfo
+{
+	#ifdef MPOBJECT_DETAILLOGGING
+	[gLog add: info withFormat: @"MPObject: \"%@\": Removing feature \"%@\" with user info: \"%@\"",
+																			objectName, name, userInfo];
+	#endif
+	MPO_LOCK;
+	[userInfo retain];
+	MPVariant *value;
+	value = [features objectForKey: name];
+	if (value)
+	{
+		
+		NSUInteger i, count;
+
+		//delegate may be removed while removing another delegate (by removing feature, e.g.)
+		//so, we need to create copy of delegates array which can't be changed 
+		NSArray *delegatesCopy = [[NSArray alloc] initWithArray: delegates];
+		count = [delegatesCopy count];
+		for (i=0; i<count; ++i)
+		{
+			id delegate = [delegatesCopy objectAtIndex: i];
+			if ([delegate respondsToSelector: @selector(removeFeature:userInfo:)])
+			{
+				[delegate removeFeature: name userInfo: userInfo];
+			}
+			else if ([delegate respondsToSelector: @selector(removeFeature:)])
+			{
+				[delegate removeFeature: name];
+			}
+		}
+		[delegatesCopy release];
+		
+		[features removeObjectForKey: name];
+		--internalRetainCount;
+
+		NSArray *dels;
+		MPOC_LOCK;
+		dels = [delegatesByFeature objectForKey: name];
+		[[featureByObjectName objectForKey: name] removeObject: self];
+		MPOC_UNLOCK;
+		
+		count=[dels count];
+		for (i=0; i<count; ++i)
+		{
+			[self removeLocalDelegate: [dels objectAtIndex: i]];
+		}
+		
+		#ifdef MPOBJECT_DETAILLOGGING
+		[gLog add: info withFormat: @"MPObject: \"%@\": Feature \"%@\" removed with user info: \"%@\"",
+																				objectName, name, userInfo];
+		#endif
+		
+	}
+	[userInfo release];
+	MPO_UNLOCK;
+
+}
+
+-(NSUInteger) hash
+{
+	return [objectHandle hash];
+}
+
+-(BOOL) isEqual: (id)anObject
+{
+	if ([anObject isKindOfClass: [MPObject class]])
+	{
+		return ((MPObject *)anObject)->objectHandle == objectHandle;
+	}
+	return NO;
+}
+
+-(NSString *) description
+{
+	return [NSString stringWithFormat: @"%@ [%@]", objectName, objectHandle];
+}
+
+-(void) release
+{
+	MPO_LOCK;
+	MPOC_LOCK;
+	if (!removed && ([self retainCount]-1 <= internalRetainCount))
+	{
+		#ifdef MPOBJECT_DETAILLOGGING
+		[gLog add: info withFormat: @"MPObject: removing object \"%@\"...", objectName];
+		#endif
+		removed = YES;
+
+		MPMutableDictionary *params;
+		params = [MPMutableDictionary new];
+		[params setObject: objectName								forKey: MPParamObjectName];
+		[params setObject: [handleMapper getObject: objectHandle]	forKey: MPParamObjectHandle];
+		
+		MPPostNotification(MPObjectRemovedMessage, params);
+		[params release];
+
+
+		[objectsArray removeObject: self];	
+		[objectByName removeObjectForKey: objectName];
+		[objectByHandle removeObjectForKey: objectHandle];
+
+		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+		NSEnumerator *enumer = [[[features copy] autorelease] keyEnumerator];
+		id featureKey;
+		while ((featureKey = [enumer nextObject]) != nil)
+		{
+			[self removeFeature: featureKey];
+		}
+		[pool release];
+	}
+	MPOC_UNLOCK;
+	MPO_UNLOCK;	
+	[super release];
+}
+
+-(void) clean
+{
+	MPO_LOCK;
+	NSDictionary *featuresToRemove = [self getAllFeatures];
+	NSEnumerator *enumer;
+	enumer = [featuresToRemove keyEnumerator];
 	NSString *featureName;
 	while ( (featureName = [enumer nextObject]) != nil )
 	{
 		[self removeFeature: featureName];
 	}
-	
-	[subObjects release];
+	MPO_UNLOCK;
+}
+
+-(void) dealloc
+{
+	#ifdef MPOBJECT_DETAILLOGGING
+	NSString *name = [objectName copy];
+	#endif
+
+	[objectName release];
+	[objectHandle release];
 	[features release];
+	[delegates release];
+	[accessMutex release];
+	[delegatesPerCount release];
 	[super dealloc];
+
+	#ifdef MPOBJECT_DETAILLOGGING
+	[gLog add: info withFormat: @"MPObject: object \"%@\" deallocated", name];
+	[name release];
+	#endif
+}
+
+-(void) lock
+{
+	#ifdef MPOBJECT_ENABLESYNCHRONISATION
+	[accessMutex lock];
+	#ifdef MPOBJECT_DETAILLOGGING
+	[gLog add: info withFormat: @"MPObject: object \"%@\" locked", name];
+	#endif
+	#endif
+}
+
+-(void) unlock
+{
+	#ifdef MPOBJECT_ENABLESYNCHRONISATION
+	[accessMutex unlock];
+	#ifdef MPOBJECT_DETAILLOGGING
+	[gLog add: info withFormat: @"MPObject: object \"%@\" unlocked", name];
+	#endif
+	#endif
 }
 
 @end

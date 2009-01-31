@@ -1,9 +1,12 @@
 #import <Foundation/Foundation.h>
 #import <MPAPI.p>
 
-@protocol MPSubject
+@protocol MPSubject <NSObject>
+- initWithString: (NSString *)string;
+
 - (void) receiveAPI: (id<MPAPI>)anAPI;
-- (void) kill;
+- (void) start;
+- (void) stop;
 - (void) update;
 @end
 

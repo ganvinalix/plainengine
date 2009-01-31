@@ -43,8 +43,20 @@ int main(int argc, char **argv)
 		{
 			continue;
 		}
-		[outh appendFormat: @"extern NSString *const %@;\n", currentName];
-		[outm appendFormat: @"NSString *const %@ = @\"%@\";\n", currentName, currentName];
+
+		NSArray *constData = [currentName componentsSeparatedByString: @"="];
+		NSString *nam, *val;
+		nam = [constData objectAtIndex: 0];
+		if ([constData count]>1)
+		{
+			val = [constData objectAtIndex: 1];
+		}
+		else
+		{
+			val = nam;
+		}
+		[outh appendFormat: @"extern NSString *const %@;\n", nam];
+		[outm appendFormat: @"NSString *const %@ = @\"%@\";\n", nam, val];
 	}
 
 	[outh appendString: @"\n"];

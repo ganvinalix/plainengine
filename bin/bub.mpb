@@ -1,0 +1,9 @@
+newobj $3
+objsetf $3 mass 0.5
+objsetf $3 restitution 0.6
+objsetf $3 friction 0.9
+objsetf $3 positionable
+setXYZ $1 $2 0 $3
+#objsetf $3 quietcollisions
+objsetfwp $3 physical 1 shapeType=sphere/radius=0.1
+objsetfwp $3 renderable 1 textureName=bubble.png/scaleX=0.1/scaleY=0.1

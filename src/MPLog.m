@@ -1,4 +1,7 @@
+#define _INSIDE_LOG_M
+
 #import <MPLog.h>
+#import <numeric_types.h>
 #import <stdarg.h>
 #import <common_defines.h>
 
@@ -45,35 +48,36 @@ id <MPLog> theGlobalLog = nil;
 
 - init
 {
-	if( theGlobalLog != nil ) 
+	/*if( theGlobalLog != nil ) 
 	{
 		if(self != theGlobalLog) [self release];
 		return [theGlobalLog retain];
-	}
+	}*/
 	
 	[super init];
 	
 	channels = [[NSMutableArray alloc] initWithCapacity: 20];
+	mutex = [[NSRecursiveLock alloc] init];
 	
 	id <MPLogChannel> anDefChannel = [[MPDefaultLogChannel alloc] init];
 	[self addChannel: anDefChannel];
 	[anDefChannel release];
 	
-	theGlobalLog = self; 
-	return theGlobalLog;
+	//theGlobalLog = self; 
+	return self;//theGlobalLog;
 }
 - (void) dealloc
 {
 	[self cleanup];
+
 	[channels release];
-	
+	[mutex release];
+
 	[super dealloc];
 }
 // MPLog protocol implementation
-+ (id <MPLog>) log
++ (MPLog *) log
 {
-	if(theGlobalLog != nil) return theGlobalLog;
-	
 	return [[[MPLog alloc] init] autorelease];
 }
 - (void) add: (mplog_level)theLevel withFormat: (NSString *)theFormat, ...;
@@ -82,16 +86,19 @@ id <MPLog> theGlobalLog = nil;
 	
 	[[theFormat retain] autorelease];
 	
+	va_list arglist;
+	va_start(arglist, theFormat);
+
+	/*char buffer[4096];
+	vsnprintf( (char*)&buffer, 4096, [theFormat UTF8String], arglist);*/
+	//vprintf([theFormat UTF8String], arglist);
+	NSString *buffer = [[[NSString alloc] initWithFormat: theFormat arguments: arglist] autorelease];
+
+	va_end(arglist);
+
 	BOOL error = NO;
 	NSMutableString *finalMessage = [NSMutableString stringWithCapacity: 255];
 	NSMutableString *lvlStr = [NSMutableString string];
-	
-	va_list arglist;
-	va_start(arglist, theFormat);
-	//
-	char buffer[4096];
-	vsprintf( (char*)&buffer, [theFormat UTF8String], arglist);
-	va_end(arglist);
 	
 	NSString *levels[] = { @"Alert", @"Crit", @"Error", @"Warning", @"Notice", @"Inform" };
 	
@@ -102,15 +109,19 @@ id <MPLog> theGlobalLog = nil;
 	else
 		[lvlStr appendString: levels[theLevel]];
 		
-	[finalMessage appendFormat: @"[%@][%@]:\t%s\n", 
+	[finalMessage appendFormat: @"[%@][%@]:\t%@\n", 
 		[[NSDate date] descriptionWithCalendarFormat:@"%d-%m-%Y %H:%M:%S" timeZone:nil locale: nil],
 		lvlStr,
 		buffer];
 		
-	NSEnumerator *en = [channels objectEnumerator];
+	[mutex lock];
+
 	id <MPLogChannel> currentChannel = nil;
-	while( (currentChannel = [en nextObject]) != nil )
+	NSUInteger i, count;
+	count = [channels count];
+	for (i=0; i<count; ++i)
 	{
+		currentChannel = [channels objectAtIndex: i];
 		if( ![currentChannel write: finalMessage withLevel: theLevel] )
 		{
 			error = YES;
@@ -120,9 +131,11 @@ id <MPLog> theGlobalLog = nil;
 	}
 	if(error)
 	{
-		[self add: error withFormat: @"Dead log channel closed"];
+		[self add: error withFormat: @"MPLog: Dead log channel closed"];
 	}
 	
+	[mutex unlock];
+
 	[pool release];
 }
 
@@ -150,6 +163,7 @@ id <MPLog> theGlobalLog = nil;
 
 - (void) cleanup
 {
+	NSAutoreleasePool *pool = [NSAutoreleasePool new];
 	NSEnumerator *enm = [channels objectEnumerator];
 	id <MPLogChannel> currentChannel = nil;
 	while( (currentChannel = [enm nextObject]) != nil )
@@ -157,6 +171,7 @@ id <MPLog> theGlobalLog = nil;
 		if( [currentChannel isOpened] ) [currentChannel close];
 	}
 	[channels removeAllObjects];
+	[pool release];
 }
 
 - (BOOL) removeChannel: (id <MPLogChannel>)theChannel
@@ -164,7 +179,7 @@ id <MPLog> theGlobalLog = nil;
 	if( ![channels containsObject: theChannel] )
 		return NO;
 		
-	unsigned anObjectIdx = [channels indexOfObject: theChannel];
+	NSUInteger anObjectIdx = [channels indexOfObject: theChannel];
 	[[channels objectAtIndex: anObjectIdx] close];
 	[channels removeObjectAtIndex: anObjectIdx];
 	

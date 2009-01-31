@@ -2,6 +2,7 @@
 cd sc_gen_src
 make
 cd ../src
+./makesclists.sh
 make
 cd ..
 

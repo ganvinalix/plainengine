@@ -1,0 +1,70 @@
+e setbordersYyXx.mpb 1.0 -0.75 1.3 -1.3
+
+newobj back
+objsetf back positionable
+objsetfwp back renderable "" textureName=stars.jpg/scaleX=1.7/scaleY=1.0/textureAnimator=ConstantMovement|fps:0.2
+newobj floor
+objsetf floor positionable
+setXYZ 0.0 -0.75 0.0 floor
+objsetfwp floor renderable 1 textureName=floor.png/scaleX=2.0/textureAnimator=ConstantMovement|fps:0.9
+objsetf floor friction 0.5
+objsetf floor restitution 0.1
+objsetf floor quietcollisions
+objsetfwp floor physical 1 shapeType=box/XShape=2.0/YShape=0.1/ZShape=0.1
+
+newobj ceil
+objsetf ceil positionable
+setXYZ 0.0 1.0 0.0 ceil
+objsetfwp ceil renderable 1 textureName=floor.png/scaleX=2.0/textureAnimator=ConstantMovement|fps:0.9
+objsetf ceil friction 0.5
+objsetf ceil restitution 0.1
+objsetf ceil quietcollisions
+objsetfwp ceil physical 1 shapeType=box/XShape=2.0/YShape=0.1/ZShape=0.1
+
+newobj wall
+objsetf wall positionable
+setXYZ -1.3 0.0 0.0 wall
+objsetfwp wall renderable 1 textureName=floor.png/scaleY=2.0/textureAnimator=ConstantMovement|fps:1.9
+objsetf wall friction 0.5
+objsetf wall restitution 0.5
+objsetfwp wall physical 1 shapeType=box/YShape=20/XShape=0.1/ZShape=0.1
+
+newobj wall2
+objsetf wall2 positionable
+setXYZ 1.3 0.0 0.0 wall2
+objsetfwp wall2 renderable 1 textureName=floor.png/scaleY=2.0/textureAnimator=ConstantMovement|fps:1.9
+objsetf wall2 friction 0.5
+objsetf wall2 restitution 0.5
+objsetfwp wall2 physical 1 shapeType=box/YShape=20/XShape=0.1/ZShape=0.1
+
+newobj cur
+objsetf cur mouse
+objsetf cur mass 0
+objsetf cur restitution 1
+objsetfwp cur physical 1 shapeType=sphere/radius=0.05
+objsetfwp cur renderable 1 textureName=bubble.png/scaleX=0.05/scaleY=0.05
+#objsetf cur attractingRadius 0.1
+#objsetf cur attractingImpulseCoefficient 1.2
+#objsetf cur attractor
+
+e putattr.mpb w 1 0.5 0.4 2 magnetic
+e putattr.mpb w2 -1 0.5 0.4 2 magnetic
+
+#e drop.mpb 0.0 0.8 a
+#e drop.mpb 0.8 0.5 b
+#e drop.mpb -0.64 0.7 c
+#e drop.mpb -0.2 0.8 d
+#e drop.mpb 0.3 0.0 e
+
+e bub.mpb 0.3 0.6 b1
+e bub.mpb 0.5 0.7 b2
+e bub.mpb 0.2 0.6 b3
+e bub.mpb 0.8 0.6 b4
+e bub.mpb 0.2 0.9 b5
+e bub.mpb 0.4 0.1 b6
+e bub.mpb 0.3 0.6 b7
+e bub.mpb -0.3 0.1 b8
+e bub.mpb -0.9 0.4 b9
+e bub.mpb -0.3 0.8 b10
+e bub.mpb -0.3 0.3 b11
+

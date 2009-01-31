@@ -61,11 +61,6 @@ NSMutableDictionary *timersData = nil;
 - (id) initWithSectionByName: (NSString*)sectionName
 {
 	[super init];
-	//create timersData dictionary at first run
-	//if(timersData == nil)
-	//{
-	//	timersData = [NSMutableDictionary dictionaryWithCapacity: 10];
-	//}
 	NSMutableArray *aTimerData;
 	aTimerData = [timersData objectForKey: sectionName];
 	//aTimerData contains now info about current section.
@@ -133,10 +128,10 @@ NSMutableDictionary *timersData = nil;
 
 	while ( (td = [enumerator nextObject]) != nil )
 	{
-		int ct = (td->finishTime - td->startTime)*1000; //conversion from double here.
+		NSInteger ct = (td->finishTime - td->startTime)*1000; //conversion from double here.
 		//ct - current session time in ms;
 	
-		unsigned *aTotalCalls,
+		NSUInteger *aTotalCalls,
 			 *aTotalTime,
 			 *aMinTimeSample,
 			 *aMaxTimeSample;
@@ -175,7 +170,7 @@ NSMutableDictionary *timersData = nil;
 			}
 		};
 	}
-	if (statistics.totalTime) //Without division by zero; // yes, good boy ;D
+	if (statistics.totalTime) //Without division by zero; 
 	{
 		statistics.averageTime = statistics.totalTime / statistics.totalCalls;
 	}
@@ -223,7 +218,6 @@ NSMutableDictionary *timersData = nil;
 	}
 	aTimerData = [[[MPTimerData alloc] init] autorelease];
 	aTimerData->startTime = [[NSDate date]  timeIntervalSince1970];
-	//[self endSession]; //To be sure that the last session is closed;
 	[timerData addObject: aTimerData];
 }
 

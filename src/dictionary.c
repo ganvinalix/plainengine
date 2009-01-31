@@ -4,96 +4,130 @@
 
 #include "dictionary.h"
 
+/** Internal structure. Don't use! */
+typedef struct tagDN 
+{
+	char *key, *value;
+	struct tagDN *left, *right;
+	long unsigned buflen;
+} dictionary_node;
+
+/** Dictionary structure. Use only as pointer. WARNING: Never work directly with structure contents! */
+typedef struct tagD
+{
+	int ismutable;
+	dictionary_node *root;
+	long unsigned size;
+	long unsigned maxvaluelength;
+} dictionary_struct;
+
+/** Internal structure. Don't use! */
+typedef struct tagDED
+{
+	char const *val;
+	struct tagDED *next;
+} dict_enumerator_data;
+
+/** Dictionary enumerator structure. Use only as pointer. WARNING: Never work directly with structure contents! */
+typedef struct tagDE
+{
+	dict_enumerator_data *first;
+	dict_enumerator_data *current;
+} dict_enumerator_struct;
+
+
+
 dictionary_node *talloc(unsigned long keylength, unsigned long valuelength)
 {
-	dictionary_node* dict;
-	dict = ((dictionary_node *) malloc(sizeof(dictionary_node)));
-	dict->key = malloc(keylength);
-	dict->value = malloc(valuelength);
+	dictionary_node *dict;
+	dict = malloc(sizeof(dictionary_node));
+	dict->key = malloc(keylength+1);
+	dict->value = malloc(valuelength+1);
 	dict->left = NULL;
 	dict->right = NULL;
+	dict->buflen = valuelength;
 
 	return dict;
 }
 
-dictionary *dict_getempty()
+dictionary dict_getempty()
 {
-	dictionary *dict;
-	dict = malloc(sizeof(dictionary));
-	dict->root = talloc(0, 0);
+	dictionary_struct *dict;
+	dict = malloc(sizeof(dictionary_struct));
+	dict->root = talloc(1, 1);
+	dict->root->key[0] = '\0';
+	dict->root->value[0] = '\0';
 	dict->size = 0;
+	dict->maxvaluelength = 0;
 	dict->ismutable = 1;
 	return dict;
 }
 
-long unsigned dict_size(dictionary *tree)
+long unsigned dict_size(dictionary tree)
 {
 	if (!tree)
 	{
 		return 0;
 	}
-	return tree->size;
+	return ((dictionary_struct*)tree)->size;
 }
 
-int dict_find_real(dictionary_node *tree, const char *key, char *valuebuf)
+long unsigned dict_maxvaluelength(dictionary tree)
 {
 	if (!tree)
 	{
 		return 0;
+	}
+	return ((dictionary_struct*)tree)->maxvaluelength;
+}
+
+char const *dict_find_real(dictionary_node *tree, const char *key)
+{
+	if (!tree)
+	{
+		return NULL;
 	}
 	int t;
 	t = strcmp(key, tree->key);
 	
 	if (t==0)
 	{
-		if (valuebuf)
-		{
-			strcpy(valuebuf, tree->value);
-		}
-		return 1;
+		return tree->value;
 	}
 	else if (t<0)
 	{
-		return dict_find_real(tree->left, key, valuebuf);
+		return dict_find_real(tree->left, key);
 	}
-	else /*if (t>0)*/
+	else
 	{
-		return dict_find_real(tree->right, key, valuebuf);
+		return dict_find_real(tree->right, key);
 	}
 }
 
-int dict_find(dictionary *tree, const char *key, char *valuebuf)
+char const *dict_find(dictionary tree, const char *key)
 {
 	if (!tree)
 	{
-		return 0;
+		return NULL;
 	}
-	return dict_find_real(tree->root, key, valuebuf);
+	return dict_find_real(((dictionary_struct*)tree)->root, key);
 }
 
-int dict_insert_real(dictionary_node *tree, const char *key, const char *value, dictionary_node *prev, int direction)
+int dict_insert_real(dictionary_node *tree, const char *key, const char *value, dictionary_node **prev)
 {
 	if (!tree)
 	{
-		tree = talloc(strlen(key), strlen(value));
-
-		strcpy(tree->key, key);
-		strcpy(tree->value, value);
-		tree->left = NULL;
-		tree->right = NULL;
-
 		if (prev)
 		{
-			if (direction<0)
-			{
-				prev->left = tree;
-			}
-			else if (direction>0)
-			{
-				prev->right = tree;
-			}
+			tree = talloc(strlen(key), strlen(value));
+
+			strcpy(tree->value, value);
+			strcpy(tree->key, key);
+
+			*prev = tree;
 		}
 		return 1;
+		
 	}
 
 	int t;
@@ -101,31 +135,47 @@ int dict_insert_real(dictionary_node *tree, const char *key, const char *value, 
 
 	if (t>0)
 	{
-		return dict_insert_real(tree->right, key, value, tree, 1);
+		return dict_insert_real(tree->right, key, value, &tree->right);
 	}
 	else if (t<0)
 	{
-		return dict_insert_real(tree->left, key, value, tree, -1);
+		return dict_insert_real(tree->left, key, value, &tree->left);
 	}
-	else /*if (t==0)*/
+	else 
 	{
+		/* If MEMORY, allocated for tree->value is not long enough, reallocate it */
+		unsigned len;
+		len = strlen(value);
+		if (tree->buflen < len)
+		{
+			tree->value = realloc(tree->value, len+1);
+			tree->buflen = len;
+		}
 		strcpy(tree->value, value);
 		return 0;
 	}
 }
 
-
-void dict_insert(dictionary *tree, const char *key, const char *value)
+int dict_insert(dictionary tree, const char *key, const char *value)
 {
 	if (!tree)
 	{
-		return;
+		return -1;
 	}
-	if (!(tree->ismutable))
+	if (!(((dictionary_struct*)tree)->ismutable))
 	{
-		return;
+		return -1;
 	}
-	tree->size += dict_insert_real(tree->root, key, value, NULL, 0);
+	long unsigned vl;
+	vl = strlen(value);
+	if (((dictionary_struct*)tree)->maxvaluelength < vl)
+	{
+		((dictionary_struct*)tree)->maxvaluelength = vl;
+	}
+	int res;
+	res = dict_insert_real(((dictionary_struct*)tree)->root, key, value, NULL);
+	((dictionary_struct*)tree)->size += res;
+	return res;
 }
 
 dictionary_node* dict_get_leftest(dictionary_node *tree, dictionary_node **parent)
@@ -138,7 +188,7 @@ dictionary_node* dict_get_leftest(dictionary_node *tree, dictionary_node **paren
 	return dict_get_leftest(tree->left, parent);
 }
 
-int dict_remove_real(dictionary_node *tree, const char *key, dictionary_node *parent, int direction)
+int dict_remove_real(dictionary_node *tree, const char *key, dictionary_node *parent, dictionary_node **removing)
 {
 	if (!tree)
 	{
@@ -150,13 +200,13 @@ int dict_remove_real(dictionary_node *tree, const char *key, dictionary_node *pa
 
 	if (t>0)
 	{
-		return dict_remove_real(tree->right, key, tree, 1);
+		return dict_remove_real(tree->right, key, tree, &tree->right);
 	}
 	else if (t<0)
 	{
-		return dict_remove_real(tree->left, key, tree, -1);
+		return dict_remove_real(tree->left, key, tree, &tree->left);
 	}
-	else /*if (t==0)*/
+	else 
 	{
 		if (tree->left && tree->right)
 		{
@@ -169,7 +219,9 @@ int dict_remove_real(dictionary_node *tree, const char *key, dictionary_node *pa
 			free(tree->value);
 			tree->key = m->key;
 			tree->value = m->value;
-			(*par)->left = m->right; /* (*par)->left surely contains link to m */
+			tree->buflen = m->buflen;
+			(*par)->left = m->right; /* (*par)->left surely contains pointer to m */
+			tree->right = NULL;
 			free(par);
 			free(m);
 			return 1;
@@ -198,30 +250,26 @@ int dict_remove_real(dictionary_node *tree, const char *key, dictionary_node *pa
 		else
 		{
 			free(tree);
-			if (direction<0)
-			{
-				parent->left = NULL;
-			}
-			else if (direction>0)
-			{
-				parent->right = NULL;
-			}
+			*removing = NULL;
 			return 1;
 		}
 	}
 }
 
-void dict_remove(dictionary *tree, const char *key)
+int dict_remove(dictionary tree, const char *key)
 {
 	if (!tree)
 	{
-		return;
+		return -1;
 	}
-	if (!(tree->ismutable))
+	if (!(((dictionary_struct*)tree)->ismutable))
 	{
-		return;
+		return -1;
 	}
-	tree->size -= dict_remove_real(tree->root, key, NULL, 0);
+	int res;
+	res = dict_remove_real(((dictionary_struct*)tree)->root, key, NULL, 0);
+	((dictionary_struct*)tree)->size -= res;
+	return res;
 }
 
 void dict_clear_real(dictionary_node *tree)
@@ -240,28 +288,32 @@ void dict_clear_real(dictionary_node *tree)
 	dict_clear_real(r);
 }
 
-void dict_clear(dictionary *tree)
+void dict_clear(dictionary tree)
 {	
 	if (!tree)
 	{
 		return;
 	}
-	if (!(tree->ismutable))
+	if (!(((dictionary_struct*)tree)->ismutable))
 	{
 		return;
 	}
-	dict_clear_real(tree->root);
-	tree->root = talloc(0, 0); /* TODO: Optimize later */
-	tree->size = 0;
+	dict_clear_real(((dictionary_struct*)tree)->root->left);
+	dict_clear_real(((dictionary_struct*)tree)->root->right);
+	((dictionary_struct*)tree)->root->left = NULL;
+	((dictionary_struct*)tree)->root->right = NULL;
+	
+	((dictionary_struct*)tree)->size = 0;
+	((dictionary_struct*)tree)->maxvaluelength = 0;
 }
 
-void dict_free(dictionary *tree)
+void dict_free(dictionary tree)
 {
 	if (!tree)
 	{
 		return;
 	}
-	dict_clear_real(tree->root);
+	dict_clear_real(((dictionary_struct*)tree)->root);
 	free(tree);
 }
 
@@ -280,27 +332,28 @@ dictionary_node *dict_copy_real(dictionary_node *source)
 	return newnode;
 }
 
-dictionary *dict_copy(dictionary *source)
+dictionary dict_copy(dictionary source)
 {
 	if (!source)
 	{
 		return NULL;
 	}
-	dictionary *new;
-	new = malloc(sizeof(dictionary));
-	new->size = source->size;
+	dictionary_struct *new;
+	new = malloc(sizeof(dictionary_struct*));
+	new->size = ((dictionary_struct*)source)->size;
+	new->maxvaluelength = ((dictionary_struct*)source)->maxvaluelength;
 	new->ismutable = 1;
-	new->root = dict_copy_real(source->root);
+	new->root = dict_copy_real(((dictionary_struct*)source)->root);
 	return new;
 }
 
-void dict_close(dictionary *tree)
+void dict_close(dictionary tree)
 {
 	if (!tree)
 	{
 		return;
 	}
-	tree->ismutable = 0;
+	((dictionary_struct*)tree)->ismutable = 0;
 }
 
 void dict_key_fill_enumerator(dict_enumerator_data **cur, dictionary_node *tree)
@@ -310,36 +363,35 @@ void dict_key_fill_enumerator(dict_enumerator_data **cur, dictionary_node *tree)
 		(*cur)->next = NULL;
 		return;
 	}
+	dict_key_fill_enumerator(cur, tree->left);
 	dict_enumerator_data *dat;
 	(*cur)->next = malloc(sizeof(dict_enumerator_data));
 	dat = (*cur)->next;
-	dat->val = malloc(0);
-	strcpy(dat->val, tree->key);
+	dat->val = tree->key;
 	(*cur) = dat;
-	dict_key_fill_enumerator(cur, tree->left);
 	dict_key_fill_enumerator(cur, tree->right);
 }
 
-dict_enumerator *dict_get_keyenumerator(dictionary *tree)
+dict_enumerator dict_get_keyenumerator(dictionary tree)
 {
 	if (!tree)
 	{
 		return NULL;
 	}
-	dict_enumerator *newenumer;
-	newenumer = malloc(sizeof(dict_enumerator));
+	dict_enumerator_struct *newenumer;
+	newenumer = malloc(sizeof(dict_enumerator_struct));
 	dict_enumerator_data *first, *cur;
 	first = malloc(sizeof(dict_enumerator_data));
 	cur = first;
-	dict_key_fill_enumerator(&cur, tree->root->left);
-	dict_key_fill_enumerator(&cur, tree->root->right);
+	dict_key_fill_enumerator(&cur, ((dictionary_struct*)tree)->root->left);
+	dict_key_fill_enumerator(&cur, ((dictionary_struct*)tree)->root->right);
 	cur = first;
 	first = first->next;
 	free(cur);
 	/* Any other way is even worser than this. Let it be so. */
 	newenumer->first = newenumer->current = first;
 
-	return newenumer; //!!! is it ok? (by nekro)
+	return newenumer; 
 }
 
 void dict_value_fill_enumerator(dict_enumerator_data **cur, dictionary_node *tree)
@@ -349,52 +401,50 @@ void dict_value_fill_enumerator(dict_enumerator_data **cur, dictionary_node *tre
 		(*cur)->next = NULL;
 		return;
 	}
+	dict_value_fill_enumerator(cur, tree->left);
 	dict_enumerator_data *dat;
 	(*cur)->next = malloc(sizeof(dict_enumerator_data));
 	dat = (*cur)->next;
-	dat->val = malloc(0);
-	strcpy(dat->val, tree->value);
+	dat->val = tree->value;
 	(*cur) = dat;
-	dict_value_fill_enumerator(cur, tree->left);
 	dict_value_fill_enumerator(cur, tree->right);
 }
 
-dict_enumerator *dict_get_valueenumerator(dictionary *tree)
+dict_enumerator dict_get_valueenumerator(dictionary tree)
 {
 	if (!tree)
 	{
 		return NULL;
 	}
-	dict_enumerator *newenumer;
-	newenumer = malloc(sizeof(dict_enumerator));
+	dict_enumerator_struct *newenumer;
+	newenumer = malloc(sizeof(dict_enumerator_struct));
 	dict_enumerator_data *first, *cur;
 	first = malloc(sizeof(dict_enumerator_data));
 	cur = first;
-	dict_value_fill_enumerator(&cur, tree->root->left);
-	dict_value_fill_enumerator(&cur, tree->root->right);
+	dict_value_fill_enumerator(&cur, ((dictionary_struct*)tree)->root->left);
+	dict_value_fill_enumerator(&cur, ((dictionary_struct*)tree)->root->right);
 	cur = first;
 	first = first->next;
 	free(cur);
 	/* Any other way is even worser than this. Let it be so. */
 	newenumer->first = newenumer->current = first;
 
-	return newenumer; //!!! is it ok? (by nekro)
+	return newenumer;
 }
 
-
-char *dict_enumerator_next(dict_enumerator *enumerator)
+char const *dict_enumerator_next(dict_enumerator enumerator)
 {
 	if (!enumerator)
 	{
 		return NULL;
 	}
-	if (!(enumerator->current))
+	if (!(((dict_enumerator_struct*)enumerator)->current))
 	{
 		return NULL;
 	}
-	char *c;
-	c = enumerator->current->val;
-	enumerator->current = enumerator->current->next;
+	char const *c;
+	c = ((dict_enumerator_struct*)enumerator)->current->val;
+	((dict_enumerator_struct*)enumerator)->current = ((dict_enumerator_struct*)enumerator)->current->next;
 	return c;
 }
 
@@ -405,19 +455,18 @@ void dict_free_enumerator_data(dict_enumerator_data *data)
 		return;
 	}
 	dict_enumerator_data *next;
-	free(data->val);
 	next = data->next;
 	free(data);
 	dict_free_enumerator_data(next);
 }
 
-void dict_free_enumerator(dict_enumerator *enumerator)
+void dict_free_enumerator(dict_enumerator enumerator)
 {
 	if (!enumerator)
 	{
 		return;
 	}
-	dict_free_enumerator_data(enumerator->first);
+	dict_free_enumerator_data(((dict_enumerator_struct*)enumerator)->first);
 	free(enumerator);
 }
 

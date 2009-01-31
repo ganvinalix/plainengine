@@ -1,29 +1,30 @@
 #import <Foundation/Foundation.h>
+#import <numeric_types.h>
 
 /** Structure with MPCodeTimer section statistics */
 typedef struct
 {
 	/** Total time spent on executing current section code (successfully finished sessions)*/
-	unsigned totalTime;
+	NSUInteger totalTime;
 	/** totalTime - Number of sessions started and finished successfully */
-	unsigned totalCalls;
+	NSUInteger totalCalls;
 	/** totalCall - Maximum time spent on executing one session code (successfully finished sessions)*/
-	unsigned maxTimeSample;
+	NSUInteger maxTimeSample;
 	/** maxTimeSample - Minimum time spent on executing one session code (successfully finished sessions)*/
-	unsigned minTimeSample;
+	NSUInteger minTimeSample;
 	/** minTimeSample - Average time spent on executing one session code (successfully finished sessions)*/
-	unsigned averageTime;
+	NSUInteger averageTime;
 
 	/** totalTimeUnfinished - Total time spent on executing current section code (not finished sessions)*/
-	unsigned totalTimeUnfinished;
+	NSUInteger totalTimeUnfinished;
 	/** totalCallsUnfinished - Number of sessions started but didn't finished by endSession method */
-	unsigned totalCallsUnfinished;
+	NSUInteger totalCallsUnfinished;
 	/** maxTimeSampleUnfinished - Maximum time spent on executing one session code (unfinished sessions)*/
-	unsigned maxTimeSampleUnfinished;
+	NSUInteger maxTimeSampleUnfinished;
 	/** minTimeSampleUnfinished - Minimum time spent on executing one session code (unfinished sessions)*/
-	unsigned minTimeSampleUnfinished;
+	NSUInteger minTimeSampleUnfinished;
 	/** averageTimeUnfinished - Average time spent on executing one session code (unfinished sessions)*/
-	unsigned averageTimeUnfinished;
+	NSUInteger averageTimeUnfinished;
 } ProfilingStatistics;
 
 /** MPCodeTimer class helps to measure time of code section and (maybe later) gathers statistics of code execution time */

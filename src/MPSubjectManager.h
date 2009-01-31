@@ -6,7 +6,7 @@
 /** Subject manager class */
 @interface MPSubjectManager : NSObject
 {
-	NSMutableArray *threads;
+	NSMutableDictionary *threads;
 	NSMutableDictionary *subjectToThread;
 	BOOL paused;
 	BOOL isWorking;
@@ -22,7 +22,7 @@
 - (void) dealloc;
 
 /** Adds new subject to given thread; if subject with such name exists, returns NO */
-- (BOOL) addSubject: (id<MPSubject>)subject toThread: (NSUInteger)thread withName: (NSString*)name;
+- (BOOL) addSubject: (id<MPSubject>)subject toThread: (unsigned)thread withName: (NSString*)name;
 /** Removes subject with given name; if doesn't exists, returns NO */
 - (BOOL) removeSubjectWithName: (NSString*)name;
 /** Pauses subjects */

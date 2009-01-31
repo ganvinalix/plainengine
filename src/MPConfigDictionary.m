@@ -7,11 +7,15 @@ NSDictionary *MPCreateConfigDictionary(NSDictionary *aDefaults, NSDictionary *aU
 	{
 		return nil; 
 	}
+	if(aUserDictionary == nil)
+	{
+		return [[aDefaults retain] autorelease];
+	}
 
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	// create reslt dictionary
 	// firstly create mutable copy of defaultsDictionary
-	NSMutableDictionary *resultDictionary = [NSMutableDictionary dictionaryWithDictionary: aDefaults];
+	NSMutableDictionary *resultDictionary = [[NSMutableDictionary alloc] initWithDictionary: aDefaults];
 	// temporary variables
 	id currentResultKey = nil, currentUserObject = nil;
 	// keys enumerator of resultDictionary
@@ -27,10 +31,8 @@ NSDictionary *MPCreateConfigDictionary(NSDictionary *aDefaults, NSDictionary *aU
 		}	
 	}
 	// all done
-	// we must retain resultDictionary before pool releasing
-	[resultDictionary retain];
 	// release pool
 	[pool release];
 
-	return resultDictionary;
+	return [resultDictionary autorelease];;
 }

@@ -1,49 +1,106 @@
-include $(GNUSTEP_MAKEFILES)/common.make
+include $(GNUSTEP_MAKEFILES)/common.make 
+ 
+USE_OBJC_EXCEPTIONS = yes 
+ADDITIONAL_OBJCFLAGS += -fgnu-runtime -fconstant-string-class=NSConstantString  -Wall
+ 
+TOOL_NAME = plainEngine 
 
-USE_OBJC_EXCEPTIONS = yes
-ADDITIONAL_OBJCFLAGS = -fgnu-runtime -fconstant-string-class=NSConstantString 
-
-TOOL_NAME = plainEngine
-
+plainEngine_TOOL_LIBS += -lMPUtility
+plainEngine_LIB_DIRS += -L./obj/
+ 
 plainEngine_OBJC_FILES = \
 main.m \
-MPConfigDictionary.m \
-MPFileLogChannel.m \
-MPLog.m \
 MPNotificationQueue.m \
-MPCodeTimer.m \
-MPDictionary.m \
 MPThread.m \
 MPSubjectManager.m \
 MPObject.m \
+MPNotifications.m \
+MPThreadStrategy.m \
+MPForkedThreadStrategy.m \
+MPSubroutineThreadStrategy.m \
+MPSystemSubject.m \
+MPAPI.m \
 error_names.m \
-
-plainEngine_C_FILES = \
-dictionary.c \
+core_constants.m \
+MPDictionaryPooler.m\
+MPLinker.m \
+MPResultCradle.m \
 
 plainEngine_HEADER_FILES = \
 common.h \
+error_names.h \
+MPNotificationQueue.h \
+MPNotifications.h \
+MPObject.h \
+MPObject.p \
+MPSubjectManager.h \
+MPSubject.p \
+MPAPI.h \
+MPAPI.p \
+MPThreadStrategy.h \
+MPSubroutineThreadStrategy.h \
+MPForkedThreadStrategy.h \
+MPSystemSubject.h \
+core_constants.h \
+MPDictionaryPooler.h \
+MPLinker.h \
+MPResultCradle.h \
+MPResultCradle.p \
+
+
+LIBRARY_NAME = libMPUtility
+libMPUtility_LIBRARIES_DEPEND_UPON += -ldl
+libMPUtility_HEADER_FILES = \
 common_defines.h \
 numeric_types.h \
 error_names.h \
 dictionary.h \
+release_bunch.h \
 MPLog.h \
 MPConfigDictionary.h \
-MPNotificationQueue.h \
-MPNotifications.h \
 MPFileLogChannel.h \
-MPBaseObject.h \
-MPBaseObject.p \
-MPObject.h \
-MPObject.p \
 MPCodeTimer.h \
 MPDictionary.h \
-MPSubjectManager.h \
-MPSubject.p \
-MPAPI.p \
+MPDictionary.p \
+MPVariant.h \
+MPVariant.p \
+MPUtility.h \
+MPLog.p \
+MPPool.h \
+MPMapper.h \
+MPPair.h \
+MPAutoreleasePool.h \
+MPStringToCStringConverter.h \
+MPModule.h \
+ClassInspection.h \
 
-include $(GNUSTEP_MAKEFILES)/tool.make
+libMPUtility_C_FILES = \
+dictionary.c \
+release_bunch.c \
 
-before-all::
-	../sc_gen_src/obj/scgen error_names.txt
+libMPUtility_OBJC_FILES = \
+MPConfigDictionary.m \
+MPFileLogChannel.m \
+MPLog.m \
+MPCodeTimer.m \
+MPDictionary.m \
+MPVariant.m \
+MPUtility.m \
+MPPool.m \
+MPMapper.m \
+MPPair.m \
+MPAutoreleasePool.m \
+error_names.m \
+MPStringToCStringConverter.m \
+MPModule.m \
+ClassInspection.m \
 
+include $(GNUSTEP_MAKEFILES)/library.make
+include $(GNUSTEP_MAKEFILES)/tool.make 
+ 
+before-all:: 
+#	./makesclists.sh 
+
+after-all::
+	cp ./obj/libMPUtility.so ../lib/
+ 

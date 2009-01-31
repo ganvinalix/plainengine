@@ -1,0 +1,32 @@
+newobj upborder
+objsetf upborder positionable
+setXYZ 0 $1 0 upborder
+objsetfwp upborder physical 1 shapeType=plane/XNormal=0/YNormal=-1
+objsetf upborder restitution 0
+objsetf upborder friction 1
+objsetf upborder quietcollisions
+
+newobj downborder
+objsetf downborder positionable
+setXYZ 0 $2 0 downborder
+objsetfwp downborder physical 1 shapeType=plane/XNormal=0/YNormal=1
+objsetf downborder restitution 0
+objsetf downborder friction 1
+objsetf downborder quietcollisions
+
+newobj rightborder
+objsetf rightborder positionable
+setXYZ $3 0 0 rightborder
+objsetfwp rightborder physical 1 shapeType=plane/XNormal=-1/YNormal=0
+objsetf rightborder restitution 0
+objsetf rightborder friction 1
+objsetf rightborder quietcollisions
+
+newobj leftborder
+objsetf leftborder positionable
+setXYZ $4 0 0 leftborder
+objsetfwp leftborder physical 1 shapeType=plane/XNormal=1/YNormal=0
+objsetf leftborder restitution 0
+objsetf leftborder friction 1
+objsetf leftborder quietcollisions
+

@@ -1,8 +1,32 @@
 #import <MPDictionary.h>
-#import <MPCodeTimer.h>
 #import <dictionary.h>
 #import <string.h>
 #import <error_names.h>
+#import <common.h>
+#import <MPStringToCStringConverter.h>
+
+/** Enumerator for MPDictionary and MPMutableDictionary. Interface is identical for NSEnumerator */
+@interface MPDictionaryEnumerator : NSEnumerator
+{
+	dict_enumerator enumerator;
+	unsigned dictionary_size;
+	unsigned step;
+}
+/** Returns all objects that are still not enumerated; Enumerator sets to end of dictionary */
+- (NSArray *) allObjects;
+/** Returns current object and moves enumerator 1 position closer to end */
+- (id) nextObject;
+
+/** Initializes enumerator as NULL enumerator. Useless NULL enumerator. */
+- init;
+/** Initializes enumerator and configures it to enumerate keys of given c-dictionary */
+- initWithCDictionaryAsKeyEnumerator: (MPCDictionary)newdict;
+/** Initializes enumerator and configures it to enumerate values of given c-dictionary */
+- initWithCDictionaryAsValueEnumerator: (MPCDictionary)newdict;
+/** Deallocates reciever */
+- (void) dealloc;
+
+@end
 
 /*
 An example how you should NOT do: 
@@ -21,14 +45,14 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 */
 
 #define MP_NSSTRING_CHECK(x) \
+	MP_ASSERT(x, @"Parameter \""#x"\" is nil");\
 	if (![[x class] isSubclassOfClass: [NSString class]])\
 	{\
 		NSException *exc = [NSException exceptionWithName: MPIsNotNSString\
 						reason: @"Parameter \""#x"\" must be NSString"\
 						userInfo: nil];\
-		@throw exc;\
+		THROW(exc);\
 	}
-
 
 @implementation MPDictionaryEnumerator
 
@@ -37,7 +61,7 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 	NSMutableArray *objs;
 	objs = [[[NSMutableArray alloc] initWithCapacity: dictionary_size-step] autorelease];
 
-	char *c;
+	char const *c;
 	while ((c = (dict_enumerator_next(enumerator))) != NULL )
 	{
 		[objs addObject: [NSString stringWithUTF8String: c]];
@@ -48,7 +72,7 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 
 -(id) nextObject
 {
-	char *v;
+	char const *v;
 	if (!(v = dict_enumerator_next(enumerator)))
 	{
 		return nil;
@@ -68,7 +92,7 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 	return self;
 }
 
-- initWithCDictionaryAsKeyEnumerator: (dictionary*)newdict
+- initWithCDictionaryAsKeyEnumerator: (MPCDictionary)newdict
 {
 	[self init];
 	dictionary_size = dict_size(newdict);
@@ -76,7 +100,7 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 	return self;
 }
 
-- initWithCDictionaryAsValueEnumerator: (dictionary*)newdict
+- initWithCDictionaryAsValueEnumerator: (MPCDictionary)newdict
 {
 	[self init];
 	dictionary_size = dict_size(newdict);
@@ -92,19 +116,25 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 
 @end
 
+
 @implementation MPDictionary
+
++ newDictionary
+{
+	return [[MPDictionary alloc] init];
+}
 
 - (id) objectForKey: (id)aKey
 {
 	MP_NSSTRING_CHECK(aKey);
-	char *buf;
 	NSString *str;
 	str = nil;
-	if (dict_find(dict, [aKey UTF8String], buf))
+	char const *val;
+	val = dict_find(dict, [valconv stringToCStr: aKey]);
+	if (val)
 	{
-		str = [NSString stringWithUTF8String: buf];
+		str = [NSString stringWithUTF8String: val];
 	}
-	free(buf);
 	return str;
 }
 
@@ -114,17 +144,19 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 }
 
 - (id) initWithObjects: (id *)objects
-	       forKeys: (id *)keys
-		 count: (unsigned)count
+		       forKeys: (id *)keys
+				 count: (unsigned)count
 {
 	[super init];
+	valconv = [[MPStringToCStringConverter alloc] initWithCapacity: 5];
+	kconv = [[MPStringToCStringConverter alloc] initWithCapacity: 5];
 	dict = dict_getempty();
 	unsigned i;
 	for (i=0; i<count; ++i)
 	{
 		MP_NSSTRING_CHECK(objects[i]);
 		MP_NSSTRING_CHECK(keys[i]);
-		dict_insert(dict, [keys[i] UTF8String], [objects[i] UTF8String]);
+		dict_insert(dict, [kconv stringToCStr: keys[i]], [valconv stringToCStr: objects[i]]);
 	}
 	dict_close(dict);
 	return self;
@@ -140,7 +172,7 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 	return [[[MPDictionaryEnumerator alloc] initWithCDictionaryAsValueEnumerator: dict] autorelease];
 }
 
-- (dictionary *) getCDictionary
+- (MPCDictionary) getCDictionary
 {
 	return dict;
 }
@@ -152,28 +184,36 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 
 - (id) mutableCopy
 {
-	MPMutableDictionary *new;
-	new = [[MPMutableDictionary alloc] initWithCDictionary: dict];
-	return new;
+	return [[MPMutableDictionary alloc] initWithCDictionary: dict];
 }
 
 - init
 {
 	[super init];
+	kconv = nil;
+	valconv = [[MPStringToCStringConverter alloc] initWithCapacity: 5];
 	dict = NULL;
+	dictowning = YES;
 	return self;
 }
 
-- initWithCDictionary: (dictionary *)newDict 
+- initWithCDictionary: (MPCDictionary)newDict 
 {
-	[super init];
-	dict = dict_copy(newDict);
+	[self init];
+	dict = newDict;
+	dictowning = NO;
+	dict_close(dict);
 	return self;
 }
 
 - (void) dealloc
 {
-	dict_free(dict);
+	[valconv release];
+	[kconv release];
+	if (dictowning)
+	{
+		dict_free(dict);
+	}
 	[super dealloc];
 }
 
@@ -181,32 +221,36 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 
 @implementation MPMutableDictionary
 
++ newDictionary
+{
+	return [[MPMutableDictionary alloc] init];
+}
+
 - (id) objectForKey: (id)aKey
 {
 	MP_NSSTRING_CHECK(aKey);
-	char *buf;
-	buf = malloc(0);
 	NSString *str;
 	str = nil;
-	if (dict_find(dict, [aKey UTF8String], buf))
+	char const *val;
+	val = dict_find(dict, [valconv stringToCStr: aKey]);
+	if (val)
 	{
-		str = [NSString stringWithUTF8String: buf];
+		str = [NSString stringWithCString: val];
 	}
-	free(buf);
 	return str;
 }
 
 - (void) setObject: (id)anObject forKey: (id)aKey
 {
-	MP_NSSTRING_CHECK(anObject);
 	MP_NSSTRING_CHECK(aKey);
-	dict_insert(dict, [aKey UTF8String], [anObject UTF8String]);
+	MP_NSSTRING_CHECK(anObject);
+	dict_insert(dict, [valconv stringToCStr: aKey], [objconv stringToCStr: anObject]);
 }
 
 - (void) removeObjectForKey: (id)aKey
 {
 	MP_NSSTRING_CHECK(aKey);
-	dict_remove(dict, [aKey UTF8String]);
+	dict_remove(dict, [valconv stringToCStr: aKey]);
 }
 
 - (void) removeAllObjects
@@ -220,8 +264,8 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 }
 
 - (id) initWithObjects: (id *)objects
-	       forKeys: (id *)keys
-		 count: (unsigned)count
+		       forKeys: (id *)keys
+				 count: (unsigned)count
 {
 	[self init];
 	unsigned i;
@@ -243,7 +287,7 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 	return [[[MPDictionaryEnumerator alloc] initWithCDictionaryAsValueEnumerator: dict] autorelease];
 }
 
-- (dictionary *) getCDictionary
+- (MPCDictionary) getCDictionary
 {
 	return dict;
 }
@@ -265,15 +309,25 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 
 - init
 {
-	[super init];
-	dict = dict_getempty();
+	[self initWithCDictionary: NULL];
 	return self;
 }
 
-- initWithCDictionary: (dictionary *)newDict
+- initWithCDictionary: (MPCDictionary)newDict
 {
+	valconv = [[MPStringToCStringConverter alloc] initWithCapacity: 5];
+	objconv = [[MPStringToCStringConverter alloc] initWithCapacity: 5];
 	[super init];
-	dict = dict_copy(newDict);
+	if (newDict)
+	{
+		dict = newDict;
+		dictowning = NO;
+	}
+	else
+	{
+		dict = dict_getempty(newDict);
+		dictowning = YES;
+	}
 	return self;
 }
 
@@ -284,7 +338,12 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 
 - (void) dealloc
 {
-	dict_free(dict);
+	[valconv release];
+	[objconv release];
+	if (dictowning)
+	{
+		dict_free(dict);
+	}
 	[super dealloc];
 }
 

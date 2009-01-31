@@ -1,0 +1,14 @@
+MPHandlerPrefix=_h_
+MPHandlerOfMessagePrefix=_h_msg_
+MPHandlerOfAnyMessageSelector=_h_messageWithName:userInfo:
+MPHandlerOfRequestPrefix=_h_req_
+MPHandlerOfRequestSuffix=result:
+MPExitMessage=exit
+MPPauseMessage=pause
+MPResumeMessage=resume
+MPObjectCreatedMessage=objectCreated
+MPObjectRemovedMessage=objectRemoved
+MPNotificationSystem
+MPParamObjectName=objectName
+MPParamObjectHandle=objectHandle
+MPSystemSubjectName=SystemSubject

@@ -1,0 +1,5 @@
+- font rendering
+- attracted objects are retained
+-------------------------
+- lock-free
+- idle queue

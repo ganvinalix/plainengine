@@ -1,6 +1,7 @@
-Plain Engine planed as a simple to use casual-game engine 
+Plain Engine planed as a simple to use game engine 
 
-To compile just run ./compile or follow these steps from project root directory:
+Before compilation make sure that GNUstep is installed on your computer (if you use Linux or Windows)
+To compile just run make or ./compile; Also you may follow these steps from project root directory:
 
 1) . ./src/envsetup.sh
 2) cd sc_gen_src
@@ -10,3 +11,6 @@ To compile just run ./compile or follow these steps from project root directory:
 
 To create GNUstep documentation for project run ./createdoc.sh
 
+There are some demos in the bin directory
+Also you need SDL to be able to compile sprite render, and Bullet SDK for physics subject.
+Building for windows works, bt with tambourine. Soon special makes will be added

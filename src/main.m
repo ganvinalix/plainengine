@@ -1,45 +1,56 @@
+#import <Foundation/Foundation.h>
+
 #import <common.h>
-#import <MPObject.h>
-#import <math.h>
+#import <core_constants.h>
+
+#import <MPLinker.h>
+
+#define MP_ADDSUBJECT(manager, subject, thread) \
+	[manager addSubject: [[[subject alloc] init] autorelease] toThread: thread withName: @#subject];
 
 int main(int argc, const char *argv[]) 
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	theGlobalLog = [MPLog new]; 
+	NSAutoreleasePool *pool = [NSAutoreleasePool new];
+	MPSubjectManager *subjman = nil;
+	id descriptions = nil, state = nil;
+
+	#ifdef MP_USE_EXCEPTIONS
 	@try
 	{
+	#endif
 		[gLog addChannel: [MPFileLogChannel fileLogChannelWithFilename: @"./hist.log"]];
-		[gLog add: notice withFormat: @"Startting..."];
+		[gLog add: notice withFormat: @"Starting..."];
+
+		subjman = [[MPSubjectManager alloc] init];
+
+		descriptions = MPParseLinkerConfig([NSString stringWithContentsOfFile: @"subjects.conf"]);
+		state = MPLinkModules(descriptions, subjman);
+
+		MPAutoreleasePool *runPool = [MPAutoreleasePool new];
 		
-		MPMutableDictionary *dict;
-		dict = [[MPMutableDictionary alloc] init];
-		
-		[dict setObject: @"btest" forKey: @"test"];
-		[dict setObject: @"btast" forKey: @"tast"];
-		[dict setObject: @"btbst" forKey: @"tbst"];
-		[dict setObject: @"btcst" forKey: @"tcst"];
+		if(state != nil)
+			[subjman run];
 
-		NSEnumerator *enumer;
-		NSString *str;
+		[runPool release];
 
-		MP_BEGIN_PROFILE(dict);
-		enumer = [dict keyEnumerator];
-		while ((str = [enumer nextObject]) != nil)
-		{
-			[gLog add: info withFormat: str];
-		}
-		[dict writeToFile: @"dict.txt" atomically: YES];
-		MP_END_PROFILE(dict);
-
-		[gLog add: info withFormat: [MPCodeTimer printStatisticsByName: @"dict"]];
+	#ifdef MP_USE_EXCEPTIONS
 	}
 	@catch(NSException *exc)
 	{
 		[gLog add: alert withFormat: @"An exception caught: %@ \n %@", [exc name], [exc reason]];
 	}
 	@finally
+	#endif
 	{
-		[gLog add: notice withFormat:@"End."];
+		[subjman release];
+		MPUnloadModules(state);
 		[pool release];
+
+		[gLog add: notice withFormat:@"End."];
+
+		[theGlobalLog release];
+
 	}
 	return 0;
 }

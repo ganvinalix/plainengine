@@ -45,7 +45,13 @@
 {
 	if(!file) return NO;
 	
+	if (theLevel==info)
+	{
+		return YES;
+	}
+
 	fprintf(file, "%s", [theMessage UTF8String]);
+	fflush(file);
 	//printf("%@", theMessage);
 	return YES; 
 }
