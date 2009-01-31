@@ -24,8 +24,13 @@ int main(int argc, const char *argv[])
 
 		subjman = [[MPSubjectManager alloc] init];
 
+		[gLog add: notice withFormat: @"Parsing linker config..."];
 		descriptions = MPParseLinkerConfig([NSString stringWithContentsOfFile: @"subjects.conf"]);
+		[gLog add: notice withFormat: @"complete"];
+
+		[gLog add: notice withFormat: @"Linking..."];
 		state = MPLinkModules(descriptions, subjman);
+		[gLog add: notice withFormat: @"complete"];
 
 		MPAutoreleasePool *runPool = [MPAutoreleasePool new];
 		

@@ -133,11 +133,12 @@ NSArray *MPParseLinkerConfig(NSString *config)
 			[subjAlias setString: subjName];
 		}
 		MPSubjectDescription *desc = [[MPSubjectDescription alloc]
-										initWithSubjectName: subjName
-											   subjectAlias: subjAlias
-												 moduleName: [descrParams objectAtIndex: 0]
-												   threadId: [[descrParams objectAtIndex: 2] integerValue]
-										   parametersString: subjectParams];
+				   initWithSubjectName: subjName
+				   subjectAlias: subjAlias
+				   moduleName: [descrParams objectAtIndex: 0]
+				   threadId: [[descrParams objectAtIndex: 2] intValue]
+				   parametersString: subjectParams];
+				
 		[result addObject: desc];
 		[desc release];
 		//moduleName:subjectName:threadNo;params 

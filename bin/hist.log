@@ -1,183 +1,144 @@
-[28-01-2009 14:20:54][Notice]:	Starting...
-[28-01-2009 14:20:54][Notice]:	MPThread: Begining of parsing methods of <MPSystemSubject: 0x9076eb8> subject with name SystemSubject...
-[28-01-2009 14:20:54][Notice]:	MPThread: The _h_msg_ handler for [resume] has been successfully binded.
-[28-01-2009 14:20:54][Notice]:	MPThread: The _h_msg_ handler for [pause] has been successfully binded.
-[28-01-2009 14:20:54][Notice]:	MPThread: The _h_msg_ handler for [exit] has been successfully binded.
-[28-01-2009 14:20:54][Notice]:	MPThread: End of parsing.
-[28-01-2009 14:20:54][Notice]:	MPThread: Subject with name "SystemSubject" has been added to thread <MPThread: 0x90775a8>.
-[28-01-2009 14:20:54][Warning]:	MPLinker: Invalid initialization string on line 26
-[28-01-2009 14:20:54][Notice]:	MPModule: Library [./MPConsoleSubject.module] has been loaded
-[28-01-2009 14:20:54][Notice]:	MPThread: Begining of parsing methods of <MPConsoleInputSubject: 0x9062bc8> subject with name MPConsoleInputSubject...
-[28-01-2009 14:20:54][Notice]:	MPThread: End of parsing.
-[28-01-2009 14:20:54][Notice]:	MPThread: Subject with name "MPConsoleInputSubject" has been added to thread <MPThread: 0x9063688>.
-[28-01-2009 14:20:54][Notice]:	MPLinker: Subject "MPConsoleInputSubject" with alias "MPConsoleInputSubject" added to thread "1" with initialization string ""
-[28-01-2009 14:20:54][Notice]:	MPThread: Begining of parsing methods of <MPConsoleInputMessagerSubject: 0x9064a10> subject with name MPConsoleInputMessagerSubject...
-[28-01-2009 14:20:54][Notice]:	MPThread: The _h_msg_ handler for [consoleInput] has been successfully binded.
-[28-01-2009 14:20:54][Notice]:	MPThread: End of parsing.
-[28-01-2009 14:20:54][Notice]:	MPThread: Subject with name "MPConsoleInputMessagerSubject" has been added to thread <MPThread: 0x9064720>.
-[28-01-2009 14:20:54][Notice]:	MPLinker: Subject "MPConsoleInputMessagerSubject" with alias "MPConsoleInputMessagerSubject" added to thread "2" with initialization string ""
-[28-01-2009 14:20:54][Notice]:	MPThread: Begining of parsing methods of <MPConsoleInputObjectManipulatorSubject: 0x90790f8> subject with name MPConsoleInputObjectManipulatorSubject...
-[28-01-2009 14:20:54][Notice]:	MPThread: The _h_msg_ handler for [consoleInput] has been successfully binded.
-[28-01-2009 14:20:54][Notice]:	MPThread: End of parsing.
-[28-01-2009 14:20:54][Notice]:	MPThread: Subject with name "MPConsoleInputObjectManipulatorSubject" has been added to thread <MPThread: 0x9064720>.
-[28-01-2009 14:20:54][Notice]:	MPLinker: Subject "MPConsoleInputObjectManipulatorSubject" with alias "MPConsoleInputObjectManipulatorSubject" added to thread "2" with initialization string ""
-[28-01-2009 14:20:54][Notice]:	MPThread: Begining of parsing methods of <MPConsoleInputLoggerSubject: 0x9064708> subject with name MPConsoleInputLoggerSubject...
-[28-01-2009 14:20:54][Notice]:	MPThread: The _h_msg_ handler for [consoleInput] has been successfully binded.
-[28-01-2009 14:20:54][Notice]:	MPThread: End of parsing.
-[28-01-2009 14:20:54][Notice]:	MPThread: Subject with name "MPConsoleInputLoggerSubject" has been added to thread <MPThread: 0x9064720>.
-[28-01-2009 14:20:54][Notice]:	MPLinker: Subject "MPConsoleInputLoggerSubject" with alias "MPConsoleInputLoggerSubject" added to thread "2" with initialization string ""
-[28-01-2009 14:20:54][Notice]:	MPThread: Begining of parsing methods of <MPConsoleInputLoopSubject: 0x9078f38> subject with name MPConsoleInputLoopSubject...
-[28-01-2009 14:20:54][Notice]:	MPThread: The _h_msg_ handler for [consoleInput] has been successfully binded.
-[28-01-2009 14:20:54][Notice]:	MPThread: End of parsing.
-[28-01-2009 14:20:54][Notice]:	MPThread: Subject with name "MPConsoleInputLoopSubject" has been added to thread <MPThread: 0x9064720>.
-[28-01-2009 14:20:54][Notice]:	MPLinker: Subject "MPConsoleInputLoopSubject" with alias "MPConsoleInputLoopSubject" added to thread "2" with initialization string ""
-[28-01-2009 14:20:54][Notice]:	MPThread: Begining of parsing methods of <MPConsoleBatchSubject: 0x907a6a8> subject with name MPConsoleBatchSubject...
-[28-01-2009 14:20:54][Notice]:	MPThread: The _h_msg_ handler for [consoleInput] has been successfully binded.
-[28-01-2009 14:20:54][Notice]:	MPThread: End of parsing.
-[28-01-2009 14:20:54][Notice]:	MPThread: Subject with name "MPConsoleBatchSubject" has been added to thread <MPThread: 0x9079d58>.
-[28-01-2009 14:20:54][Notice]:	MPLinker: Subject "MPConsoleBatchSubject" with alias "MPConsoleBatchSubject" added to thread "3" with initialization string "./init.mpb"
-[28-01-2009 14:20:54][Notice]:	MPModule: Library [./MPObjectPoser.module] has been loaded
-[28-01-2009 14:20:54][Notice]:	MPThread: Begining of parsing methods of <MPObjectPoser: 0x907bc40> subject with name MPObjectPoser...
-[28-01-2009 14:20:54][Notice]:	MPThread: The _h_msg_ handler for [consoleInput] has been successfully binded.
-[28-01-2009 14:20:54][Notice]:	MPThread: End of parsing.
-[28-01-2009 14:20:54][Notice]:	MPThread: Subject with name "MPObjectPoser" has been added to thread <MPThread: 0x9064720>.
-[28-01-2009 14:20:54][Notice]:	MPLinker: Subject "MPObjectPoser" with alias "MPObjectPoser" added to thread "2" with initialization string "positionable"
-[28-01-2009 14:20:54][Notice]:	MPModule: Library [./MPBulletPhysicsSubject.module] has been loaded
-[28-01-2009 14:20:55][Notice]:	MPThread: Begining of parsing methods of <MPBulletPhysicsSubject: 0x907d740> subject with name MPBulletPhysicsSubject...
-[28-01-2009 14:20:55][Notice]:	MPThread: The _h_msg_ handler for [explosion] has been successfully binded.
-[28-01-2009 14:20:55][Notice]:	MPThread: The _h_msg_ handler for [setGravity] has been successfully binded.
-[28-01-2009 14:20:55][Notice]:	MPThread: End of parsing.
-[28-01-2009 14:20:55][Notice]:	MPThread: Subject with name "MPBulletPhysicsSubject" has been added to thread <MPThread: 0x9064720>.
-[28-01-2009 14:20:55][Notice]:	MPLinker: Subject "MPBulletPhysicsSubject" with alias "MPBulletPhysicsSubject" added to thread "2" with initialization string "gravY:-4 timeBalance:1 maxSubSteps:10 velocityCleaningOnManualMove:0.01 linearVelocitySleepingThreshold:0.01 angularVelocitySleepingThreshold:0.00 2D:Z minimalCollisionInterval:3 disableObjectDeactivation:0 minX:-1000 minY:-1000 maxX:1000 maxY:1000"
-[28-01-2009 14:20:55][Notice]:	MPModule: Library [./MPMessageCounterSubject.module] has been loaded
-[28-01-2009 14:20:55][Notice]:	MPThread: Begining of parsing methods of <MPMessageCounterSubject: 0x90e14e8> subject with name MPMessageCounterSubject...
-[28-01-2009 14:20:55][Notice]:	MPThread: The handler for any event has been successfully added binded.
-[28-01-2009 14:20:55][Notice]:	MPThread: End of parsing.
-[28-01-2009 14:20:55][Notice]:	MPThread: Subject with name "MPMessageCounterSubject" has been added to thread <MPThread: 0x9064720>.
-[28-01-2009 14:20:55][Notice]:	MPLinker: Subject "MPMessageCounterSubject" with alias "MPMessageCounterSubject" added to thread "2" with initialization string ""
-[28-01-2009 14:20:55][Notice]:	MPModule: Library [./MPSpriteRenderSubject.module] has been loaded
-[28-01-2009 14:20:55][Notice]:	MPThread: Begining of parsing methods of <MPSpriteRenderSubject: 0x90e7b70> subject with name MPSpriteRenderSubject...
-[28-01-2009 14:20:55][Notice]:	MPThread: The _h_msg_ handler for [grabInput] has been successfully binded.
-[28-01-2009 14:20:55][Notice]:	MPThread: The _h_msg_ handler for [showCursor] has been successfully binded.
-[28-01-2009 14:20:55][Notice]:	MPThread: End of parsing.
-[28-01-2009 14:20:55][Notice]:	MPThread: Subject with name "MPSpriteRenderSubject" has been added to thread <MPThread: 0x90775a8>.
-[28-01-2009 14:20:55][Notice]:	MPLinker: Subject "MPSpriteRenderSubject" with alias "MPSpriteRenderSubject" added to thread "0" with initialization string "showCursor:NO width:640 heigth:480 fullscreen:NO"
-[28-01-2009 14:20:55][Notice]:	MPModule: Library [./MPGravityChangerSubject.module] has been loaded
-[28-01-2009 14:20:55][Notice]:	MPThread: Begining of parsing methods of <MPGravityChangerSubject: 0x90e86f0> subject with name MPGravityChangerSubject...
-[28-01-2009 14:20:55][Notice]:	MPThread: The _h_msg_ handler for [mouseButton] has been successfully binded.
-[28-01-2009 14:20:55][Notice]:	MPThread: End of parsing.
-[28-01-2009 14:20:55][Notice]:	MPThread: Subject with name "MPGravityChangerSubject" has been added to thread <MPThread: 0x9064720>.
-[28-01-2009 14:20:55][Notice]:	MPLinker: Subject "MPGravityChangerSubject" with alias "MPGravityChangerSubject" added to thread "2" with initialization string "2.0"
-[28-01-2009 14:20:55][Notice]:	MPModule: Library [./MPAttractorChainSubject.module] has been loaded
-[28-01-2009 14:20:55][Notice]:	MPThread: Begining of parsing methods of <MPAttractorChainSubject: 0x90e9808> subject with name MPAttractorChainSubject...
-[28-01-2009 14:20:55][Notice]:	MPThread: The _h_msg_ handler for [attractorChainTick] has been successfully binded.
-[28-01-2009 14:20:55][Notice]:	MPThread: End of parsing.
-[28-01-2009 14:20:55][Notice]:	MPThread: Subject with name "MPAttractorChainSubject" has been added to thread <MPThread: 0x9064720>.
-[28-01-2009 14:20:55][Notice]:	MPLinker: Subject "MPAttractorChainSubject" with alias "MPAttractorChainSubject" added to thread "2" with initialization string "attractingImpulseCoefficient:0.4"
-[28-01-2009 14:20:55][Notice]:	MPModule: Library [./MPTimerSubject.module] has been loaded
-[28-01-2009 14:20:55][Notice]:	MPThread: Begining of parsing methods of <MPTimerSubject: 0x90ea948> subject with name MPTimerSubject...
-[28-01-2009 14:20:55][Notice]:	MPThread: The _h_msg_ handler for [resumeTimer] has been successfully binded.
-[28-01-2009 14:20:55][Notice]:	MPThread: The _h_msg_ handler for [retardTimer] has been successfully binded.
-[28-01-2009 14:20:55][Notice]:	MPThread: End of parsing.
-[28-01-2009 14:20:55][Notice]:	MPThread: Subject with name "MPTimerSubject" has been added to thread <MPThread: 0x9064720>.
-[28-01-2009 14:20:55][Notice]:	MPLinker: Subject "MPTimerSubject" with alias "MPTimerSubject" added to thread "2" with initialization string "300 attractorChainTick"
-[28-01-2009 14:20:55][Notice]:	MPModule: Library [./MPMessageRecoderSubject.module] has been loaded
-[28-01-2009 14:20:55][Notice]:	MPThread: Begining of parsing methods of <MPMessageRecoderSubject: 0x90eb6f0> subject with name MPMessageRecoderSubject...
-[28-01-2009 14:20:55][Notice]:	MPThread: The handler for any event has been successfully added binded.
-[28-01-2009 14:20:55][Notice]:	MPThread: End of parsing.
-[28-01-2009 14:20:55][Notice]:	MPThread: Subject with name "MPMessageRecoderSubject" has been added to thread <MPThread: 0x9064720>.
-[28-01-2009 14:20:55][Notice]:	MPLinker: Subject "MPMessageRecoderSubject" with alias "MPMessageRecoderSubject" added to thread "2" with initialization string "recodings.strings"
-[28-01-2009 14:20:55][Notice]:	MPSpriteRenderSubject: Starting graphics...
-[28-01-2009 14:20:55][Notice]:	MPSpriteRenderSubject: sdl initialized
-[28-01-2009 14:20:55][Notice]:	MPSpriteRenderSubject: setting video mod...
-[28-01-2009 14:20:55][Notice]:	MPSpriteRenderSubject: done
-[28-01-2009 14:20:55][Notice]:	MPObject: delegate "MPSpriteRenderDelegate" added for feature "renderable";
-[28-01-2009 14:20:55][Notice]:	MPObject: delegate "MPCamera" added for feature "camera";
-[28-01-2009 14:20:55][Notice]:	MPSpriteRenderSubject: initialization done.
-[28-01-2009 14:20:55][Notice]:	MPThread: Subject [MPSpriteRenderSubject] has been started.
-[28-01-2009 14:20:55][Notice]:	MPThread: Subject [SystemSubject] has been started.
-[28-01-2009 14:20:55][Notice]:	MPThread: Thread <MPThread: 0x90775a8> has been prepared.
-[28-01-2009 14:20:55][Notice]:	MPThread: Subject [MPConsoleInputSubject] has been started.
-[28-01-2009 14:20:55][Notice]:	MPThread: Thread <MPThread: 0x9063688> has been prepared.
-[28-01-2009 14:20:55][Notice]:	MPThread: Subject [MPConsoleBatchSubject] has been started.
-[28-01-2009 14:20:55][Notice]:	MPThread: Thread <MPThread: 0x9079d58> has been prepared.
-[28-01-2009 14:20:55][Notice]:	MPThread: Subject [MPTimerSubject] has been started.
-[28-01-2009 14:20:55][Notice]:	MPThread: Subject [MPMessageCounterSubject] has been started.
-[28-01-2009 14:20:55][Notice]:	MPThread: Subject [MPConsoleInputObjectManipulatorSubject] has been started.
-[28-01-2009 14:20:55][Notice]:	MPThread: Subject [MPMessageRecoderSubject] has been started.
-[28-01-2009 14:20:55][Notice]:	MPObject: delegate "MPPhysicalObjectDelegate" added for feature "physical";
-[28-01-2009 14:20:55][Notice]:	MPObject: delegate "MPGhostObjectDelegate" added for feature "ghostObject";
-[28-01-2009 14:20:55][Notice]:	MPObject: delegate "MPAttractorObject" added for feature "attractor";
-[28-01-2009 14:20:55][Notice]:	MPThread: Subject [MPBulletPhysicsSubject] has been started.
-[28-01-2009 14:20:55][Notice]:	MPObject: delegate "MPACSAttractedDelegate" added;
-[28-01-2009 14:20:55][Notice]:	MPThread: Subject [MPAttractorChainSubject] has been started.
-[28-01-2009 14:20:55][Notice]:	MPObject: delegate "MPPositionedObject" added for feature "positionable";
-[28-01-2009 14:20:55][Notice]:	MPThread: Subject [MPObjectPoser] has been started.
-[28-01-2009 14:20:55][Notice]:	MPThread: Subject [MPConsoleInputLoggerSubject] has been started.
-[28-01-2009 14:20:55][Notice]:	MPThread: Subject [MPGravityChangerSubject] has been started.
-[28-01-2009 14:20:55][Notice]:	MPThread: Subject [MPConsoleInputMessagerSubject] has been started.
-[28-01-2009 14:20:55][Notice]:	MPThread: Subject [MPConsoleInputLoopSubject] has been started.
-[28-01-2009 14:20:55][Notice]:	MPThread: Thread <MPThread: 0x9064720> has been prepared.
-[28-01-2009 14:20:55][Notice]:	MPSubroutineThreadStrategy: <MPThread: 0x90775a8> started as subroutine.
-[28-01-2009 14:20:55][Notice]:	MPThread: Thread <MPThread: 0x90775a8> has been started.
-[28-01-2009 14:20:55][Notice]:	MPForkedThreadStrategy: <MPThread: 0x9063688> forked.
-[28-01-2009 14:20:55][Notice]:	MPThread: Thread <MPThread: 0x9063688> has been started.
-[28-01-2009 14:20:55][Notice]:	MPForkedThreadStrategy: <MPThread: 0x9079d58> forked.
-[28-01-2009 14:20:55][Notice]:	MPThread: Thread <MPThread: 0x9079d58> has been started.
-[28-01-2009 14:20:55][Notice]:	MPForkedThreadStrategy: <MPThread: 0x9064720> forked.
-[28-01-2009 14:20:55][Notice]:	MPThread: Thread <MPThread: 0x9064720> has been started.
-[28-01-2009 14:20:55][Notice]:	MPSubjectManager: running...
-[28-01-2009 14:21:34][Notice]:	MPSubjectManager: stopping...
-[28-01-2009 14:21:35][Notice]:	MPThread: Subject [MPConsoleInputSubject] has been stopped.
-[28-01-2009 14:21:35][Notice]:	MPThread: Thread <MPThread: 0x9063688> has been stopped.
-[28-01-2009 14:21:35][Notice]:	MPThread: Subject [MPConsoleBatchSubject] has been stopped.
-[28-01-2009 14:21:35][Notice]:	MPThread: Thread <MPThread: 0x9079d58> has been stopped.
-[28-01-2009 14:21:35][Notice]:	MPThread: Subject [MPTimerSubject] has been stopped.
-[28-01-2009 14:21:35][Notice]:	MPMessageCounterSubject: Message "mouse1down" had been posted 3 times;
-[28-01-2009 14:21:35][Notice]:	MPMessageCounterSubject: Message "setGravity" had been posted 1 times;
-[28-01-2009 14:21:35][Notice]:	MPMessageCounterSubject: Message "attractorChainTick" had been posted 132 times;
-[28-01-2009 14:21:35][Notice]:	MPMessageCounterSubject: Message "consoleInput" had been posted 181 times;
-[28-01-2009 14:21:35][Notice]:	MPMessageCounterSubject: Message "mouse3up" had been posted 1 times;
-[28-01-2009 14:21:35][Notice]:	MPMessageCounterSubject: Message "objectsCollided" had been posted 225 times;
-[28-01-2009 14:21:35][Notice]:	MPMessageCounterSubject: Message "mouse3down" had been posted 1 times;
-[28-01-2009 14:21:35][Notice]:	MPMessageCounterSubject: Message "mouseButton" had been posted 8 times;
-[28-01-2009 14:21:35][Notice]:	MPMessageCounterSubject: Message "explosion" had been posted 3 times;
-[28-01-2009 14:21:35][Notice]:	MPMessageCounterSubject: Message "exit" had been posted 1 times;
-[28-01-2009 14:21:35][Notice]:	MPMessageCounterSubject: Message "mouse1up" had been posted 3 times;
-[28-01-2009 14:21:35][Notice]:	MPMessageCounterSubject: Message "keyDown" had been posted 1 times;
-[28-01-2009 14:21:35][Notice]:	MPMessageCounterSubject: Message "objectCreated" had been posted 23 times;
-[28-01-2009 14:21:35][Notice]:	MPMessageCounterSubject: Message "escape_keyDown" had been posted 1 times;
-[28-01-2009 14:21:35][Notice]:	MPThread: Subject [MPMessageCounterSubject] has been stopped.
-[28-01-2009 14:21:35][Notice]:	MPThread: Subject [MPConsoleInputObjectManipulatorSubject] has been stopped.
-[28-01-2009 14:21:35][Notice]:	MPThread: Subject [MPMessageRecoderSubject] has been stopped.
-[28-01-2009 14:21:35][Notice]:	MPObject: delegate "MPPhysicalObjectDelegate" removed for feature "physical";
-[28-01-2009 14:21:35][Notice]:	MPObject: delegate "MPGhostObjectDelegate" removed for feature "ghostObject";
-[28-01-2009 14:21:35][Notice]:	MPObject: delegate "MPAttractorObject" removed for feature "attractor";
-[28-01-2009 14:21:35][Notice]:	MPBulletPhysicsSubject: 24 - pairPool size; 225 - dictionaryPool size
-[28-01-2009 14:21:35][Notice]:	MPThread: Subject [MPBulletPhysicsSubject] has been stopped.
-[28-01-2009 14:21:35][Notice]:	MPObject: delegate "MPACSAttractedDelegate" removed;
-[28-01-2009 14:21:35][Notice]:	MPThread: Subject [MPAttractorChainSubject] has been stopped.
-[28-01-2009 14:21:35][Notice]:	MPObject: delegate "MPPositionedObject" removed for feature "positionable";
-[28-01-2009 14:21:35][Notice]:	MPThread: Subject [MPObjectPoser] has been stopped.
-[28-01-2009 14:21:35][Notice]:	MPThread: Subject [MPConsoleInputLoggerSubject] has been stopped.
-[28-01-2009 14:21:35][Notice]:	MPThread: Subject [MPGravityChangerSubject] has been stopped.
-[28-01-2009 14:21:35][Notice]:	MPThread: Subject [MPConsoleInputMessagerSubject] has been stopped.
-[28-01-2009 14:21:35][Notice]:	MPThread: Subject [MPConsoleInputLoopSubject] has been stopped.
-[28-01-2009 14:21:35][Notice]:	MPThread: Thread <MPThread: 0x9064720> has been stopped.
-[28-01-2009 14:21:35][Notice]:	MPObject: delegate "MPSpriteRenderDelegate" removed for feature "renderable";
-[28-01-2009 14:21:35][Notice]:	MPObject: delegate "MPCamera" removed for feature "camera";
-[28-01-2009 14:21:35][Notice]:	MPSpriteRenderSubject: stopped.
-[28-01-2009 14:21:35][Notice]:	MPThread: Subject [MPSpriteRenderSubject] has been stopped.
-[28-01-2009 14:21:35][Notice]:	MPThread: Subject [SystemSubject] has been stopped.
-[28-01-2009 14:21:35][Notice]:	MPThread: Thread <MPThread: 0x90775a8> has been stopped.
-[28-01-2009 14:21:35][Notice]:	MPSubjectManager: stopped
-[28-01-2009 14:21:35][Notice]:	MPModule: Library [./MPTimerSubject.module] has been unloaded
-[28-01-2009 14:21:35][Notice]:	MPModule: Library [./MPMessageCounterSubject.module] has been unloaded
-[28-01-2009 14:21:35][Notice]:	MPModule: Library [./MPConsoleSubject.module] has been unloaded
-[28-01-2009 14:21:35][Notice]:	MPModule: Library [./MPBulletPhysicsSubject.module] has been unloaded
-[28-01-2009 14:21:35][Notice]:	MPModule: Library [./MPGravityChangerSubject.module] has been unloaded
-[28-01-2009 14:21:35][Notice]:	MPModule: Library [./MPSpriteRenderSubject.module] has been unloaded
-[28-01-2009 14:21:35][Notice]:	MPModule: Library [./MPAttractorChainSubject.module] has been unloaded
-[28-01-2009 14:21:35][Notice]:	MPModule: Library [./MPMessageRecoderSubject.module] has been unloaded
-[28-01-2009 14:21:35][Notice]:	MPModule: Library [./MPObjectPoser.module] has been unloaded
-[28-01-2009 14:21:35][Notice]:	End.
+[01-02-2009 00:02:38][Notice]:	Starting...
+[01-02-2009 00:02:38][Notice]:	MPThread: Begining of parsing methods of <MPSystemSubject: 0x813a238> subject with name SystemSubject...
+[01-02-2009 00:02:38][Notice]:	MPThread: The _h_msg_ handler for [resume] has been successfully binded.
+[01-02-2009 00:02:38][Notice]:	MPThread: The _h_msg_ handler for [pause] has been successfully binded.
+[01-02-2009 00:02:38][Notice]:	MPThread: The _h_msg_ handler for [exit] has been successfully binded.
+[01-02-2009 00:02:38][Notice]:	MPThread: End of parsing.
+[01-02-2009 00:02:38][Notice]:	MPThread: Subject with name "SystemSubject" has been added to thread <MPThread: 0x80e69f8>.
+[01-02-2009 00:02:38][Notice]:	Parsing linker config...
+[01-02-2009 00:02:38][Notice]:	complete
+[01-02-2009 00:02:38][Notice]:	Linking...
+[01-02-2009 00:02:38][Notice]:	MPModule: Library [./MPConsoleSubject.module] has been loaded
+[01-02-2009 00:02:38][Notice]:	MPThread: Begining of parsing methods of <MPConsoleInputSubject: 0x80f6c00> subject with name MPConsoleInputSubject...
+[01-02-2009 00:02:38][Notice]:	MPThread: End of parsing.
+[01-02-2009 00:02:38][Notice]:	MPThread: Subject with name "MPConsoleInputSubject" has been added to thread <MPThread: 0x80ec420>.
+[01-02-2009 00:02:38][Notice]:	MPLinker: Subject "MPConsoleInputSubject" with alias "MPConsoleInputSubject" added to thread "1" with initialization string ""
+[01-02-2009 00:02:38][Notice]:	MPThread: Begining of parsing methods of <MPConsoleInputMessagerSubject: 0x81342b0> subject with name MPConsoleInputMessagerSubject...
+[01-02-2009 00:02:38][Notice]:	MPThread: The _h_msg_ handler for [consoleInput] has been successfully binded.
+[01-02-2009 00:02:38][Notice]:	MPThread: End of parsing.
+[01-02-2009 00:02:38][Notice]:	MPThread: Subject with name "MPConsoleInputMessagerSubject" has been added to thread <MPThread: 0x80ec640>.
+[01-02-2009 00:02:38][Notice]:	MPLinker: Subject "MPConsoleInputMessagerSubject" with alias "MPConsoleInputMessagerSubject" added to thread "2" with initialization string ""
+[01-02-2009 00:02:38][Notice]:	MPThread: Begining of parsing methods of <MPConsoleInputObjectManipulatorSubject: 0x81249b0> subject with name MPConsoleInputObjectManipulatorSubject...
+[01-02-2009 00:02:38][Notice]:	MPThread: The _h_msg_ handler for [consoleInput] has been successfully binded.
+[01-02-2009 00:02:38][Notice]:	MPThread: End of parsing.
+[01-02-2009 00:02:38][Notice]:	MPThread: Subject with name "MPConsoleInputObjectManipulatorSubject" has been added to thread <MPThread: 0x80ec640>.
+[01-02-2009 00:02:38][Notice]:	MPLinker: Subject "MPConsoleInputObjectManipulatorSubject" with alias "MPConsoleInputObjectManipulatorSubject" added to thread "2" with initialization string ""
+[01-02-2009 00:02:38][Notice]:	MPThread: Begining of parsing methods of <MPConsoleInputLoggerSubject: 0x81248e8> subject with name MPConsoleInputLoggerSubject...
+[01-02-2009 00:02:38][Notice]:	MPThread: The _h_msg_ handler for [consoleInput] has been successfully binded.
+[01-02-2009 00:02:38][Notice]:	MPThread: End of parsing.
+[01-02-2009 00:02:38][Notice]:	MPThread: Subject with name "MPConsoleInputLoggerSubject" has been added to thread <MPThread: 0x80ec640>.
+[01-02-2009 00:02:38][Notice]:	MPLinker: Subject "MPConsoleInputLoggerSubject" with alias "MPConsoleInputLoggerSubject" added to thread "2" with initialization string ""
+[01-02-2009 00:02:38][Notice]:	MPThread: Begining of parsing methods of <MPConsoleInputLoopSubject: 0x80f7960> subject with name MPConsoleInputLoopSubject...
+[01-02-2009 00:02:38][Notice]:	MPThread: The _h_msg_ handler for [consoleInput] has been successfully binded.
+[01-02-2009 00:02:38][Notice]:	MPThread: End of parsing.
+[01-02-2009 00:02:38][Notice]:	MPThread: Subject with name "MPConsoleInputLoopSubject" has been added to thread <MPThread: 0x80ec640>.
+[01-02-2009 00:02:38][Notice]:	MPLinker: Subject "MPConsoleInputLoopSubject" with alias "MPConsoleInputLoopSubject" added to thread "2" with initialization string ""
+[01-02-2009 00:02:38][Notice]:	MPThread: Begining of parsing methods of <MPConsoleBatchSubject: 0x80ece08> subject with name MPConsoleBatchSubject...
+[01-02-2009 00:02:38][Notice]:	MPThread: The _h_msg_ handler for [consoleInput] has been successfully binded.
+[01-02-2009 00:02:38][Notice]:	MPThread: End of parsing.
+[01-02-2009 00:02:38][Notice]:	MPThread: Subject with name "MPConsoleBatchSubject" has been added to thread <MPThread: 0x812fcb0>.
+[01-02-2009 00:02:38][Notice]:	MPLinker: Subject "MPConsoleBatchSubject" with alias "MPConsoleBatchSubject" added to thread "3" with initialization string "./init.mpb"
+[01-02-2009 00:02:38][Notice]:	MPModule: Library [./MPObjectPoser.module] has been loaded
+[01-02-2009 00:02:38][Notice]:	MPThread: Begining of parsing methods of <MPObjectPoser: 0x8125050> subject with name MPObjectPoser...
+[01-02-2009 00:02:38][Notice]:	MPThread: The _h_msg_ handler for [consoleInput] has been successfully binded.
+[01-02-2009 00:02:38][Notice]:	MPThread: End of parsing.
+[01-02-2009 00:02:38][Notice]:	MPThread: Subject with name "MPObjectPoser" has been added to thread <MPThread: 0x80ec640>.
+[01-02-2009 00:02:38][Notice]:	MPLinker: Subject "MPObjectPoser" with alias "MPObjectPoser" added to thread "2" with initialization string "positionable"
+[01-02-2009 00:02:38][Notice]:	MPModule: Library [./MP2DObjectSubject.module] has been loaded
+[01-02-2009 00:02:38][Notice]:	MPThread: Begining of parsing methods of <MP2DObjectSubject: 0x8130370> subject with name MP2DObjectSubject...
+[01-02-2009 00:02:38][Notice]:	MPThread: End of parsing.
+[01-02-2009 00:02:38][Notice]:	MPThread: Subject with name "MP2DObjectSubject" has been added to thread <MPThread: 0x80ec640>.
+[01-02-2009 00:02:38][Notice]:	MPLinker: Subject "MP2DObjectSubject" with alias "MP2DObjectSubject" added to thread "2" with initialization string ""
+[01-02-2009 00:02:38][Notice]:	MPModule: Library [./MPBulletPhysicsSubject.module] has been loaded
+[01-02-2009 00:02:38][Notice]:	MPThread: Begining of parsing methods of <MPBulletPhysicsSubject: 0x80ed7f8> subject with name MPBulletPhysicsSubject...
+[01-02-2009 00:02:38][Notice]:	MPThread: The _h_msg_ handler for [explosion] has been successfully binded.
+[01-02-2009 00:02:38][Notice]:	MPThread: The _h_msg_ handler for [setGravity] has been successfully binded.
+[01-02-2009 00:02:38][Notice]:	MPThread: End of parsing.
+[01-02-2009 00:02:38][Notice]:	MPThread: Subject with name "MPBulletPhysicsSubject" has been added to thread <MPThread: 0x80ec640>.
+[01-02-2009 00:02:38][Notice]:	MPLinker: Subject "MPBulletPhysicsSubject" with alias "MPBulletPhysicsSubject" added to thread "2" with initialization string "gravY:-4 timeBalance:1 maxSubSteps:10 velocityCleaningOnManualMove:0.01 linearVelocitySleepingThreshold:0.01 angularVelocitySleepingThreshold:0.00 2D:Z minimalCollisionInterval:3 disableObjectDeactivation:0 minX:-1000 minY:-1000 maxX:1000 maxY:1000"
+[01-02-2009 00:02:38][Notice]:	MPModule: Library [./MPGravityChangerSubject.module] has been loaded
+[01-02-2009 00:02:38][Notice]:	MPThread: Begining of parsing methods of <MPGravityChangerSubject: 0x80ed3e0> subject with name MPGravityChangerSubject...
+[01-02-2009 00:02:38][Notice]:	MPThread: The _h_msg_ handler for [mouseButton] has been successfully binded.
+[01-02-2009 00:02:38][Notice]:	MPThread: End of parsing.
+[01-02-2009 00:02:38][Notice]:	MPThread: Subject with name "MPGravityChangerSubject" has been added to thread <MPThread: 0x80ec640>.
+[01-02-2009 00:02:38][Notice]:	MPLinker: Subject "MPGravityChangerSubject" with alias "MPGravityChangerSubject" added to thread "2" with initialization string "2.0"
+[01-02-2009 00:02:38][Notice]:	MPModule: Library [./MPAttractorChainSubject.module] has been loaded
+[01-02-2009 00:02:38][Notice]:	MPThread: Begining of parsing methods of <MPAttractorChainSubject: 0x80fb9f0> subject with name MPAttractorChainSubject...
+[01-02-2009 00:02:38][Notice]:	MPThread: The _h_msg_ handler for [attractorChainTick] has been successfully binded.
+[01-02-2009 00:02:38][Notice]:	MPThread: End of parsing.
+[01-02-2009 00:02:38][Notice]:	MPThread: Subject with name "MPAttractorChainSubject" has been added to thread <MPThread: 0x80ec640>.
+[01-02-2009 00:02:38][Notice]:	MPLinker: Subject "MPAttractorChainSubject" with alias "MPAttractorChainSubject" added to thread "2" with initialization string "attractingImpulseCoefficient:0.4"
+[01-02-2009 00:02:38][Notice]:	MPModule: Library [./MPTimerSubject.module] has been loaded
+[01-02-2009 00:02:38][Notice]:	MPThread: Begining of parsing methods of <MPTimerSubject: 0x80e5bf0> subject with name MPTimerSubject...
+[01-02-2009 00:02:38][Notice]:	MPThread: The _h_msg_ handler for [resumeTimer] has been successfully binded.
+[01-02-2009 00:02:38][Notice]:	MPThread: The _h_msg_ handler for [retardTimer] has been successfully binded.
+[01-02-2009 00:02:38][Notice]:	MPThread: End of parsing.
+[01-02-2009 00:02:38][Notice]:	MPThread: Subject with name "MPTimerSubject" has been added to thread <MPThread: 0x80ec640>.
+[01-02-2009 00:02:38][Notice]:	MPLinker: Subject "MPTimerSubject" with alias "MPTimerSubject" added to thread "2" with initialization string "300 attractorChainTick"
+[01-02-2009 00:02:38][Notice]:	complete
+[01-02-2009 00:02:38][Notice]:	MPThread: Subject [SystemSubject] has been started.
+[01-02-2009 00:02:38][Notice]:	MPThread: Thread <MPThread: 0x80e69f8> has been prepared.
+[01-02-2009 00:02:38][Notice]:	MPThread: Subject [MPConsoleInputSubject] has been started.
+[01-02-2009 00:02:38][Notice]:	MPThread: Thread <MPThread: 0x80ec420> has been prepared.
+[01-02-2009 00:02:38][Notice]:	MPThread: Subject [MPConsoleBatchSubject] has been started.
+[01-02-2009 00:02:38][Notice]:	MPThread: Thread <MPThread: 0x812fcb0> has been prepared.
+[01-02-2009 00:02:38][Notice]:	MPThread: Subject [MPTimerSubject] has been started.
+[01-02-2009 00:02:38][Notice]:	MPThread: Subject [MPConsoleInputObjectManipulatorSubject] has been started.
+[01-02-2009 00:02:38][Notice]:	MPObject: delegate "MPPhysicalObjectDelegate" added for feature "physical";
+[01-02-2009 00:02:38][Notice]:	MPObject: delegate "MPGhostObjectDelegate" added for feature "ghostObject";
+[01-02-2009 00:02:38][Notice]:	MPObject: delegate "MPAttractorObject" added for feature "attractor";
+[01-02-2009 00:02:38][Notice]:	MPThread: Subject [MPBulletPhysicsSubject] has been started.
+[01-02-2009 00:02:38][Notice]:	MPObject: delegate "MPACSAttractedDelegate" added;
+[01-02-2009 00:02:38][Notice]:	MPThread: Subject [MPAttractorChainSubject] has been started.
+[01-02-2009 00:02:38][Notice]:	MPObject: delegate "MPPositionedObject" added for feature "positionable";
+[01-02-2009 00:02:38][Notice]:	MPThread: Subject [MPObjectPoser] has been started.
+[01-02-2009 00:02:38][Notice]:	MPThread: Subject [MPConsoleInputLoggerSubject] has been started.
+[01-02-2009 00:02:38][Notice]:	MPThread: Subject [MPGravityChangerSubject] has been started.
+[01-02-2009 00:02:38][Notice]:	MPThread: Subject [MPConsoleInputMessagerSubject] has been started.
+[01-02-2009 00:02:38][Notice]:	MPThread: Subject [MPConsoleInputLoopSubject] has been started.
+[01-02-2009 00:02:38][Notice]:	MPObject: delegate "MP2DObjectDelegate" added for feature "object2d";
+[01-02-2009 00:02:38][Notice]:	MPThread: Subject [MP2DObjectSubject] has been started.
+[01-02-2009 00:02:38][Notice]:	MPThread: Thread <MPThread: 0x80ec640> has been prepared.
+[01-02-2009 00:02:38][Notice]:	MPSubroutineThreadStrategy: <MPThread: 0x80e69f8> started as subroutine.
+[01-02-2009 00:02:38][Notice]:	MPThread: Thread <MPThread: 0x80e69f8> has been started.
+[01-02-2009 00:02:38][Notice]:	MPForkedThreadStrategy: <MPThread: 0x80ec420> forked.
+[01-02-2009 00:02:38][Notice]:	MPThread: Thread <MPThread: 0x80ec420> has been started.
+[01-02-2009 00:02:38][Notice]:	MPForkedThreadStrategy: <MPThread: 0x812fcb0> forked.
+[01-02-2009 00:02:38][Notice]:	MPThread: Thread <MPThread: 0x812fcb0> has been started.
+[01-02-2009 00:02:38][Notice]:	MPForkedThreadStrategy: <MPThread: 0x80ec640> forked.
+[01-02-2009 00:02:38][Notice]:	MPThread: Thread <MPThread: 0x80ec640> has been started.
+[01-02-2009 00:02:38][Notice]:	MPSubjectManager: running...
+[01-02-2009 00:02:41][Notice]:	MPSubjectManager: stopping...
+[01-02-2009 00:02:41][Notice]:	MPThread: Subject [MPConsoleInputSubject] has been stopped.
+[01-02-2009 00:02:41][Notice]:	MPThread: Thread <MPThread: 0x80ec420> has been stopped.
+[01-02-2009 00:02:41][Notice]:	MPThread: Subject [MPConsoleBatchSubject] has been stopped.
+[01-02-2009 00:02:41][Notice]:	MPThread: Thread <MPThread: 0x812fcb0> has been stopped.
+[01-02-2009 00:02:41][Notice]:	MPThread: Subject [MPTimerSubject] has been stopped.
+[01-02-2009 00:02:41][Notice]:	MPThread: Subject [MPConsoleInputObjectManipulatorSubject] has been stopped.
+[01-02-2009 00:02:41][Notice]:	MPObject: delegate "MPPhysicalObjectDelegate" removed for feature "physical";
+[01-02-2009 00:02:41][Notice]:	MPObject: delegate "MPGhostObjectDelegate" removed for feature "ghostObject";
+[01-02-2009 00:02:41][Notice]:	MPObject: delegate "MPAttractorObject" removed for feature "attractor";
+[01-02-2009 00:02:41][Notice]:	MPBulletPhysicsSubject: 28 - pairPool size; 2640 - dictionaryPool size
+[01-02-2009 00:02:41][Notice]:	MPThread: Subject [MPBulletPhysicsSubject] has been stopped.
+[01-02-2009 00:02:41][Notice]:	MPObject: delegate "MPACSAttractedDelegate" removed;
+[01-02-2009 00:02:41][Notice]:	MPThread: Subject [MPAttractorChainSubject] has been stopped.
+[01-02-2009 00:02:41][Notice]:	MPObject: delegate "MPPositionedObject" removed for feature "positionable";
+[01-02-2009 00:02:41][Notice]:	MPThread: Subject [MPObjectPoser] has been stopped.
+[01-02-2009 00:02:41][Notice]:	MPThread: Subject [MPConsoleInputLoggerSubject] has been stopped.
+[01-02-2009 00:02:41][Notice]:	MPThread: Subject [MPGravityChangerSubject] has been stopped.
+[01-02-2009 00:02:41][Notice]:	MPThread: Subject [MPConsoleInputMessagerSubject] has been stopped.
+[01-02-2009 00:02:41][Notice]:	MPThread: Subject [MPConsoleInputLoopSubject] has been stopped.
+[01-02-2009 00:02:41][Notice]:	MPObject: delegate "MP2DObjectDelegate" removed for feature "object2d";
+[01-02-2009 00:02:41][Notice]:	MPThread: Subject [MP2DObjectSubject] has been stopped.
+[01-02-2009 00:02:41][Notice]:	MPThread: Thread <MPThread: 0x80ec640> has been stopped.
+[01-02-2009 00:02:41][Notice]:	MPThread: Subject [SystemSubject] has been stopped.
+[01-02-2009 00:02:41][Notice]:	MPThread: Thread <MPThread: 0x80e69f8> has been stopped.
+[01-02-2009 00:02:41][Notice]:	MPSubjectManager: stopped
+[01-02-2009 00:02:41][Notice]:	MPModule: Library [./MPTimerSubject.module] has been unloaded
+[01-02-2009 00:02:41][Notice]:	MPModule: Library [./MPConsoleSubject.module] has been unloaded
+[01-02-2009 00:02:41][Notice]:	MPModule: Library [./MPBulletPhysicsSubject.module] has been unloaded
+[01-02-2009 00:02:41][Notice]:	MPModule: Library [./MPGravityChangerSubject.module] has been unloaded
+[01-02-2009 00:02:41][Notice]:	MPModule: Library [./MPAttractorChainSubject.module] has been unloaded
+[01-02-2009 00:02:41][Notice]:	MPModule: Library [./MP2DObjectSubject.module] has been unloaded
+[01-02-2009 00:02:41][Notice]:	MPModule: Library [./MPObjectPoser.module] has been unloaded
+[01-02-2009 00:02:41][Notice]:	End.
