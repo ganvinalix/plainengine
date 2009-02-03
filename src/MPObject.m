@@ -431,6 +431,7 @@ NSRecursiveLock *objectClassMutex;
 	MPO_LOCK;
 	delegatesCopy = [[NSArray alloc] initWithArray: delegates]; //TODO: Optimize later
 	int i, count = [delegatesCopy count];
+
 	for (i=count-1; i>=0; --i)
 	{
 		id delegate = [delegatesCopy objectAtIndex: i];

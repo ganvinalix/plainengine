@@ -19,7 +19,6 @@ ClipClapHelpers.m
 libClipClapSubject_HEADER_FILES = \
 ClipClapSubject.h \
 ClipClapHelpers.h \
-InputStrategy.p \
 
 include $(GNUSTEP_MAKEFILES)/library.make
 

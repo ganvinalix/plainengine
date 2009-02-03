@@ -22,7 +22,7 @@
 
 - (void) moveByXY: (double)aX : (double)aY;
 
-/*if node == nil then sprite will be attached to root*/
+/*if node == nil then sprite will be attached to the root*/
 - (void) attachTo: (id<MPSpriteObject>)node;
 
 - (void) setAnimator: (id<MPAnimator>)anAnim;

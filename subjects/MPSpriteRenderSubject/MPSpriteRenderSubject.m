@@ -2,6 +2,7 @@
 #import <MPSpriteRenderDelegate.h>
 #import <MPRenderable.h>
 #import <MPCamera.h>
+#import <MPMouse.h>
 
 #import <SDL.h>
 #import <GL/gl.h>
@@ -155,6 +156,7 @@ void grabInput(BOOL grab)
 	done = NO;
 	[[api getObjectSystem] registerDelegate: [MPSpriteRenderDelegate class] forFeature: @"renderable"];
 	[[api getObjectSystem] registerDelegate: [MPCamera class] forFeature: @"camera"];
+	[[api getObjectSystem] registerDelegate: [MPMouse class] forFeature: @"mouse"];
 	[log add: notice withFormat: @"MPSpriteRenderSubject: initialization done."];
 }
 

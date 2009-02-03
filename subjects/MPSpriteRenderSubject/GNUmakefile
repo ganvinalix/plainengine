@@ -19,6 +19,7 @@ MPRenderable.m \
 MPSprite.m \
 MPAnimators.m \
 MPCamera.m \
+MPMouse.m \
 
 libMPSpriteRenderSubject_HEADER_FILES = \
 MPSpriteRenderSubject.h \
@@ -29,6 +30,7 @@ MPRenderable.h \
 MPSprite.h \
 MPAnimator.p \
 MPCamera.h \
+MPMouse.h \
 
 include $(GNUSTEP_MAKEFILES)/library.make
 
