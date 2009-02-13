@@ -54,10 +54,6 @@
 
 MP_HANDLER_OF_MESSAGE(exit)
 {
-	id obj = [[API getObjectSystem] newObjectWithName: @"test"];
-	[obj setXY: 0.0 : 0.0];
-	[obj release];
-
 	MP_SLEEP(1); //tambourine to allow other subjects to handle this message
 	[subjectManager terminate];
 }
