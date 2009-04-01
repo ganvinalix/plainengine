@@ -72,18 +72,18 @@ void removeAttractorFrom(NSString *attr, id<MPObject> obj)
 	for (i=0; i<attrcount; ++i)
 	{
 		id attractorObject = [attractors objectAtIndex: i];
-		[attractorObject lock];
+		//[attractorObject lock];
 		if (![attractorObject hasFeature: @"attractor"])
 		{
 			//attractor had been already deleted
-			[attractorObject unlock];
+			//[attractorObject unlock];
 			continue;
 		}
 		btGhostObject *curAttractor = dynamic_cast<btGhostObject *>
 														([attractorObject getAttractorObject]);
 		if (!curAttractor)
 		{
-			[attractorObject unlock];
+			//[attractorObject unlock];
 			continue;
 		}
 
@@ -194,7 +194,7 @@ void removeAttractorFrom(NSString *attr, id<MPObject> obj)
 			}
 		}
 		[oldAttractedObjects release];
-		[attractorObject unlock];
+		//[attractorObject unlock];
 	}
 }
 

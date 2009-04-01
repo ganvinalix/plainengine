@@ -8,7 +8,7 @@
 }
 + (MPCamera *) getCamera;
 
-- initWithObject: (id<MPObject>)object;
+- initWithObject: (id)object;
 
 - (double) getX;
 - (double) getY;

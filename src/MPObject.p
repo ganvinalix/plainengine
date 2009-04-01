@@ -1,9 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <MPVariant.p>
 #import <MPDictionary.p>
-
-/** Object handle type */
-typedef long long MPHandle;
+#import <mp_object.h>
 
 /** Name of NSNumber and NSString method, which returns MPHandle */
 #define MPHANDLE_VALUE longLongValue
@@ -16,34 +14,40 @@ typedef long long MPHandle;
 /** Is equal to [[MPObject alloc] initWithName: name] */
 +newObjectWithName: (NSString *)name;
 
-/** Adds delegate class to object system;
- *  All objects including existing onew would have an instance of this delegate
- *  (delegate is created by [delegate newDelegateWithObject:] (with object itself in param) if possible,
- *  otherwise created by [delegate new]);
- *  ------------------------------------------------------------------
- *  WARNING: Do not retain object recieved by 'newDelegateWithObject:'
- *  ------------------------------------------------------------------
- *  All messages that object can't handle would be redirected to this delegates in REVERSE registering order;
- *  Return value would be the last returned one (with regard to reverse order);
- *  If this delegate class (not subclass/root class) is already registered, does nothing
+/** <p>Adds delegate class to object system;</p>
+ *  <p>All objects including existing onew would have an instance of this delegate
+ *  Every delegate class may have user information (of type <b>void *</b>), which is set by 'setUserInfo:forDelegateClass'.
+ *  Delegate instance is created by [delegate newDelegateWithObject: withUserInfo:] (with object itself in first param
+ *  and user info (or NULL if there is not such) in second).<br></br>
+ *  If delegate class does not respond to 'newDelegateWithObject:userInfo', 'newDelegateWithObject:' is used.<br></br>
+ *  If 'newDelegateWithObject:' is not found too, 'new' is used.</p>
+ *  <p>------------------------------------------------------------------</p>
+ *  <p>WARNING: Do not retain object recieved by 'newDelegateWithObject:'</p>
+ *  <p>------------------------------------------------------------------</p>
+ *  <p>All messages that object can't handle would be redirected to this delegates in REVERSE registering order;</p>
+ *  <p>Return value would be the last returned one (with regard to reverse order);</p>
+ *  <p>If this delegate class (not subclass/root class) is already registered, does nothing</p>
  *  */
 +(void) registerDelegate: (Class)delegate;
 /** Unregisters delegate if there is one; Removes all local instances if delegate in all existing objects;
   * Returns NO if delegate was not found */
 +(BOOL) removeDelegate: (Class)delegate;
 
-/** Registers delegate class for single feature.
-  * It is guaranteed that all objects with given feature would have such delegate
-  * And objects without this feature wouldn't
-  * (of course, if this delegate is not contained by this object in another way, for example by another feature)
-  * (look registerDelegate for description of delegates concept) */
+/** <p> Registers delegate class for single feature.
+  * It is guaranteed that all objects with given feature would have such delegate.
+  * And objects without this feature wouldn't. 
+  * (of course, if this delegate is not contained by this object in another way, for example by another feature)</p>
+  * <p>(look registerDelegate for description of delegates concept)</p> */
 +(void) registerDelegate: (Class)delegate forFeature: (NSString *)feature;
 
 /** Registers delegate class for every of given feature names array element */
 +(void) registerDelegate: (Class)delegate forFeatures: (NSArray *)features;
 
+/** Sets user info for delegate class. If it already exists, replaces it. Works correct for still not registered delegate */
++(void) setUserInfo: (void *)userInfo forDelegateClass: (Class)delegate;
+
 /** Unregisters delegate for given feature, discarding registerDelegate:byFeature effect
-  * (but not the registerDelegate: one)
+  * (but not the registerDelegate: one).
   * Returns NO if delegate was not found*/
 +(BOOL) removeDelegate: (Class)delegate forFeature: (NSString *)feature;
 

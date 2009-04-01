@@ -45,14 +45,8 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 */
 
 #define MP_NSSTRING_CHECK(x) \
-	MP_ASSERT(x, @"Parameter \""#x"\" is nil");\
-	if (![[x class] isSubclassOfClass: [NSString class]])\
-	{\
-		NSException *exc = [NSException exceptionWithName: MPIsNotNSString\
-						reason: @"Parameter \""#x"\" must be NSString"\
-						userInfo: nil];\
-		THROW(exc);\
-	}
+	NSAssert(x, @"Parameter \""#x"\" is nil");\
+	NSAssert([x isKindOfClass: [NSString class]], @"Parameter \""#x"\" must be NSString");
 
 @implementation MPDictionaryEnumerator
 

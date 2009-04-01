@@ -1,4 +1,4 @@
-#import <./core_constants.h>
+#import <core_constants.h>
 
 NSString *const MPHandlerPrefix = @"_h_";
 NSString *const MPHandlerOfMessagePrefix = @"_h_msg_";

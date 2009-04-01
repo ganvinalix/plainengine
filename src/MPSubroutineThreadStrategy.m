@@ -80,6 +80,22 @@
 {
 	paused = aState;
 }
+- (BOOL) isPrepared
+{
+	return prepared;
+}
+- (void) setPrepared: (BOOL)aState
+{
+	prepared = aState;
+}
+- (BOOL) isUpdating
+{
+	return updating;
+}
+- (void) setUpdating: (BOOL)aState
+{
+	updating = aState;
+}
 - (void) wait
 {
 	[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 0.1]];

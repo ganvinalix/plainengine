@@ -8,6 +8,8 @@
 	BOOL working;
 	BOOL done;
 	BOOL paused;
+	BOOL prepared;
+	BOOL updating;
 	// timer
 	NSTimer *_timer;
 	// innerPool

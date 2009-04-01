@@ -3,6 +3,11 @@
 
 #include <stdlib.h>
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 /** Typedef for pointer to dictionary */
 typedef void * dictionary;
 /** Typedef for pointer to enumerator */
@@ -51,6 +56,10 @@ char const *dict_enumerator_next(dict_enumerator enumerator);
 
 /** Frees memory, used by enumerator. Does nothing if enumerator is NULL */
 void dict_free_enumerator(dict_enumerator enumerator);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_DICTIONARY_C_
 

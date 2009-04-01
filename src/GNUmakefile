@@ -25,6 +25,7 @@ core_constants.m \
 MPDictionaryPooler.m\
 MPLinker.m \
 MPResultCradle.m \
+MPAssertionHandler.m \
 
 plainEngine_HEADER_FILES = \
 common.h \
@@ -46,6 +47,7 @@ MPDictionaryPooler.h \
 MPLinker.h \
 MPResultCradle.h \
 MPResultCradle.p \
+MPAssertionHandler.h \
 
 
 LIBRARY_NAME = libMPUtility
@@ -56,6 +58,7 @@ numeric_types.h \
 error_names.h \
 dictionary.h \
 release_bunch.h \
+universal_delegate_headers.h \
 MPLog.h \
 MPConfigDictionary.h \
 MPFileLogChannel.h \
@@ -72,6 +75,8 @@ MPPair.h \
 MPAutoreleasePool.h \
 MPStringToCStringConverter.h \
 MPModule.h \
+MPRemovalStableList.h \
+MPUniversalDelegate.h \
 ClassInspection.h \
 
 libMPUtility_C_FILES = \
@@ -93,6 +98,8 @@ MPAutoreleasePool.m \
 error_names.m \
 MPStringToCStringConverter.m \
 MPModule.m \
+MPRemovalStableList.m \
+MPUniversalDelegate.m \
 ClassInspection.m \
 
 include $(GNUSTEP_MAKEFILES)/library.make

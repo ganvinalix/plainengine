@@ -20,6 +20,10 @@
 - (void) setDone: (BOOL)aState;
 - (BOOL) isPaused;
 - (void) setPaused: (BOOL)aState;
+- (BOOL) isPrepared;
+- (void) setPrepared: (BOOL)aState;
+- (BOOL) isUpdating;
+- (void) setUpdating: (BOOL)aState;
 // update
 - (void) update;
 @end

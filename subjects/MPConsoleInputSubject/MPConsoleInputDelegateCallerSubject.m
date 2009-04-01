@@ -3,15 +3,17 @@
 
 NSString *convertToString(const char *type, void *val)
 {
-	NSMutableString *str = nil;
 	#define CHECK_TYPE(T, f)\
-		if ((!str) && strcmp(type, @encode(T))==0)\
+		if (strcmp(type, @encode(T))==0)\
 		{\
 			T *t;\
 			t = (T*)val;\
-			str = [NSString stringWithFormat: f, *t];\
-			return str;\
+			return [NSString stringWithFormat: f, *t];\
 		}
+	if (!type)
+	{
+		return @"(ERROR)";
+	}
 	if (strcmp(type, @encode(void)) == 0)
 	{
 		return @"(void)";
@@ -20,8 +22,10 @@ NSString *convertToString(const char *type, void *val)
 	CHECK_TYPE(float,		@"%f");
 	CHECK_TYPE(int,			@"%d");
 	CHECK_TYPE(unsigned,	@"%u");
+	CHECK_TYPE(long,		@"%ld");
+	CHECK_TYPE(long long,	@"%lld");
 
-	return str;
+	return @"(ERROR)";
 	#undef CHECK_TYPE
 }
 
@@ -68,110 +72,115 @@ MP_HANDLER_OF_MESSAGE(consoleInput)
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	NSString *str = [MP_MESSAGE_DATA objectForKey: @"commandparams"];
 	
-	if (str && [[MP_MESSAGE_DATA objectForKey: @"commandname"] isEqual: @"dcall"])
+	if	((str && [[MP_MESSAGE_DATA objectForKey: @"commandname"] isEqual: @"dcall"]) ||
+		(str && [[MP_MESSAGE_DATA objectForKey: @"commandname"] isEqual: @"qdcall"]) )
 	{
 		NSArray *arr = [str componentsSeparatedByString: @" "];
-		if ([arr count]>=3)
+		if ([arr count]>=2)
 		{
+			release_bunch rbunch = relbunch_create();
+
 			id object = [[api getObjectSystem] getObjectByName: [arr objectAtIndex: 0]];
 			
-			char *returnType = malloc([[arr objectAtIndex: 1] length]+2);
-			char *methodName = malloc([[arr objectAtIndex: 2] length]+2);
+			char *methodName = malloc([[arr objectAtIndex: 1] length]+2);
+			relbunch_add_pointer(rbunch, methodName);
 
-			[[arr objectAtIndex: 1] getCString: returnType
+			[[arr objectAtIndex: 1] getCString: methodName
 					  maxLength: [[arr objectAtIndex: 1] length]+1
 					   encoding: NSUTF8StringEncoding];
 
+			SEL methodSelector;
+			NSMethodSignature *sig;
 
-			[[arr objectAtIndex: 2] getCString: methodName
-					  maxLength: [[arr objectAtIndex: 2] length]+1
-					   encoding: NSUTF8StringEncoding];
+			getSelectorAndMethodSignature(object, methodName, &methodSelector, &sig);
 
-			SEL methodSelector = sel_getUid(methodName);
-
-			if (!methodSelector) //:-(
+			if (!sig)
 			{
-				[[api log] add: warning withFormat: @"MPConsoleInputDelegateCallerSubject: Selector \"%s\" is invalid;",
+				[[api log] add: error withFormat: @"MPConsoleInputDelegateCallerSubject: Selector \"%s\" is invalid;",
 					methodName];
-				free(returnType);
-				free(methodName);
+				relbunch_release(rbunch);
 				return;
 			}
 
-			char *types;
-			BOOL freeTypes = NO;
-
-			if ([arr count] > 3)
-			{
-				types = malloc([[arr objectAtIndex: 3] length]+2);
-				[[arr objectAtIndex: 3] getCString: types
-						  maxLength: [[arr objectAtIndex: 3] length]+1
-						   encoding: NSUTF8StringEncoding];
-				freeTypes = YES;
-			}
-			else
-			{
-				types = "";
-			}
-
-			char *sigTypes;
-			sigTypes = malloc(strlen(returnType)+strlen(types)+3);
-			sprintf(sigTypes, "%s@:%s", returnType, types);
-	
-			NSMethodSignature *sig;
-			sig = [NSMethodSignature signatureWithObjCTypes: sigTypes];
-			NSInvocation *inv = [NSInvocation invocationWithMethodSignature: sig];
+			NSInvocation *inv = [[NSInvocation invocationWithMethodSignature: sig] retain];
 			[inv setSelector: methodSelector];
+			[inv setTarget: object];
 
-			release_bunch argsbunch = relbunch_create();
+			unsigned argcount = [sig numberOfArguments];
+			
+			if ([arr count] < argcount) //(argcount-2) - arguments count without hidden params, and (argcount-2+2) is valid command arguments count
+			{
+				[[api log] add: error withFormat: @"MPConsoleInputDelegateCallerSubject: Not enough arguments;"];
+				relbunch_release(rbunch);
+				return;
+			}
 
-			unsigned i, argcount = [sig numberOfArguments];
+			if ([arr count] > argcount)
+			{
+				[[api log] add: warning withFormat: @"MPConsoleInputDelegateCallerSubject: Too many arguments, redundant ones had been omitted;"];
+			}
+
+			unsigned i;
 			for (i=2; i<argcount; ++i)
 			{
-				unsigned int size, al;
-				NSGetSizeAndAlignment([sig getArgumentTypeAtIndex: i], &size, &al);
+				unsigned int size;
+				NSGetSizeAndAlignment([sig getArgumentTypeAtIndex: i], &size, NULL);
 				void *arg = malloc(size);
-				if (types[i-2] == 'd')
+				relbunch_add_pointer(rbunch, arg);
+				BOOL found=NO;
+				#define DO_TYPE_CHECK(type, strmeth)\
+					if (!found && (strcmp([sig getArgumentTypeAtIndex: i], @encode(type)) == 0))\
+					{\
+						type t = [[arr objectAtIndex: i] strmeth];\
+						memcpy(arg, &t, sizeof(t));\
+						found = YES;\
+					}
+					
+
+				DO_TYPE_CHECK(double,		doubleValue);
+				DO_TYPE_CHECK(float,		floatValue);
+				DO_TYPE_CHECK(unsigned,		intValue);
+				DO_TYPE_CHECK(long,			longValue);
+				DO_TYPE_CHECK(long long,	longLongValue);
+
+				#undef DO_TYPE_CHECK
+
+				if (!found)
 				{
-					double t = [[arr objectAtIndex: i+2] doubleValue];
-					memcpy(arg, &t, sizeof(double));
-				}
-				else
-				{
-					[[api log] add: error withFormat: @"MPConsoleInputDelegateCallerSubject: type \'%c\' not supported",
-						types[i-2]];
+					[[api log] add: error withFormat: @"MPConsoleInputDelegateCallerSubject: type \'%s\' not supported",
+	   								[sig getArgumentTypeAtIndex: i]];
+					relbunch_release(rbunch);
+					return;
 				}
 				[inv setArgument: arg atIndex: i];
-				relbunch_add_pointer(argsbunch, arg);
 			}
 
-			[inv invokeWithTarget: object];
 
-			unsigned int size, al;
-			NSGetSizeAndAlignment(returnType, &size, &al);
+			unsigned int size;
+			size = [sig methodReturnLength];
 			void *retbuffer = NULL;
 			retbuffer = malloc(size);
-			[inv getReturnValue: retbuffer];
-			free(sigTypes);
-			free(methodName);
-			relbunch_release(argsbunch);
-			if (freeTypes)
-			{
-				free(types);
-			}
-			
-			[[api log] add: info
-				withFormat: @"MPConsoleInputDelegateCallerSubject: return value: \"%@\"",
-				convertToString(returnType, retbuffer)];
+			relbunch_add_pointer(rbunch, retbuffer);
 
-			free(returnType);
-			free(retbuffer);
+			[inv invoke];
+			[inv getReturnValue: retbuffer];
+			[inv release];
+
+			if ([[MP_MESSAGE_DATA objectForKey: @"commandname"] isEqual: @"dcall"])
+			{
+				[[api log] add: info
+						withFormat: @"MPConsoleInputDelegateCallerSubject: return value: \"%@\"",
+						convertToString([sig methodReturnType], retbuffer)];
+			}
+
+			relbunch_release(rbunch);
 
 		}
 	}
 	else if (str && [[MP_MESSAGE_DATA objectForKey: @"commandname"] isEqual: @"helpdcall"])
 	{
-		[[api log] add: info withFormat: @"Usage: dcall <objname> <rettype> <msgselector> [<argtypes> {args}]"];
+		[[api log] add: info withFormat: @"Call object method with result printing:\tdcall <objname> <msgselector> {args}"];
+		[[api log] add: info withFormat: @"Call object method without result printing:\tqdcall <objname> <msgselector> {args}"];
 	}
 	else if (str && [[MP_MESSAGE_DATA objectForKey: @"commandname"] isEqual: @"help"])
 	{

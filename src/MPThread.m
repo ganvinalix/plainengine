@@ -33,6 +33,7 @@
 	[strategy setWorking: NO];
 	[strategy setDone: YES];
 	[strategy setPaused: NO];
+	[strategy setPrepared: NO];
 	
 	return self;
 }
@@ -70,11 +71,29 @@
 {
 	return [strategy isWorking];
 }
+- (BOOL) isPaused
+{
+	return [strategy isPaused];
+}
+- (BOOL) isPrepared
+{
+	return [strategy isPrepared];
+}
+- (BOOL) isUpdating
+{
+	return [strategy isUpdating];
+}
 - (void) prepare
 {
 	if( [self isWorking] ) 
 	{
 		[gLog add: warning withFormat: @"MPThread: Attempt to 'prepare' already working thread."];
+		return;
+	}
+
+	if( [self isPrepared] ) 
+	{
+		[gLog add: warning withFormat: @"MPThread: Attempt to 'prepare' already prepared thread."];
 		return;
 	}
 
@@ -93,6 +112,9 @@
 		[currentSubject start];
 		[gLog add: notice withFormat: @"MPThread: Subject [%@] has been started.", currentName];
 	}
+
+	[strategy setPrepared: YES];
+
 	[gLog add: notice withFormat: @"MPThread: Thread %@ has been prepared.", self];
 }
 - (void) start
@@ -102,6 +124,12 @@
 		[gLog add: warning withFormat: @"MPThread: Attempt to start already working thread."];
 		return;
 	}
+
+	if( ![self isPrepared] )
+	{
+		[self prepare];
+	}
+
 	[strategy setDone: NO];
 	// lets go!
 	[strategy startPerformingSelector: @selector(threadRoutine) toTarget: self];
@@ -118,6 +146,7 @@
 	[[MPNotificationCenter defaultCenter] removeObserver: notifications];
 
 	[strategy setDone: YES];
+	[strategy setPrepared: NO];
 
 	// remember current time
 	NSDate *startTime = [NSDate date];
@@ -149,6 +178,9 @@
 	}
 	//
 	//
+	
+	[strategy setUpdating: YES];
+
 	[strategy update];
 
 	NSUInteger count = [allSubjects count], i;
@@ -157,6 +189,9 @@
 		[[allSubjects objectAtIndex: i] update];
 	}
 	while( [self processNextMessage] );
+
+	[strategy setUpdating: NO];
+
 	MP_SLEEP(1);
 }
 - (BOOL) processNextMessage
@@ -173,6 +208,8 @@
 	notification = [notifications getTop];
 
 	if(notification == nil) return NO;
+
+	//[gLog add: info withFormat: @"MPThread: notifications queue is: %@", notifications];
 	
 	[notification retain];
 	[notifications popTop];
@@ -194,7 +231,7 @@
 		suffix = @"";
 		targetToSubscribedObjects = messageNameToSubscribedSubjects;
 	}
-	//[gLog add: info withFormat: @"MPThread: message with name: '%@' has been recieved; stack: %@", notificationName, routinesStack];
+	//[gLog add: info withFormat: @"MPThread: message with name: '%@' has been recieved; stack: %@; Thread: %@", notificationName, routinesStack, self];
 
 	// not necessary to process message if same one is deferred already
 	if( ![routinesStack containsObject: nameForStack] )
@@ -251,7 +288,7 @@
 {
 	// stuff
 	NSString *const prefixes[] = {MPHandlerOfMessagePrefix, MPHandlerOfRequestPrefix};
-	MP_ASSERT(elements_count <= 2, @"Number of elements  in the 'targets' enum greater than in the array of target's names.");
+	NSAssert(elements_count <= 2, @"Number of elements  in the 'targets' enum greater than in the array of target's names.");
 
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
@@ -364,7 +401,7 @@
 	[strategy lockMutex];
 	id <MPSubject> subj = [subjects objectForKey: aName];
 	[strategy unlockMutex];
-	MP_ASSERT([subj conformsToProtocol: @protocol(MPSubject)] == YES,
+	NSAssert([subj conformsToProtocol: @protocol(MPSubject)] == YES,
 		       	@"there are non subject object in the subjects dictionary!");
 	return [[subj retain] autorelease];
 }
@@ -375,11 +412,11 @@
 - (BOOL) bindSubject: (id<MPSubject>)aSubject to: (subject_binding_target)aTarget withName: (NSString *)aName
 {
 	NSMutableDictionary *collections[] = {messageNameToSubscribedSubjects, requestNameToSubscribedSubjects};
-	MP_ASSERT(elements_count <= 2, @"Number of elements  in the 'targets' enum greater than in the 'collections' array.");
+	NSAssert(elements_count <= 2, @"Number of elements  in the 'targets' enum greater than in the 'collections' array.");
 
 	NSMutableDictionary *targetToSubscribedObjects = collections[aTarget];
 
-	MP_ASSERT(aName, @"nil instead of the string with the target's name.");
+	NSAssert(aName, @"nil instead of the string with the target's name.");
 
 	NSMutableArray *currentArrayOfSubjects = nil;
 	// now locking and approving changes
@@ -437,5 +474,28 @@
 	}
 	[self processNextMessage];
 }
+
+- (NSString*) description
+{
+	NSEnumerator *enumer = [allSubjects objectEnumerator];
+	id subject;
+	NSMutableString *description = [NSMutableString stringWithFormat: @"(%p: ", self];
+	BOOL first = YES;
+	while ((subject = [enumer nextObject]) != nil)
+	{
+		if (first)
+		{
+			[description appendString: NSStringFromClass([subject class])];
+			first = NO;
+		}
+		else
+		{
+			[description appendFormat: @", %@", NSStringFromClass([subject class])];
+		}
+	}
+	[description appendString: @")"];
+	return description;
+}
+
 @end
 

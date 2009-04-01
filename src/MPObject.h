@@ -6,7 +6,8 @@
 	NSNumber *objectHandle;
 	NSString *objectName;
 	NSMutableDictionary *features;
-	NSMutableArray *delegates;
+	//NSMutableArray *delegates;
+	MPRemovalStableList *delegatesList;
 	NSMutableDictionary *delegatesPerCount;
 	NSUInteger internalRetainCount;
 	NSRecursiveLock *accessMutex;
@@ -31,6 +32,8 @@
 /** Decreases "reference counter" of delegate instance. If it became equal to 0, removes it */
 -(void) removeLocalDelegate: (Class)delegate;
 
+-(NSMethodSignature *) methodSignatureForSelector: (SEL)selector;
+
 -(void) forwardInvocation: (NSInvocation *)anInvocation;
 //-(BOOL) respondsToSelector: (SEL)aSelector;
 
@@ -40,4 +43,5 @@
 -(NSString *) description;
 
 @end
+
 

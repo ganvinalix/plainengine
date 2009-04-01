@@ -1,6 +1,7 @@
 // Disabling this flag would disable all exception-handling code
 #define MP_USE_EXCEPTIONS
 // Disable this flag for disabling old GNUstep libraries support; 
+// !!! DO NOT USE !!! DEPRECATED !!!
 //#define MP_OLDGNUSTEPSUPPORT
 
 // Enable this flag in multi-thread applications to activate synchronistion mechanism in MPObject;

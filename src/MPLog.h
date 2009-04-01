@@ -19,6 +19,7 @@
 @private
 	NSMutableArray *channels;
 	NSLock *mutex;
+	NSUInteger counts[levels_count];
 }
 /** Adds a log channel (just retains theChannel) */
 - (BOOL) addChannel: (id <MPLogChannel>)theChannel;

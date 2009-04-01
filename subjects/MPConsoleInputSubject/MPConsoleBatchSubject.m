@@ -9,6 +9,7 @@
 	api = nil;
 	initializer = [aParams copy];
 	initializeBatch = YES;
+	uniqueCounter = 0;
 	return self;
 }
 
@@ -46,17 +47,27 @@
 {
 	NSArray *params = [runstring componentsSeparatedByString: @" "];
 	NSUInteger parind, parcount = [params count];
+
+	NSString *unique = @"";
+
 	if (![params count])
 	{
 		return;
 	}
 	NSString *batch = [NSString stringWithContentsOfFile: [params objectAtIndex: 0]];
 	NSArray *commands = [batch componentsSeparatedByString: MP_EOL];
+
+	if (stringContainsSubstring(batch, @"$unique"))
+	{
+		unique = [NSString stringWithFormat: @"__%u__", uniqueCounter++];
+	}
+
 	NSEnumerator *enumer = [commands objectEnumerator];
 	NSString *cur = nil;
 	while ((cur = [enumer nextObject]) != nil)
 	{
 		NSMutableString *current = [NSMutableString stringWithString: cur];
+		stringReplace(current, @"$unique", unique);
 		for (parind=0; parind<parcount; ++parind)
 		{
 			stringReplace(current, [NSString stringWithFormat: @"$%u", parind], [params objectAtIndex: parind]);

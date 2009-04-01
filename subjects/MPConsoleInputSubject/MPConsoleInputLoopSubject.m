@@ -94,6 +94,27 @@ MP_HANDLER_OF_MESSAGE(consoleInput)
 			}
 		}
 	}
+	else if (str && [[MP_MESSAGE_DATA objectForKey: @"commandname"] isEqual: @"seq"])
+	{
+		NSArray *sequence = [str componentsSeparatedByString: @","];
+
+		NSMutableString *commandname, *commandparams;
+	    commandname = [NSMutableString string];	
+	    commandparams = [NSMutableString string];	
+		
+		NSUInteger i, count = [sequence count];
+		for (i=0; i<count; ++i)
+		{
+			NSMutableString *command=[NSMutableString stringWithString: [sequence objectAtIndex: i]];
+			stringTrimLeft(command);
+			separateString(command, commandname, commandparams, @" ");
+			id dict = [dictionaryPool newObject];
+			[dict setObject: commandname	forKey: @"commandname"];
+			[dict setObject: commandparams	forKey: @"commandparams"];
+			[api postMessageWithName: @"consoleInput" userInfo: dict];
+			[dict release];
+		}
+	}
 	else if (str && [[MP_MESSAGE_DATA objectForKey: @"commandname"] isEqual: @"helploop"])
 	{
 		[[api log] add: info withFormat: @"\nrepeat <v> <c>:<command> - repeats <command> n times,"
@@ -104,6 +125,7 @@ MP_HANDLER_OF_MESSAGE(consoleInput)
 										  "\nrepeat <v> <s> <f> <k>:<command> - repeats <command>, incrementing"
 										  "\n    counter from <s> to <f> by <k>"
 		   								  "\n    replacing all occurances of '$<v>' to current counter value"
+										  "\nseq <command1>{, <command2>} - executes comma-separated list of commands"
 										  "\n"];
 	}
 	else if (str && [[MP_MESSAGE_DATA objectForKey: @"commandname"] isEqual: @"help"])

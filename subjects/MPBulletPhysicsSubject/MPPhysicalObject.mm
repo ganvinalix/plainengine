@@ -146,9 +146,9 @@ BOOL cleanVelocityOnManualMove = NO;
 				globalWorld->removeConstraint(constrict);
 				delete constrict;
 			}
-			[worldLockMutex lock];
+			//[worldLockMutex lock];
 			globalWorld->removeCollisionObject(bulletObject);
-			[worldLockMutex unlock];
+			//[worldLockMutex unlock];
 			delete bulletObject;
 			delete motionState;
 			bulletObject = NULL;
@@ -219,6 +219,49 @@ BOOL cleanVelocityOnManualMove = NO;
 		bulletObject->setLinearVelocity(btVector3(aX, aY, aZ));
 		bulletObject->activate(true);
 	}
+}
+
+-(void) setLinearVelocity: (double)velocity
+{
+	if (bulletObject)
+	{
+		btVector3 vel = bulletObject->getLinearVelocity();
+		if (vel.length() != 0)
+		{
+			vel.normalize();
+			vel *= velocity;
+		}
+		bulletObject->setLinearVelocity(vel);
+		bulletObject->activate(true);
+	}
+}
+
+-(double) getLinearVelocityX
+{
+	if (bulletObject)
+	{
+		return bulletObject->getLinearVelocity().getX();
+	}
+	return 0;
+}
+
+-(double) getLinearVelocityY
+{
+	if (bulletObject)
+	{
+		return bulletObject->getLinearVelocity().getY();
+	}
+	return 0;
+}
+
+
+-(double) getLinearVelocityZ
+{
+	if (bulletObject)
+	{
+		return bulletObject->getLinearVelocity().getZ();
+	}
+	return 0;
 }
 
 -(void) setXYZ: (double)aX : (double)aY : (double)aZ

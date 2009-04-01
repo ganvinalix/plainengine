@@ -5,4 +5,7 @@ cd ../src
 ./makesclists.sh
 make
 cd ..
+cd subjects
+./makeall.sh
+cd ..
 

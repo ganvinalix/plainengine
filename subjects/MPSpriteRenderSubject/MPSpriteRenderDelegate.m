@@ -61,13 +61,14 @@ Class getAnimatorByName(NSString *className)
 		x = [_object getX];
 		y = [_object getY];
 		z_order = [_object getZOrder];
-		sx = 0.1;//[_object getXScale];
-		sy = 0.1;//[_object getYScale];
+		sx = 1;//[_object getXScale];
+		sy = 1;//[_object getYScale];
 		roll = [_object getRoll];
 		[drawer setTextureAnimator: nil];
 
 		if(info)
 		{
+			[gLog add: notice withFormat: @"%@", info];
 			FOR_PARAM(parentName)
 			{
 				id obj = [[_object class] getObjectByName: parentName]; 

@@ -9,6 +9,7 @@
 	id <MPAPI> api;
 	BOOL initializeBatch;
 	NSString *initializer;
+	unsigned uniqueCounter;
 }
 -(void) executeBatch: (NSString *)runstring;
 MP_HANDLER_OF_MESSAGE(consoleInput);

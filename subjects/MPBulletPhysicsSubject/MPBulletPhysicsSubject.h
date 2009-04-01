@@ -47,7 +47,8 @@
 
 	- Sends messages:
  		'objectsCollided' (params - 'object1Name', 'object2Name')	- on every collision,
-									if neither object1 nor object2 have feature 'quietcollisions'
+									if neither object1 nor object2 have feature 'quietcollisions';
+									also each object recieves message 'collidedWith:atXYZ:::' with collided object handle as param
 	- Recieves messages:
 		'setGravity' (params - 'X', 'Y', 'Z') - coordinates of new gravity vector. Missing params are counted as 0;
 		'explosion' (params - 'X', 'Y', 'Z', 'radius', 'impulseCoefficient', 'maximalImpulse') -

@@ -1,4 +1,5 @@
 #import <Foundation/Foundation.h>
+#import <MPAssertionHandler.h>
 
 #import <common.h>
 #import <core_constants.h>
@@ -14,7 +15,8 @@ int main(int argc, const char *argv[])
 	NSAutoreleasePool *pool = [NSAutoreleasePool new];
 	MPSubjectManager *subjman = nil;
 	id descriptions = nil, state = nil;
-
+	[[[NSThread currentThread] threadDictionary] setObject: [[MPAssertionHandler new] autorelease] forKey: @"NSAssertionHandler"];
+	
 	#ifdef MP_USE_EXCEPTIONS
 	@try
 	{
@@ -52,7 +54,21 @@ int main(int argc, const char *argv[])
 		MPUnloadModules(state);
 		[pool release];
 
-		[gLog add: notice withFormat:@"End."];
+		[gLog add: notice withFormat: @"There were:"];
+
+		NSUInteger level;
+
+		for (level=0; level < levels_count; ++level)
+		{
+			NSUInteger msgCount;
+			msgCount = [gLog getCountOfMessagesWithLevel: level];
+			if (msgCount)
+			{
+				[gLog add: notice withFormat: @"%@\t - %lu times;", [MPLog getNameOfMessageLevel: level], msgCount];
+			}
+		}
+
+		[gLog add: notice withFormat: @"End."];
 
 		[theGlobalLog release];
 

@@ -1,6 +1,9 @@
 #import <MPUtility.h>
+#import <config.h>
 
 /* Too cripled implementation. TODO */
+
+/* ----------------Convertion functions----------------- */
 
 NSString *pointerToString(void *pointer)
 {
@@ -9,18 +12,24 @@ NSString *pointerToString(void *pointer)
 
 NSString *unsignedToString(NSUInteger uns)
 {
-	return [NSString stringWithFormat: @"%u", uns];
+	return [NSString stringWithFormat: @"%lu", uns];
 }
 
 NSUInteger stringToUnsigned(NSString *string)
 {
+	#ifdef MP_OLD_GNUSTEP_SUPPORT
 	return (NSUInteger)[string intValue];
+	#else
+	return (NSUInteger)[string integerValue];
+	#endif
 }
 
 void *stringToPointer(NSString *string)
 {
 	return (void *)[string intValue];
 }
+
+/* -------------Functions to work with strings---------- */
 
 void separateString(NSString *source, NSMutableString *left, NSMutableString *right, NSString *separator)
 {
@@ -66,6 +75,35 @@ void replaceSubstr(NSMutableString *str, NSUInteger st, NSUInteger fin, NSString
 	right = [str substringFromIndex: fin+1];
 	[str setString: @""];
 	[str appendFormat: @"%@%@%@", left, replacement, right];
+}
+
+BOOL stringContainsSubstring(NSString *str, NSString *substr)
+{
+	int block = [substr length]-1;
+	long i, max=[str length]-[substr length];
+	for (i=0; i<=max; ++i)
+	{
+		if (substringEqual(str, i, i+block, substr))
+		{
+			return YES;
+		}
+	}
+	return NO;
+}
+
+NSUInteger substringCount(NSString *str, NSString *substr)
+{
+	NSUInteger cnt=0;
+	int block = [substr length]-1;
+	long i, max=[str length]-[substr length];
+	for (i=0; i<=max; ++i)
+	{
+		if (substringEqual(str, i, i+block, substr))
+		{
+			++cnt;
+		}
+	}
+	return cnt;
 }
 
 void stringReplace(NSMutableString *str, NSString *target, NSString *replacement)
@@ -128,6 +166,84 @@ NSDictionary *parseParamsString(NSString *params)
 	return dict;
 }
 
+/* -------------getSelectorAndMethodSignature----------- */
+
+#ifdef GNU_RUNTIME
+
+NSLock *getSelectorAndMethodSignatureLock = nil;
+
+#define GSAMS_LOCK\
+	if (!getSelectorAndMethodSignatureLock)\
+	{\
+		getSelectorAndMethodSignatureLock = [NSLock new];\
+	}\
+	[getSelectorAndMethodSignatureLock lock]
+
+#define GSAMS_UNLOCK\
+	[getSelectorAndMethodSignatureLock unlock]
+
+
+void getSelectorAndMethodSignature(id object, const char *methodName, SEL *selector, NSMethodSignature **methodSignature)
+{
+	static NSUInteger typesStringLength=0;
+	static char *typesString = NULL;
+
+	SEL methodSelector = sel_registerName(methodName);
+	NSMethodSignature *sig = [object methodSignatureForSelector: methodSelector];
+	if (sig && !GSTypesFromSelector(methodSelector))
+	{
+		NSUInteger j, newSize;
+		newSize = strlen([sig methodReturnType]) + 1;
+		for (j=0; j<[sig numberOfArguments]; ++j)
+		{
+			newSize += strlen([sig getArgumentTypeAtIndex: j]);
+		}
+		GSAMS_LOCK;
+		if (typesStringLength < newSize)
+		{
+			typesStringLength = newSize;
+			typesString = realloc(typesString, typesStringLength);
+			typesString[typesStringLength-1] = '\0';
+		}
+		typesString[0] = '\0';
+		strcat(typesString, [sig methodReturnType]);
+		for (j=0; j<[sig numberOfArguments]; ++j)
+		{
+			strcat(typesString, [sig getArgumentTypeAtIndex: j]);
+		}
+		methodSelector = GSSelectorFromNameAndTypes(methodName, typesString);
+		GSAMS_UNLOCK;
+	}
+	if (selector)
+	{
+		*selector = methodSelector;
+	}
+	if (methodSignature)
+	{
+		*methodSignature = sig;
+	}
+}
+
+#else
+
+void getSelectorAndMethodsignature(id object, const char *methodName, SEL *selector, NSMethodSignature **methodSignature)
+{
+	SEL methodSelector = sel_registerName(methodName);
+	NSMethodSignature *sig = [object methodSignatureForSelector: methodSelector];
+
+	if (selector)
+	{
+		*selector = methodSelector;
+	}
+	if (methodSignature)
+	{
+		*methodSignature = sig;
+	}
+}
+
+#endif
+
+/* ------------------Time functions--------------------- */
 #ifdef WIN32
 
 #import <windows.h>

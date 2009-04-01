@@ -205,6 +205,15 @@ MP_HANDLER_OF_MESSAGE(consoleInput)
 			[[api log] add: info withFormat: @"Features of object \"%@\" are: %@", str, featuresString];
 		}
 	}
+	else if (str && [[MP_MESSAGE_DATA objectForKey: @"commandname"] isEqual: @"objall"])
+	{
+		NSArray *objects = [[api getObjectSystem] getAllObjects];
+		NSUInteger i, count = [objects count];
+		for (i=0; i<count; ++i)
+		{
+			[[api log] add: info withFormat: @"-%@", [objects objectAtIndex: i]]; 
+		}
+	}
 	else if (str && [[MP_MESSAGE_DATA objectForKey: @"commandname"] isEqual: @"objbyf"])
 	{
 		NSArray *objects = [[api getObjectSystem] getObjectsByFeature: str];
@@ -255,6 +264,7 @@ MP_HANDLER_OF_MESSAGE(consoleInput)
 			 "objrmfwp <nam> <fn> par1=par1value/par2=par2value...\t - \n"
 			 										"\t\t\t\t\tremoves feature 'fn from object 'nam' with user info\n"
 			 "objpf <nam>\t\t\t\t - prints features of object 'nam'\n"
+			 "objall \t\t\t\t\t - prints list of all objects\n"
 			 "objbyf <fn>\t\t\t\t - lists objects with feature 'fn'\n"
 			 "cpobj <nam> [<newnam>]\t\t\t - copies object 'nam'. Copy name is 'newnam'\n"
 			 //"objload <filename>\t\t - loads objects from file 'filename'\n"

@@ -11,11 +11,26 @@
 
 using namespace std;
 
+@protocol MPBulletPhysicsSubjectMethodDeclarations
+-(void) collidedWith: (MPHandle)han atXYZ: (double)x : (double)y : (double)z;
+@end
+
+@interface MPBulletPhysicsSubjectPoint: NSObject
+{
+@public
+	double X, Y, Z;
+}
+@end
+
+@implementation MPBulletPhysicsSubjectPoint: NSObject
+@end
+
 MPPool *dictionaryPool=[[MPPool alloc] initWithClass: [MPMutableDictionary class]];
-NSMutableSet *collidedObjectsSet = [NSMutableSet new];
+NSMutableDictionary *collidedObjectsDictionary = [NSMutableDictionary new];
 NSMutableDictionary *recentlyCollidedObjects = [NSMutableDictionary new];
 NSMutableArray *recentlyCollidedObjectsTimes = [NSMutableArray new];
 MPPool *pairPool = [[MPPool alloc] initWithClass: [MPPair class]];
+MPPool *pointPool = [[MPPool alloc] initWithClass: [MPBulletPhysicsSubjectPoint class]];
 
 NSUInteger minimalCollisionInterval = 0;
 
@@ -61,26 +76,40 @@ bool CollisionCallback(
 		[collidedHandlePair release];
 	}
 	MPPair *collidedPair = [pairPool newObject];
+	MPBulletPhysicsSubjectPoint *collisionPoint = [pointPool newObject];
+	collisionPoint->X = cp.getPositionWorldOnB().getX();
+	collisionPoint->Y = cp.getPositionWorldOnB().getY();
+	collisionPoint->Z = cp.getPositionWorldOnB().getZ();
 	[collidedPair setObject1: obj1 object2: obj2];
-	[collidedObjectsSet addObject: collidedPair];
+	[collidedObjectsDictionary setObject: collisionPoint forKey: collidedPair];
 	[collidedPair release];
 	return false;
 }
 
 @interface MPPair (MPBulletPhysicsCollisionMessager)
--(void)postCollisionMessageWithAPI: (id<MPAPI>)api;
+-(void)postCollisionMessageWithAPI: (id<MPAPI>)api atPoint: (MPBulletPhysicsSubjectPoint *)point;
 @end
 
 @implementation MPPair (MPBulletPhysicsCollisionMessager)
--(void)postCollisionMessageWithAPI: (id<MPAPI>)api
+-(void)postCollisionMessageWithAPI: (id<MPAPI>)api atPoint: (MPBulletPhysicsSubjectPoint *)point
 {
 	id obj1 = [self getFirstObject];
 	id obj2 = [self getSecondObject];
+	[self setObject1: nil object2: nil];
 	id dictionary = [dictionaryPool newObject];
 	[dictionary setObject: [obj1 getName] forKey: @"object1Name"];
 	[dictionary setObject: [obj2 getName] forKey: @"object2Name"];
 	[api postMessageWithName: @"objectsCollided" userInfo: dictionary];
 	[dictionary release];
+	if ([obj1 respondsToSelector: @selector(collidedWith:atXYZ:::)])
+	{
+		[obj1 collidedWith: [[obj2 getHandle] MPHANDLE_VALUE] atXYZ:(point->X):(point->Y):(point->Z)];
+	}
+
+	if ([obj2 respondsToSelector: @selector(collidedWith:atXYZ:::)])
+	{
+		[obj2 collidedWith: [[obj1 getHandle] MPHANDLE_VALUE] atXYZ:(point->X):(point->Y):(point->Z)];
+	}
 }
 @end
 
@@ -145,6 +174,7 @@ void tickCallback(btDynamicsWorld *world, btScalar timeStep)
 	
 	solver = new btSequentialImpulseConstraintSolver;
 	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,overlappingPairCache,solver,collisionConfiguration);
+	//dynamicsWorld = new btContinuousDynamicsWorld(dispatcher,overlappingPairCache,solver,collisionConfiguration);
 	dynamicsWorld->setGravity(btVector3(gravX, gravY, gravZ));
 
 	gContactAddedCallback = &CollisionCallback;
@@ -228,7 +258,7 @@ void tickCallback(btDynamicsWorld *world, btScalar timeStep)
 	[[api getObjectSystem] removeDelegate: [MPPhysicalObjectDelegate class] forFeature: @"physical"];
 	[[api getObjectSystem] removeDelegate: [MPGhostObjectDelegate class] forFeature: @"ghostObject"];
 	[[api getObjectSystem] removeDelegate: [MPAttractorObject class] forFeature: @"attractor"];
-	[collidedObjectsSet removeAllObjects];
+	[collidedObjectsDictionary removeAllObjects];
 	[recentlyCollidedObjects removeAllObjects];
 	[recentlyCollidedObjectsTimes removeAllObjects];
 
@@ -236,6 +266,7 @@ void tickCallback(btDynamicsWorld *world, btScalar timeStep)
 											[pairPool size], [dictionaryPool size]];
 
 	[pairPool purge];
+	[pointPool purge];
 	[dictionaryPool purge];
 }
 
@@ -253,8 +284,15 @@ void tickCallback(btDynamicsWorld *world, btScalar timeStep)
 	{
 		dynamicsWorld->stepSimulation(1.f/60, maxSubSteps);
 	}
-	[collidedObjectsSet makeObjectsPerformSelector: @selector(postCollisionMessageWithAPI:) withObject: api];
-	[collidedObjectsSet removeAllObjects];
+	NSEnumerator *enumer = [collidedObjectsDictionary keyEnumerator];
+	IMP postCollisionMessageWithAPIMethod = [MPPair instanceMethodForSelector: @selector(postCollisionMessageWithAPI:atPoint:)];
+	MPPair *collisionPair = nil;
+	while ((collisionPair = [enumer nextObject]) != nil)
+	{
+		postCollisionMessageWithAPIMethod(collisionPair, @selector(postCollisionMessageWithAPI:atPoint:),
+												  api, [collidedObjectsDictionary objectForKey: collisionPair]);
+	}
+	[collidedObjectsDictionary removeAllObjects];
 	if (minimalCollisionInterval)
 	{
 		NSUInteger i, count = [recentlyCollidedObjectsTimes count];

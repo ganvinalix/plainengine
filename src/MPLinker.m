@@ -189,7 +189,7 @@ id MPLinkModules(NSArray *descriptions, MPSubjectManager *subjMan)
 		currentSubjectClass = objc_lookUpClass( [[currentDesc getSubjectName] UTF8String] );
 		if( currentSubjectClass == nil ) 
 		{
-			[gLog add: warning withFormat: @"MPLinker: Class [%@] does not exist", currentSubjectClass];
+			[gLog add: warning withFormat: @"MPLinker: Class [%@] does not exist", [currentDesc getSubjectName]];
 			continue;
 		}
 		if( ![currentSubjectClass conformsToProtocol: @protocol(MPSubject)] )

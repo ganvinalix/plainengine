@@ -1,6 +1,8 @@
 all:
 	./compile
 clean:
+	. ./src/envsetup.sh
 	cd ./src
 	make clean
-	cd ..
+	cd ../sc_gen_src
+	make clean

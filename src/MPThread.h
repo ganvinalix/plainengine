@@ -38,6 +38,10 @@ typedef enum
 + threadWithStrategy: (MPThreadStrategy *)aStrategy;
 //
 - (BOOL) isWorking;
+- (BOOL) isPaused;
+- (BOOL) isPrepared;
+- (BOOL) isUpdating;
+
 - (void) prepare;
 - (void) start;
 - (void) stop;
@@ -56,5 +60,7 @@ typedef enum
 - (void) unbindSubject: (id<MPSubject>)aSubject;
 //
 - (id<MPSubject>) getSubjectByName: (NSString *)aName;
+//
+- (NSString*) description;
 @end
 

@@ -68,6 +68,11 @@
 		[theLock unlock];
 	}
 }
+
+- (NSString*) description
+{
+	return [notifications description];
+}
 @end
 
 

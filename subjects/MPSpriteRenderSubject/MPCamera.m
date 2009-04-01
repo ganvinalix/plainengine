@@ -3,7 +3,7 @@
 MPCamera *camera = nil;
 
 @implementation MPCamera
-- initWithObject: (id<MPObject>)object
+- initWithObject: (id)object
 {
 	sx = sy = 1.0;
 	x = y = roll = 0.0;
@@ -25,7 +25,7 @@ MPCamera *camera = nil;
 
 	[super dealloc];
 }
-+ newDelegateWithObject: (id<MPObject>)object
++ newDelegateWithObject: (id)object
 {
 	return [[MPCamera alloc] initWithObject: object];
 }

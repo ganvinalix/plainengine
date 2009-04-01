@@ -23,6 +23,7 @@
 - (void) dealloc
 {
 	[self setCurrentThread: nil];
+	[emptyDictionaryPool release];
 	[super dealloc];
 }
 
@@ -47,12 +48,12 @@
 
 -(void) postMessageWithName: (NSString *)aName userInfo: (MPCDictionaryRepresentable *) anUserInfo
 {
-	MP_ASSERT(aName, @"Message name must not be nil");
+	NSAssert(aName, @"Message name must not be nil");
 
 	BOOL wasNil = NO;
 	if(anUserInfo == nil) 
 	{
-		anUserInfo = [MPDictionary new];
+		anUserInfo = [emptyDictionaryPool newObject];
 		wasNil = YES;
 	}
 
@@ -68,12 +69,12 @@
 
 -(id<MPVariant>) postRequestWithName: (NSString *)aName userInfo: (MPCDictionaryRepresentable *)anUserInfo
 {
-	MP_ASSERT(aName, @"Message name must not be nil");
+	NSAssert(aName, @"Message name must not be nil");
 
 	BOOL wasNil = NO;
 	if(anUserInfo == nil) 
 	{
-		anUserInfo = [MPDictionary new];
+		anUserInfo = [emptyDictionaryPool newObject];
 		wasNil = YES;
 	}
 

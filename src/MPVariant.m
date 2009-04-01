@@ -166,7 +166,7 @@
 			break;
 		case type_string:
 			//This should not happen;
-			MP_ASSERT(0, @"MPVariant error: type is 'string' but value of this type undefined");
+			NSAssert(0, @"MPVariant error: type is 'string' but value of this type undefined");
 			break;
 		case type_double:
 			[theStringValue setString: [NSString stringWithFormat: @"%lf", theDoubleValue]];
@@ -190,7 +190,7 @@
 				break;
 			case type_int:
 				//This should not happen;
-				MP_ASSERT(0, @"MPVariant error: type is 'int' but value of this type undefined");
+				NSAssert(0, @"MPVariant error: type is 'int' but value of this type undefined");
 				break;
 			case type_string:
 				//Tambourine for old GNUstep versions;
@@ -226,7 +226,7 @@
 				break;
 			case type_double:
 				//This should not happen;
-				MP_ASSERT(0, @"MPVariant error: type is 'double' but value of this type undefined");
+				NSAssert(0, @"MPVariant error: type is 'double' but value of this type undefined");
 				break;
 			case type_string:
 				theDoubleValue = [theStringValue doubleValue];

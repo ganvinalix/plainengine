@@ -3,7 +3,7 @@
 #import <MPThread.h>
 #import <core_constants.h>
 
-#define RUNLOOPTIMEINTERVAL 0.050
+#define RUNLOOPTIMEINTERVAL 0.100
 
 #ifdef MP_USE_EXCEPTIONS
 
@@ -20,8 +20,13 @@
 	}
 #else
 
-#define MPSM_LOCK [accessMutex lock];
-#define MPSM_UNLOCK [accessMutex unlock];
+#define MPSM_LOCK \
+	[accessMutex lock];\
+	{
+
+#define MPSM_UNLOCK \
+	}\
+	[accessMutex unlock];
 
 #endif
 
@@ -141,15 +146,48 @@
 		[[NSRunLoop currentRunLoop] runUntilDate: date];
 		[date release];
 	}
-	[gLog add: notice withFormat: @"MPSubjectManager: stopped"];
-}
-
-- (void) terminate
-{
 	[gLog add: notice withFormat: @"MPSubjectManager: stopping..."];
 	MPSM_LOCK;
-	isWorking = NO;
 	NSEnumerator *enumer;
+
+	enumer = [threads objectEnumerator];
+	MPThread *th;
+
+	while ( (th = [enumer nextObject]) != nil )
+	{
+		[th pause];
+	}
+
+	NSMutableArray *threadsStillUpdating = [[threads allValues] mutableCopy];
+	
+	BOOL correctlyTerminated=NO;
+	NSUInteger waitingForUpdatesToTerminate_startTime = getMilliseconds();
+	while (getMilliseconds() - waitingForUpdatesToTerminate_startTime < MPTHREAD_MAX_WAIT_FOR_UPDATE_TIME)
+	{
+		NSUInteger i, count=[threadsStillUpdating count];
+		if (!count)
+		{
+			correctlyTerminated=YES;
+			break; //all threads stopped updating
+		}
+		for (i=0; i<count; ++i)
+		{
+			if (![[threadsStillUpdating objectAtIndex: i] isUpdating])
+			{
+				[threadsStillUpdating removeObjectAtIndex: i];
+				--i; //OK if i = 0
+				--count;
+			}
+		}
+	}
+
+	if (!correctlyTerminated)
+	{
+		[gLog add: warning withFormat: @"MPSubjectManager: Timeout expired, but not all threads finished updating - %@;", threadsStillUpdating];
+	}
+
+	[threadsStillUpdating release];
+
 	enumer = [threads keyEnumerator];
 	NSNumber *thr;
 	while ( (thr = [enumer nextObject]) != nil )
@@ -161,6 +199,13 @@
 	}
 	[[threads objectForKey: [NSNumber numberWithUnsignedInt: 0]] stop];
 	MPSM_UNLOCK;
+
+	[gLog add: notice withFormat: @"MPSubjectManager: stopped"];
+}
+
+- (void) terminate
+{
+	isWorking = NO;
 }
 
 - init

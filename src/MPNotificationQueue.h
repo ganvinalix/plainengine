@@ -19,6 +19,9 @@
 /** Removes the top element of FIFO */
 - (void) popTop;
 
+/** Returns [notifications description] */
+- (NSString*) description;
+
 /** Factory method */
 + notificationQueue;
 @end

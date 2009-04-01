@@ -1,9 +1,0 @@
-newobj $3
-objsetf $3 mass 1
-objsetf $3 restitution 0.001
-objsetf $3 friction 0.5
-objsetf $3 positionable
-setXYZ $1 $2 0 $3
-#objsetf $3 quietcollisions
-objsetfwp $3 physical 1 shapeType=box/XShape=$4/YShape=$4
-objsetfwp $3 renderable 1 textureName=metal.jpg/scaleX=$4/scaleY=$4

@@ -13,12 +13,18 @@
 #define log [api log]
 
 float aspectRatio = 1.3;
+double camScaleX = 1.0;
+double camScaleY = 1.0;
+
 
 void convertMouseCoordinates(int x, int y, unsigned screenWidh, unsigned screenHeigth, double *dx, double *dy)
 {
 	*dx = 2.0*aspectRatio*((double)x/screenWidh - 0.5);
 	*dy = 2.0*((double)y/screenHeigth -0.5);
 	*dy *= -1.0;
+
+	*dx /= camScaleX;
+   	*dy /= camScaleY;	
 }
 
 void showCursor(BOOL show)
@@ -123,7 +129,7 @@ void grabInput(BOOL grab)
 		flags |= SDL_FULLSCREEN;
 	}
 
-	[gLog add: notice withFormat: @"MPSpriteRenderSubject: setting video mod..."];
+	[gLog add: notice withFormat: @"MPSpriteRenderSubject: setting video mode..."];
 	if( SDL_SetVideoMode(winWidth, winHeight, winBpp, flags) == NULL )
 	{ 
 		[log add: error withFormat: @"MPSpriteRenderSubject: Unable to set %dx%d video mode: %s\n", winWidth, winHeight, SDL_GetError()]; 
@@ -166,6 +172,7 @@ void grabInput(BOOL grab)
 	SDL_Quit();
 	[[api getObjectSystem] removeDelegate: [MPSpriteRenderDelegate class] forFeature: @"renderable"];
 	[[api getObjectSystem] removeDelegate: [MPCamera class] forFeature: @"camera"];
+	[[api getObjectSystem] removeDelegate: [MPMouse class] forFeature: @"mouse"];
 	MP_PRINT_STATISTICS(rend);
 	MP_PRINT_STATISTICS(graphics_frame);
 	[log add: notice withFormat: @"MPSpriteRenderSubject: stopped."];
@@ -179,11 +186,6 @@ void grabInput(BOOL grab)
 	}
 
 	MP_BEGIN_PROFILE(graphics_frame);
-	/*[[[api getObjectSystem] getObjectByName: @"a"] moveByXY: 0.001 : 0.0];
-	[[[api getObjectSystem] getObjectByName: @"a"] setRoll: 3.14/4];
-	[[[api getObjectSystem] getObjectByName: @"b"] setZOrder: 10];*/
-	//id b = [[api getObjectSystem] getObjectByName: @"b"];
-	//[b release];
 
 	// rendering 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -197,9 +199,13 @@ void grabInput(BOOL grab)
 		glTranslated(-[camera getX], -[camera getY], 0.0);
 		glRotated([camera getRoll], 0.0, 0.0, -1.0);
 		glScaled([camera getXScale], [camera getYScale], 1.0);
+		camScaleX = [camera getXScale];
+		camScaleY = [camera getYScale];
 	}
 	else
 	{
+		camScaleX = 1.0;
+		camScaleY = 1.0;
 		//[gLog add: warning withFormat: @"There is no camera!"];
 	}
 
@@ -230,6 +236,14 @@ void grabInput(BOOL grab)
 			NSString *decoded = [NSString stringWithFormat: @"%C", c];
 			NSString *keyName = [NSString stringWithUTF8String: SDL_GetKeyName(event.key.keysym.sym)];
 			[api postMessageWithName: @"keyDown" userInfo: [MPDictionary dictionaryWithObjectsAndKeys: 
+				decoded, @"char", keyName, @"keyName", [NSString stringWithFormat: @"%d", event.key.keysym.sym], @"keyCode", nil]];
+		}
+        if(event.type == SDL_KEYUP)
+		{
+			wchar_t c = event.key.keysym.unicode;
+			NSString *decoded = [NSString stringWithFormat: @"%C", c];
+			NSString *keyName = [NSString stringWithUTF8String: SDL_GetKeyName(event.key.keysym.sym)];
+			[api postMessageWithName: @"keyUp" userInfo: [MPDictionary dictionaryWithObjectsAndKeys: 
 				decoded, @"char", keyName, @"keyName", [NSString stringWithFormat: @"%d", event.key.keysym.sym], @"keyCode", nil]];
 		}
 #define MOUSE_EVENT(_type)\
@@ -265,7 +279,7 @@ void grabInput(BOOL grab)
 	{
 		[[objects objectAtIndex: i] setXY: x : y];
 	}
-
+	
 	MP_END_PROFILE(graphics_frame);
 }
 

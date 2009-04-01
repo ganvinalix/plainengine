@@ -27,12 +27,12 @@ NSDictionary *MPCreateConfigDictionary(NSDictionary *aDefaults, NSDictionary *aU
 		if(currentUserObject != nil)
 		{
 			// ...use its value in resultDictionary
-			[resultDictionary setObject: currentUserObject forKey: currentResultKey];
+			[resultDictionary setObject: [[currentUserObject copy] autorelease] forKey: currentResultKey];
 		}	
 	}
 	// all done
 	// release pool
 	[pool release];
 
-	return [resultDictionary autorelease];;
+	return [resultDictionary autorelease];
 }

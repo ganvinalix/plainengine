@@ -56,6 +56,21 @@
 - (void) setPaused: (BOOL)aState
 {
 }
+- (BOOL) isPrepared
+{
+	return NO;
+}
+- (void) setPrepared: (BOOL)aState
+{
+}
+- (BOOL) isUpdating
+{
+	return NO;
+}
+- (void) setUpdating: (BOOL)aState
+{
+}
+
 - (void) wait
 {
 }

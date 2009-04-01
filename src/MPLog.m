@@ -5,6 +5,8 @@
 #import <stdarg.h>
 #import <common_defines.h>
 
+NSString *levels[levels_count] = { @"Alert", @"Crit", @"Error", @"Warning", @"Notice", @"Inform", @"User"};
+
 // default log channel
 @interface MPDefaultLogChannel : NSObject < MPLogChannel >
 - init;
@@ -62,6 +64,10 @@ id <MPLog> theGlobalLog = nil;
 	id <MPLogChannel> anDefChannel = [[MPDefaultLogChannel alloc] init];
 	[self addChannel: anDefChannel];
 	[anDefChannel release];
+
+	NSUInteger i = 0;
+	for(i = 0; i < levels_count; ++i)
+		counts[i] = 0;
 	
 	//theGlobalLog = self; 
 	return self;//theGlobalLog;
@@ -100,14 +106,14 @@ id <MPLog> theGlobalLog = nil;
 	NSMutableString *finalMessage = [NSMutableString stringWithCapacity: 255];
 	NSMutableString *lvlStr = [NSMutableString string];
 	
-	NSString *levels[] = { @"Alert", @"Crit", @"Error", @"Warning", @"Notice", @"Inform" };
-	
 	if( [self isEmpty] ) return;
 	
 	if(theLevel >= user)
-		[lvlStr appendString: @"User"];
-	else
-		[lvlStr appendString: levels[theLevel]];
+	{
+		theLevel = user;
+	}
+	[lvlStr appendString: [MPLog getNameOfMessageLevel: theLevel]];
+	++counts[theLevel];
 		
 	[finalMessage appendFormat: @"[%@][%@]:\t%@\n", 
 		[[NSDate date] descriptionWithCalendarFormat:@"%d-%m-%Y %H:%M:%S" timeZone:nil locale: nil],
@@ -190,6 +196,21 @@ id <MPLog> theGlobalLog = nil;
 {
 	//printf (" channels count is: %d\n", [channels count]);
 	return ([channels count] == 0);
+}
+
+- (NSUInteger) getCountOfMessagesWithLevel: (mplog_level)theLevel
+{
+	return counts[theLevel];
+}
+
++ (NSString*) getNameOfMessageLevel: (mplog_level)theLevel
+{
+	if(theLevel >= user)
+	{
+		theLevel = user;
+	}
+
+	return levels[theLevel];
 }
 @end
 

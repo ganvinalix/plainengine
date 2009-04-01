@@ -3,28 +3,29 @@
 
 typedef id (*converterFunction)(id);
 
-/**
-  *	This class is created for optimiztion of memory (and CPU time) usage, when there is
-  * a neccesarity for often conversions between two types.
-  * For example, you need to convert NSNumber to NSString, but if you would call [number stringValue],
-  * there will be too many of strings in autorelease pool.
-  * The solution is to declare a converterFunction:
-  *
+/** 
+  *	<p>This class is created for optimiztion of memory (and CPU time) usage, when there is
+  * a neccesarity for often conversions between two types.</p>
+  * <p>For example, you need to convert NSNumber to NSString, but if you would call [number stringValue],
+  * there will be too many of strings in autorelease pool.</p>
+  * <p>The solution is to declare a converterFunction:</p>
+  * 
+  * <example>
   * id numberToString(id number)
   * {
   * 	return [number stringValue];
   * 	//Note that return value must not be retained to avoid memory leak;
-  * }
+  * } </example>
   *
-  * ...create MPMapper:
+  * <p>...create MPMapper:</p>
   *
-  * MPMapper *numToStrMapper = [[MPMapper alloc] initWithConverter: &numberToString];
+  * <example>MPMapper *numToStrMapper = [[MPMapper alloc] initWithConverter: &amp;numberToString];</example>
   *
-  * ...and when you would need to convert 'num' to 'str' call:
+  * <p>...and when you would need to convert 'num' to 'str' call:</p>
   *
-  * str = [numToStrMapper getObject: num];
+  * <example>str = [numToStrMapper getObject: num];</example>
   *
-  * Mapper caches all used keys and objects, and when key is reused, it just returns already counted string.
+  * <p>Mapper caches all used keys and objects, and when key is reused, it just returns already counted string.</p>
   */
 @interface MPMapper : NSObject
 {

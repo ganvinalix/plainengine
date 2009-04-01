@@ -1,7 +1,5 @@
-! comments in object.p
-- font rendering
+- new graphics subject with fonts and particles (blackjack and hookers)
 - attracted objects are retained
 
 -------------------------
-- lock-free
-- idle queue
+? idle queue

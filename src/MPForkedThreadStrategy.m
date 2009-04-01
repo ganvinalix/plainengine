@@ -91,6 +91,37 @@
 	paused = aState;
 	[stateMutex unlock];
 }
+- (BOOL) isPrepared
+{
+	BOOL isPrepared = NO;
+	[stateMutex lock];
+	isPrepared = prepared;
+	[stateMutex unlock];
+
+	return isPrepared;
+}
+- (void) setPrepared: (BOOL)aState
+{
+	[stateMutex lock];
+	prepared = aState;
+	[stateMutex unlock];
+}
+- (BOOL) isUpdating
+{
+	BOOL isUpdating = NO;
+	[stateMutex lock];
+	isUpdating = updating;
+	[stateMutex unlock];
+
+	return isUpdating;
+}
+- (void) setUpdating: (BOOL)aState
+{
+	[stateMutex lock];
+	updating = aState;
+	[stateMutex unlock];
+}
+
 - (void) wait
 {
 	[NSThread sleepUntilDate: [NSDate dateWithTimeIntervalSinceNow: 0.001]];

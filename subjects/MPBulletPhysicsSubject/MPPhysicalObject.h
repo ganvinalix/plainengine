@@ -29,6 +29,11 @@
 
 -(void) setGravityWithXYZ: (double)aX : (double)aY : (double)aZ;
 -(void) setLinearVelocityWithXYZ: (double)aX : (double)aY : (double)aZ;
+-(void) setLinearVelocity: (double)velocity;
+
+-(double) getLinearVelocityX;
+-(double) getLinearVelocityY;
+-(double) getLinearVelocityZ;
 
 @end
 

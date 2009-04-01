@@ -33,7 +33,7 @@ objectList *listalloc()
 
 -(void) addObject: (id)object
 {
-	MP_ASSERT(tail, @"Adding object to deallocated MPAutoreleasePool");
+	NSAssert(tail, @"Adding object to deallocated MPAutoreleasePool");
 	++size;
 	tail->obj = object;
 	if (!tail->next)

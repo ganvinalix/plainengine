@@ -29,7 +29,7 @@
 {
 	if(_lib_handle) return NO;
 
-	_lib_handle = dlopen([aName UTF8String], RTLD_LAZY);
+	_lib_handle = dlopen([aName UTF8String], RTLD_LAZY|RTLD_LOCAL);
 	if (!_lib_handle) 
 	{
 		[gLog add: error withFormat: @"MPModule: Unable to open library [%s]: %s\n", [aName UTF8String],  dlerror()];
