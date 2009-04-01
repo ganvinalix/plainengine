@@ -16,10 +16,13 @@ typedef enum
 @interface MPThread : NSObject
 {
 @private
+	unsigned threadID;
 	// stuff
 	MPNotificationQueue *notifications;
 	MPThreadStrategy *strategy;
 	NSMutableArray *routinesStack;
+	// proflng
+	MPCodeTimer *threadTimer;
 	// containers
 	NSMutableDictionary *subjects; // name to subject
 	NSMutableDictionary *messageNameToSubscribedSubjects; // message name to array of subscribed subjects
@@ -32,10 +35,10 @@ typedef enum
 	MPStringToCStringConverter *cstrconv;	
 }
 - init;
-- initWithStrategy: (MPThreadStrategy *)aStrategy;
+- initWithStrategy: (MPThreadStrategy *)aStrategy withID: (unsigned)thId;
 - (void) dealloc;
 + thread;
-+ threadWithStrategy: (MPThreadStrategy *)aStrategy;
++ threadWithStrategy: (MPThreadStrategy *)aStrategy withID: (unsigned)thId;
 //
 - (BOOL) isWorking;
 - (BOOL) isPaused;
@@ -62,5 +65,6 @@ typedef enum
 - (id<MPSubject>) getSubjectByName: (NSString *)aName;
 //
 - (NSString*) description;
+- (unsigned) getID;
 @end
 

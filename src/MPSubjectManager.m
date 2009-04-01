@@ -42,7 +42,7 @@
 	curThread = [threads objectForKey: thrnum];
 	if (!curThread)
 	{
-		curThread = [[MPThread alloc] initWithStrategy: [MPThreadStrategy forkedStrategy]];
+		curThread = [[MPThread alloc] initWithStrategy: [MPThreadStrategy forkedStrategy] withID: thread];
 		[threads setObject: curThread forKey: thrnum];
 		[curThread release];
 	}
@@ -220,7 +220,7 @@
 	MPThread *mainThread;
 	NSNumber *thrnum;
 	thrnum = [[NSNumber alloc] initWithUnsignedInt: 0];
-	mainThread = [[MPThread alloc] initWithStrategy: [MPThreadStrategy subroutineStrategy]];
+	mainThread = [[MPThread alloc] initWithStrategy: [MPThreadStrategy subroutineStrategy] withID: 0];
 	MPSM_LOCK;
 	id<MPSubject> syssubj;
 	syssubj = [[MPSystemSubject alloc] initWithSubjectManager: self]; 
@@ -238,16 +238,18 @@
 
 - (void) dealloc
 {
-	
-	/*
-	NSEnumerator *enumer;
+	/*NSEnumerator *enumer;
 	enumer = [threads objectEnumerator];
 	MPThread *thr;
+	NSString *threadStatName = nil;
+
 	while ( (thr = [enumer nextObject]) != nil )
 	{
-		[thr release];
-	}
-	*/
+		threadStatName = [NSString stringWithFormat: @"Thread_%d", [thr getID]];
+		[gLog add: notice withFormat: @"%@", 
+			[MPCodeTimer printStatisticsByName: threadStatName]];
+	}*/
+	
 	[accessMutex release];
 	[threads release];
 	[subjectToThread release];

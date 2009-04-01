@@ -9,11 +9,13 @@
 
 // implementation of MPThread
 @implementation MPThread
-- initWithStrategy: (MPThreadStrategy *)aStrategy
+- initWithStrategy: (MPThreadStrategy *)aStrategy withID: (unsigned)thId;
 {
 	if(aStrategy == nil) return nil;
 
 	[super init];
+
+	threadID = thId;
 
 	strategy = [aStrategy retain];
 
@@ -24,6 +26,8 @@
 	subjectsWhichHandleAllMessages = [[NSMutableArray alloc] initWithCapacity: 20];
 	allSubjects = [[NSMutableArray alloc] initWithCapacity: 20];
 	notifications = [strategy newNotificationQueue];
+
+	threadTimer = [MPCodeTimer codeTimerWithSectionName: [NSString stringWithFormat: @"Thread_%d", threadID]];
 
 	mutableStringPool = [[MPPool alloc] initWithClass: [NSMutableString class]];
 	cstrconv = [[MPStringToCStringConverter alloc] init];
@@ -39,7 +43,7 @@
 }
 - init
 {
-	return [self initWithStrategy: [MPThreadStrategy forkedStrategy]];
+	return [self initWithStrategy: [MPThreadStrategy forkedStrategy] withID: 0];
 }
 - (void) dealloc
 {
@@ -55,6 +59,7 @@
 	[allSubjects release];
 	[mutableStringPool release];
 	[cstrconv release];
+	[threadTimer release];
 
 	[super dealloc];
 }
@@ -62,9 +67,9 @@
 {
 	return [[[MPThread alloc] init] autorelease];
 }
-+ threadWithStrategy: (MPThreadStrategy *)aStrategy
++ threadWithStrategy: (MPThreadStrategy *)aStrategy withID: (unsigned)thId;
 {
-	return [[[MPThread alloc] initWithStrategy: aStrategy] autorelease];
+	return [[[MPThread alloc] initWithStrategy: aStrategy withID: thId] autorelease];
 }
 //-----
 - (BOOL) isWorking
@@ -178,13 +183,12 @@
 	}
 	//
 	//
-	
 	[strategy setUpdating: YES];
 
 	[strategy update];
 
 	NSUInteger count = [allSubjects count], i;
-	for (i=0; i<count; ++i)
+	for(i=0; i<count; ++i)
 	{
 		[[allSubjects objectAtIndex: i] update];
 	}
@@ -479,7 +483,7 @@
 {
 	NSEnumerator *enumer = [allSubjects objectEnumerator];
 	id subject;
-	NSMutableString *description = [NSMutableString stringWithFormat: @"(%p: ", self];
+	NSMutableString *description = [NSMutableString stringWithFormat: @"(%p with ID [%d]: ", self, threadID];
 	BOOL first = YES;
 	while ((subject = [enumer nextObject]) != nil)
 	{
@@ -495,6 +499,11 @@
 	}
 	[description appendString: @")"];
 	return description;
+}
+
+- (unsigned) getID
+{
+	return threadID;
 }
 
 @end
