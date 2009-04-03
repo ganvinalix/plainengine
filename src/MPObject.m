@@ -393,7 +393,7 @@ NSRecursiveLock *objectClassMutex;
 			[featuresByDelegate setObject: features forKey: delegate];
 			[features release];
 		}
-		[features addObject: features];
+		[features addObject: feature];
 		[delegs release];
 	}
 	if (![delegs containsObject: delegate])

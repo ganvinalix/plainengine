@@ -9,6 +9,9 @@ typedef void (*delegateCleanFunc)(void *userInfo, void *classInfo);
 typedef void (*delegateSetFeatureFunc)(void *userInfo, char const *featureName, char const *featureValue, dictionary userDict, void *classInfo);
 typedef void (*delegateRemoveFeatureFunc)(void *userInfo, char const *featureName, dictionary userDict, void *classInfo);
 typedef void (*delegateMethod)(char const* methodName, void *userInfo, void *params[], void *resultBuf, void *classInfo);
+typedef int (*delegateResponseChecker)(char const *methodName, void *userInfo, void *classInfo);
+typedef const char *(*delegateUniversalMethodReturnType)(char const *methodName, void *userInfo, void *classInfo);
+typedef const char *(*delegateUniversalMethodParams)(char const *methodName, void *userInfo, void *classInfo);
 
 #define DECLARE_INIT_FUNC(name)\
 	void name(void *userInfo, MPHandle oHandle, void *classInfo)
@@ -22,6 +25,15 @@ typedef void (*delegateMethod)(char const* methodName, void *userInfo, void *par
 #define DECLARE_REMOVE_FEATURE_FUNC(name)\
 	void name(void *userInfo, char const *featureName, dictionary userDict, void *classInfo)
 
+#define DECLARE_RESPONSE_CHECKER_FUNC(name)\
+	int name(char const *methodName, void *userInfo, void *classInfo)
+
+#define DECLARE_UNIVERSAL_METHOD_RETURN_TYPE_FUNC(name)\
+	const char *name(char const *methodName, void *userInfo, void *classInfo)
+
+#define DECLARE_UNIVERSAL_METHOD_PARAMS_FUNC(name)\
+	const char *name(char const *methodName, void *userInfo, void *classInfo)
+
 #define DECLARE_METHOD(name)\
 	void name(char const *methodName, void *userInfo, void *params[], void *resultBuffer, void *classInfo)
 
@@ -32,7 +44,7 @@ typedef void (*delegateMethod)(char const* methodName, void *userInfo, void *par
 	type name=*(type *)(params[__params_counter++])
 
 #define FOR_EACH_PARAM(counter, count, parampointer)\
-	void *parampointer = params[0]\
+	void *parampointer = count > 0 ? params[0] : NULL;\
 	unsigned counter = 0;\
 	for(; counter<count; parampointer = params[++counter])
 

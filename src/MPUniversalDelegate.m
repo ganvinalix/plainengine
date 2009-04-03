@@ -79,6 +79,9 @@ NSLock *commonMutex = nil;
 	NSUInteger userInfoLength;
 	NSDictionary *namePerMethodDescriptor; //pointer to analogical dictionary in class object
 	
+	NSUInteger universalMethodSigLength;
+	char *universalMethodSigBuf;
+
 	NSUInteger resultBufferLength;
 	void *resultBuffer;
 
@@ -148,6 +151,9 @@ NSLock *commonMutex = nil;
 	argBufSize = NULL;
 	argBufArray = NULL;
 
+	universalMethodSigLength = 0;
+	universalMethodSigBuf = NULL;
+
 	if (anInitFunc)
 	{
 		anInitFunc(userInfo, [[anObject getHandle] MPHANDLE_VALUE], classInfo);
@@ -183,23 +189,72 @@ NSLock *commonMutex = nil;
 	{
 		return YES;
 	}
-	return [namePerMethodDescriptor objectForKey: NSStringFromSelector(aSelector)] != nil;
+	if ([namePerMethodDescriptor objectForKey: NSStringFromSelector(aSelector)] != nil)
+	{
+		return YES;
+	}
+	if (delegateClass->universalMethod)
+	{
+		if (delegateClass->universalMethodRespChkFunc)
+		{
+			return delegateClass->universalMethodRespChkFunc(sel_getName(aSelector), userInfo, classInfo) != 0;
+		}
+		else
+		{
+			return delegateClass->universalMethodSignatureGetterFunc(sel_getName(aSelector), userInfo, classInfo) != nil;
+		}
+	}
+	return NO;
 }
 
 -(NSMethodSignature *) methodSignatureForSelector: (SEL)aSelector
 {
 	NSMethodSignature *sig = [super methodSignatureForSelector: aSelector];
+	const char *selUTF8String = sel_getName(aSelector);
 	if (sig)
 	{
 		return sig;
 	}
-	return [[namePerMethodDescriptor objectForKey: NSStringFromSelector(aSelector)] methodSignature]; //this also returns nil if not found
+	if ((sig = [[namePerMethodDescriptor objectForKey: NSStringFromSelector(aSelector)] methodSignature]) != nil )
+	{
+		return sig;
+	}
+	if (delegateClass->universalMethod)
+	{
+		if (delegateClass->universalMethodRespChkFunc)
+		{
+			if (!(delegateClass->universalMethodRespChkFunc(selUTF8String, userInfo, classInfo)))
+			{
+				return nil;
+			}
+			const char *returnType = delegateClass->universalMethodRetTypeFunc(selUTF8String, userInfo, classInfo);
+			const char *paramsType = delegateClass->universalMethodParamsFunc(selUTF8String, userInfo, classInfo);
+			NSUInteger size = strlen(returnType) + strlen(paramsType) + 3;
+			if (size > universalMethodSigLength)
+			{
+				universalMethodSigBuf = realloc(universalMethodSigBuf, size);
+				universalMethodSigLength = size;
+			}
+			sprintf(universalMethodSigBuf, "%s@:%s", returnType, paramsType);
+			sig = [NSMethodSignature signatureWithObjCTypes: universalMethodSigBuf];
+			return sig;
+		}
+		else
+		{
+			return delegateClass->universalMethodSignatureGetterFunc(selUTF8String, userInfo, classInfo);
+		}
+	}
+	return nil;
 }
 
 -(void) setFeature: (NSString *)name toValue: (id<MPVariant>)data userInfo: (MPCDictionaryRepresentable *)userDict
 {
 	if (sfFunc)
 	{
+		if (!userDict)
+		{
+			userDict = [MPDictionary dictionary];
+		}
 		sfFunc(userInfo, [name UTF8String], [[data stringValue] UTF8String], [userDict getCDictionary], classInfo);
 	}
 }
@@ -208,6 +263,10 @@ NSLock *commonMutex = nil;
 {
 	if (rfFunc)
 	{
+		if (!userDict)
+		{
+			userDict = [MPDictionary dictionary];
+		}
 		rfFunc(userInfo, [name UTF8String], [userDict getCDictionary], classInfo);
 	}
 }
@@ -216,13 +275,45 @@ NSLock *commonMutex = nil;
 {
 	SEL aSelector = [anInvocation selector];
 	NSString *selName = NSStringFromSelector(aSelector);
+	const char *selUTF8String = [selName UTF8String];
+	NSMethodSignature *sig = nil;
+	delegateMethod impl = NULL;
+	
 	MPUniversalDelegateMethodDescriptor *descriptor = [namePerMethodDescriptor objectForKey: selName];
-	if (!descriptor)
+	if (descriptor)
 	{
-		[super forwardInvocation: anInvocation];
-		return;
+		sig = [descriptor methodSignature];
+		impl = [descriptor getImplementation];
 	}
-	NSMethodSignature *sig = [descriptor methodSignature];
+	else
+	{
+		if (!(impl = delegateClass->universalMethod))
+		{
+			[super forwardInvocation: anInvocation];
+			return;
+		}
+		if (delegateClass->universalMethodSignatureGetterFunc)
+		{
+			sig = delegateClass->universalMethodSignatureGetterFunc(selUTF8String, userInfo, classInfo);
+			if (!sig)
+			{
+				return;
+			}
+		}
+		else if (delegateClass->universalMethodRespChkFunc(selUTF8String, userInfo, classInfo))
+		{
+			const char *returnType = delegateClass->universalMethodRetTypeFunc(selUTF8String, userInfo, classInfo);
+			const char *paramsType = delegateClass->universalMethodParamsFunc(selUTF8String, userInfo, classInfo);
+			NSUInteger size = strlen(returnType) + strlen(paramsType) + 3;
+			if (size > universalMethodSigLength)
+			{
+				universalMethodSigBuf = realloc(universalMethodSigBuf, size);
+				universalMethodSigLength = size;
+			}
+			sprintf(universalMethodSigBuf, "%s@:%s", returnType, paramsType);
+			sig = [NSMethodSignature signatureWithObjCTypes: universalMethodSigBuf];
+		}
+	}
 	NSUInteger curArgsCount = [sig numberOfArguments]-2;
 	if (argsCount < curArgsCount)
 	{
@@ -252,8 +343,9 @@ NSLock *commonMutex = nil;
 		resultBufferLength = curResultBufferLength;
 		resultBuffer = realloc(resultBuffer, resultBufferLength);
 	}
-	[descriptor getImplementation]([selName UTF8String], userInfo, argBufArray, resultBuffer, classInfo);
+	impl(selUTF8String, userInfo, argBufArray, resultBuffer, classInfo);
 	[anInvocation setReturnValue: resultBuffer];
+
 }
 
 -(void) dealloc
@@ -330,6 +422,30 @@ NSLock *commonMutex = nil;
 											@"Number of arguments is not equal to number of \":\" in selector \"%@\"", selName);
 }
 
+-(void) setUniversalMethod: (delegateMethod)delMeth
+   withResponseCheckerFunc: (delegateResponseChecker)respChk
+		withReturnTypeFunc: (delegateUniversalMethodReturnType)retTypeFunc
+		withParamsTypeFunc: (delegateUniversalMethodParams)paramsFunc
+{
+	universalMethod = delMeth;
+	universalMethodRetTypeFunc = retTypeFunc;
+	universalMethodParamsFunc = paramsFunc;
+	universalMethodRespChkFunc = respChk;
+	universalMethodSignatureGetterFunc = NULL;
+}
+
+
+-(void) setUniversalMethod: (delegateMethod)delMeth
+   withMethodSignatureFunc: (delegateMethodSignatureGetter)delSigGetter
+{
+	universalMethod = delMeth;
+	universalMethodRetTypeFunc = NULL;
+	universalMethodParamsFunc = NULL;
+	universalMethodRespChkFunc = NULL;
+	universalMethodSignatureGetterFunc = delSigGetter;
+}
+
+
 -init
 {
 	NSAssert(0, @"MPUniversalDelegateClassObject init without params");
@@ -356,6 +472,13 @@ NSLock *commonMutex = nil;
 	[commonMutex lock];
 	index = globalIndexCounter++;
 	[commonMutex unlock];
+
+	universalMethod = NULL;
+	universalMethodRetTypeFunc = NULL;
+	universalMethodParamsFunc = NULL;
+	universalMethodRespChkFunc = NULL;
+	universalMethodSignatureGetterFunc = NULL;
+
 	return self;
 }
 
