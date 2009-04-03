@@ -29,8 +29,8 @@
 
 	threadTimer = [MPCodeTimer codeTimerWithSectionName: [NSString stringWithFormat: @"Thread_%d", threadID]];
 
-	mutableStringPool = [[MPPool alloc] initWithClass: [NSMutableString class]];
-	cstrconv = [[MPStringToCStringConverter alloc] init];
+	//mutableStringPool = [[MPPool alloc] initWithClass: [NSMutableString class]];
+	//cstrconv = [[MPStringToCStringConverter alloc] init];
 
 	handleMessageWithName = sel_registerName( [MPHandlerOfAnyMessageSelector UTF8String] );
 
@@ -57,8 +57,8 @@
 	[requestNameToSubscribedSubjects release];
 	[subjectsWhichHandleAllMessages release];
 	[allSubjects release];
-	[mutableStringPool release];
-	[cstrconv release];
+	//[mutableStringPool release];
+	//[cstrconv release];
 	[threadTimer release];
 
 	[super dealloc];
@@ -187,10 +187,17 @@
 
 	[strategy update];
 
+	id curSubject = nil;
 	NSUInteger count = [allSubjects count], i;
 	for(i=0; i<count; ++i)
 	{
-		[[allSubjects objectAtIndex: i] update];
+		curSubject = [allSubjects objectAtIndex: i];
+		if( ![routinesStack containsObject: curSubject] )
+		{
+			[routinesStack addObject: curSubject];
+			[[allSubjects objectAtIndex: i] update];
+			[routinesStack removeObject: curSubject];
+		}
 	}
 	while( [self processNextMessage] );
 
@@ -469,14 +476,15 @@
 
 - (void) yield
 {
-	[strategy update];
+	//[strategy update];
 
-	NSUInteger count = [allSubjects count], i;
-	for (i=0; i<count; ++i)
-	{
-		[[allSubjects objectAtIndex: i] update];
-	}
-	[self processNextMessage];
+	//NSUInteger count = [allSubjects count], i;
+	//for (i=0; i<count; ++i)
+	//{
+		//[[allSubjects objectAtIndex: i] update];
+	//}
+	//[self processNextMessage];
+	[self threadRoutine];
 }
 
 - (NSString*) description

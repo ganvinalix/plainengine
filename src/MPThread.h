@@ -31,8 +31,8 @@ typedef enum
 	NSMutableArray *allSubjects;
 	SEL handleMessageWithName;
 	//
-	MPPool *mutableStringPool;
-	MPStringToCStringConverter *cstrconv;	
+	//MPPool *mutableStringPool;
+	//MPStringToCStringConverter *cstrconv;	
 }
 - init;
 - initWithStrategy: (MPThreadStrategy *)aStrategy withID: (unsigned)thId;
