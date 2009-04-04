@@ -84,10 +84,15 @@ NSRecursiveLock *objectClassMutex;
 
 #define MPO_LOCK
 #define MPO_UNLOCK
+#define MPO_TLOCK
+#define MPO_TUNLOCK
 #define MPOC_LOCK
 #define MPOC_UNLOCK
 
 #else
+
+#define MPO_TLOCK [accessMutex lock]
+#define MPO_TUNLOCK [accessMutex unlock]
 
 #ifdef MP_USE_EXCEPTIONS
 
@@ -499,9 +504,16 @@ NSRecursiveLock *objectClassMutex;
 		[delegatesList moveToTail];
 		while ((delegate = [delegatesList prev]) != nil)
 		{
-			if ([delegate respondsToSelector: selector])
+			BOOL responds;
+			MPO_TUNLOCK;
+			responds = [delegate respondsToSelector: selector];
+			MPO_TLOCK;
+			if (responds)
 			{
+				MPO_TUNLOCK;
 				sig = [delegate methodSignatureForSelector: selector];
+				MPO_TLOCK;
+
 				break;
 			}
 		}
@@ -526,16 +538,16 @@ NSRecursiveLock *objectClassMutex;
 	[delegatesList moveToTail];
 	while ((delegate = [delegatesList prev]) != nil)
 	{
-		if ([delegate respondsToSelector: aSelector])
+		BOOL responds;
+		MPO_TUNLOCK;
+		responds = [delegate respondsToSelector: aSelector];
+		MPO_TLOCK;
+		if (responds)
 		{
 			[delegate retain];
-			#ifdef MPOBJECT_ENABLESYNCHRONISATION
-			[accessMutex unlock];
-			#endif
+			MPO_TUNLOCK;
 			[anInvocation invokeWithTarget: delegate];
-			#ifdef MPOBJECT_ENABLESYNCHRONISATION
-			[accessMutex lock];
-			#endif
+			MPO_TLOCK;
 
 			[delegate release];
 			//[gLog add: info withFormat: @"%d: Message \"%s\" sent to delegate \"%@\" of object \"%@\"", h, sel_getName(aSelector), [delegate class], self];
@@ -567,11 +579,14 @@ NSRecursiveLock *objectClassMutex;
 		[delegatesList moveToHead];
 		while ((delegate = [delegatesList next]) != nil)
 		{
+			MPO_TUNLOCK;
 			if ([delegate respondsToSelector: aSelector])
 			{
 				ret = YES;
+				MPO_TLOCK;
 				break;
 			}
+			MPO_TLOCK;
 		}
 	}
 	MPO_UNLOCK;

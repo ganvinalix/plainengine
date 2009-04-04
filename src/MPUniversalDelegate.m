@@ -193,17 +193,21 @@ NSLock *commonMutex = nil;
 	{
 		return YES;
 	}
+	[delegateClass lock];
 	if (delegateClass->universalMethod)
 	{
 		if (delegateClass->universalMethodRespChkFunc)
 		{
+			[delegateClass unlock];
 			return delegateClass->universalMethodRespChkFunc(sel_getName(aSelector), userInfo, classInfo) != 0;
 		}
 		else
 		{
+			[delegateClass unlock];
 			return delegateClass->universalMethodSignatureGetterFunc(sel_getName(aSelector), userInfo, classInfo) != nil;
 		}
 	}
+	[delegateClass unlock];
 	return NO;
 }
 
@@ -219,16 +223,21 @@ NSLock *commonMutex = nil;
 	{
 		return sig;
 	}
+	[delegateClass lock];
 	if (delegateClass->universalMethod)
 	{
 		if (delegateClass->universalMethodRespChkFunc)
 		{
 			if (!(delegateClass->universalMethodRespChkFunc(selUTF8String, userInfo, classInfo)))
 			{
+				[delegateClass unlock];
 				return nil;
 			}
-			const char *returnType = delegateClass->universalMethodRetTypeFunc(selUTF8String, userInfo, classInfo);
-			const char *paramsType = delegateClass->universalMethodParamsFunc(selUTF8String, userInfo, classInfo);
+			delegateUniversalMethodReturnType retTypeFunc = delegateClass->universalMethodRetTypeFunc;
+			delegateUniversalMethodParams paramsFunc = delegateClass->universalMethodParamsFunc;
+			[delegateClass unlock];
+			const char *paramsType = paramsFunc(selUTF8String, userInfo, classInfo);
+			const char *returnType = retTypeFunc(selUTF8String, userInfo, classInfo);
 			NSUInteger size = strlen(returnType) + strlen(paramsType) + 3;
 			if (size > universalMethodSigLength)
 			{
@@ -241,9 +250,12 @@ NSLock *commonMutex = nil;
 		}
 		else
 		{
-			return delegateClass->universalMethodSignatureGetterFunc(selUTF8String, userInfo, classInfo);
+			delegateMethodSignatureGetter methodSignatureGetter = delegateClass->universalMethodSignatureGetterFunc;
+			[delegateClass unlock];
+			return methodSignatureGetter(selUTF8String, userInfo, classInfo);
 		}
 	}
+	[delegateClass unlock];
 	return nil;
 }
 
@@ -273,6 +285,13 @@ NSLock *commonMutex = nil;
 
 -(void) forwardInvocation: (NSInvocation *)anInvocation
 {
+	[delegateClass lock];
+	delegateMethod universalMethod = delegateClass->universalMethod;
+	delegateUniversalMethodReturnType universalMethodReturnType = delegateClass->universalMethodRetTypeFunc;
+	delegateUniversalMethodParams universalMethodParams = delegateClass->universalMethodParamsFunc;
+	delegateMethodSignatureGetter signatureGetter = delegateClass->universalMethodSignatureGetterFunc;
+	delegateResponseChecker respChecker = delegateClass->universalMethodRespChkFunc;
+	[delegateClass unlock];
 	SEL aSelector = [anInvocation selector];
 	NSString *selName = NSStringFromSelector(aSelector);
 	const char *selUTF8String = [selName UTF8String];
@@ -287,23 +306,23 @@ NSLock *commonMutex = nil;
 	}
 	else
 	{
-		if (!(impl = delegateClass->universalMethod))
+		if (!(impl = universalMethod))
 		{
 			[super forwardInvocation: anInvocation];
 			return;
 		}
-		if (delegateClass->universalMethodSignatureGetterFunc)
+		if (signatureGetter)
 		{
-			sig = delegateClass->universalMethodSignatureGetterFunc(selUTF8String, userInfo, classInfo);
+			sig = signatureGetter(selUTF8String, userInfo, classInfo);
 			if (!sig)
 			{
 				return;
 			}
 		}
-		else if (delegateClass->universalMethodRespChkFunc(selUTF8String, userInfo, classInfo))
+		else if (respChecker(selUTF8String, userInfo, classInfo))
 		{
-			const char *returnType = delegateClass->universalMethodRetTypeFunc(selUTF8String, userInfo, classInfo);
-			const char *paramsType = delegateClass->universalMethodParamsFunc(selUTF8String, userInfo, classInfo);
+			const char *returnType = universalMethodReturnType(selUTF8String, userInfo, classInfo);
+			const char *paramsType = universalMethodParams(selUTF8String, userInfo, classInfo);
 			NSUInteger size = strlen(returnType) + strlen(paramsType) + 3;
 			if (size > universalMethodSigLength)
 			{
@@ -345,7 +364,6 @@ NSLock *commonMutex = nil;
 	}
 	impl(selUTF8String, userInfo, argBufArray, resultBuffer, classInfo);
 	[anInvocation setReturnValue: resultBuffer];
-
 }
 
 -(void) dealloc
@@ -381,7 +399,6 @@ NSLock *commonMutex = nil;
 							withClassInfo: NULL]; //class object must remain until program end, so we do not release here;
 }
 
-
 +registerDelegateClassWithInitFunc: (delegateInitFunc)anInitFunc
 					 withCleanFunc: (delegateCleanFunc)aCleanFunc
 				withSetFeatureFunc: (delegateSetFeatureFunc)aSFFunc
@@ -389,6 +406,7 @@ NSLock *commonMutex = nil;
 				withUserInfoLength: (NSUInteger)anUserInfoLength
 					 withClassInfo: (void *)aClassInfo
 {
+
 	return [[self alloc] initWithInitFunc: anInitFunc
 							withCleanFunc: aCleanFunc
 					   withSetFeatureFunc: aSFFunc
@@ -427,11 +445,13 @@ NSLock *commonMutex = nil;
 		withReturnTypeFunc: (delegateUniversalMethodReturnType)retTypeFunc
 		withParamsTypeFunc: (delegateUniversalMethodParams)paramsFunc
 {
+	[accessMutex lock];
 	universalMethod = delMeth;
 	universalMethodRetTypeFunc = retTypeFunc;
 	universalMethodParamsFunc = paramsFunc;
 	universalMethodRespChkFunc = respChk;
 	universalMethodSignatureGetterFunc = NULL;
+	[accessMutex unlock];
 }
 
 
@@ -518,6 +538,16 @@ NSLock *commonMutex = nil;
 -(NSUInteger) retainCount
 {
 	return UINT_MAX; //As it is told it NSObject protocol specifications
+}
+
+-(void) lock
+{
+	[accessMutex lock];
+}
+
+-(void) unlock
+{
+	[accessMutex unlock];
 }
 
 -(oneway void) release

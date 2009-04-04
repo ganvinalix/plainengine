@@ -75,6 +75,9 @@ typedef NSMethodSignature *(*delegateMethodSignatureGetter)(char const* methodNa
 
 -(NSUInteger) retainCount;
 
+-(void) lock;
+-(void) unlock;
+
 -(oneway void) release;
 -(void) dealloc;
 

@@ -116,7 +116,7 @@ void stringReplace(NSMutableString *str, NSString *target, NSString *replacement
 		if (substringEqual(str, i, i+block, target))
 		{
 			replaceSubstr(str, i, i+block, replacement);
-			i += repLen;
+			i += repLen-1;
 			max += (repLen - [target length]);
 		}
 	}
