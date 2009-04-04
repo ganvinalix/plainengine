@@ -68,7 +68,6 @@ Class getAnimatorByName(NSString *className)
 
 		if(info)
 		{
-			[gLog add: notice withFormat: @"%@", info];
 			FOR_PARAM(parentName)
 			{
 				id obj = [[_object class] getObjectByName: parentName]; 
