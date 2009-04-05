@@ -91,8 +91,15 @@ NSRecursiveLock *objectClassMutex;
 
 #else
 
-#define MPO_TLOCK [accessMutex lock]
-#define MPO_TUNLOCK [accessMutex unlock]
+#define MPO_TUNLOCK\
+	{\
+		MPRemovalStableListStoredPosition __pos = [delegatesList storePosition];\
+		[accessMutex unlock];
+
+#define MPO_TLOCK\
+		[accessMutex lock];\
+		[delegatesList restorePosition: __pos];\
+	}
 
 #ifdef MP_USE_EXCEPTIONS
 
@@ -583,10 +590,12 @@ NSRecursiveLock *objectClassMutex;
 			if ([delegate respondsToSelector: aSelector])
 			{
 				ret = YES;
-				MPO_TLOCK;
-				break;
 			}
 			MPO_TLOCK;
+			if (ret)
+			{
+				break;
+			}
 		}
 	}
 	MPO_UNLOCK;
