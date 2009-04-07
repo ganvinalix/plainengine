@@ -35,7 +35,7 @@
 -(NSMethodSignature *) methodSignatureForSelector: (SEL)selector;
 
 -(void) forwardInvocation: (NSInvocation *)anInvocation;
-//-(BOOL) respondsToSelector: (SEL)aSelector;
+-(BOOL) respondsToSelector: (SEL)aSelector;
 
 -(NSUInteger) hash;
 -(BOOL) isEqual: (id)anObject;
