@@ -2,7 +2,7 @@ X=0;
 Y=0;
 k=2.0;
 
-function MPHandlerOfMessage_mouseButton(args)
+function MPMessageHandlers.mouseButton(args)
 	if args.button == "3" then
 		if args.state == "down" then
 			X = args.X;

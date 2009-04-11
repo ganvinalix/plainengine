@@ -14,11 +14,16 @@ libMPLuaSubject_LIBRARIES_DEPEND_UPON = -lMPUtility -llua5.1
 
 libMPLuaSubject_OBJC_FILES = MPLuaSubject.m\
 							 MPLuaExports.m\
-							 MPLuaHelpers.m
+							 MPLuaDelegateClassExports.m\
+							 MPLuaMPObjectExports.m\
+							 MPLuaHelpers.m\
+							 parser.m
 
 libMPLuaSubject_HEADER_FILES = MPLuaSubject.h\
 							   MPLuaExports.h\
-							   MPLuaHelpers.h
+							   MPLuaHelpers.h\
+							   MPLuaGlobals.h\
+							   parser.h
 
 include $(GNUSTEP_MAKEFILES)/library.make
 
