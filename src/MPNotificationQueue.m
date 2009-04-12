@@ -14,13 +14,6 @@
 - (void) dealloc
 {
 	[theLock release];
-	/*NSEnumerator *enm = [notifications objectEnumerator];
-	NSNotification *curr = nil;
-	while( (curr = [enm nextObject]) != nil)
-	{
-		printf("%s\n", [[curr description] UTF8String]);
-	}
-	printf("%i\n", [notifications count]);*/
 	[notifications release];
 	[super dealloc];
 }
@@ -33,25 +26,20 @@
 // accessors 
 - (void) popTop
 {
-	//@synchronized(notifications)
 	[theLock lock];
-	{
-		if([notifications count])
-			[notifications removeObjectAtIndex: 0];
-	}
+	if([notifications count])
+		[notifications removeObjectAtIndex: 0];
 	[theLock unlock];
 }
 - (NSNotification *) getTop
 {
-	//@synchronized(notifications)
 	id obj = nil;
 
 	[theLock lock];
-	{
-		if([notifications count]) 
-			obj = [notifications objectAtIndex: 0];
-	}
+	if([notifications count]) 
+		obj = [notifications objectAtIndex: 0];
 	[theLock unlock];
+
 	return obj;
 }
 
@@ -60,11 +48,8 @@
 {
 	if(anNotification)
 	{
-		//@synchronized(notifications)
 		[theLock lock];
-		{
-			[notifications addObject: anNotification];
-		}
+		[notifications addObject: anNotification];
 		[theLock unlock];
 	}
 }

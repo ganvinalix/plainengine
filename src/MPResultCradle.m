@@ -5,11 +5,13 @@
 {
 	[super init];
 	_result = nil;
+	_mutex = [NSRecursiveLock new];
 	return self;
 }
 - (void) dealloc
 {
 	[self setResult: nil];
+	[_mutex release];
 	[super dealloc];
 }
 + resultCradle
@@ -19,19 +21,19 @@
 
 - (id<MPVariant>) getResult
 {
-	return [[_result retain] autorelease];
+	[_mutex lock];
+	id<MPVariant> tmp = [[_result retain] autorelease];
+	[_mutex unlock];
+
+	return tmp;
 }
 - (void) setResult: (id<MPVariant>)aResult
 {
-	if(_result)
-	{
-		[_result release];
-		_result = nil;
-	}
-	if(aResult)
-	{
-		_result = [aResult retain];
-	}
+	[_mutex lock];
+	[_result release];
+	_result = nil;
+	_result = [aResult retain];
+	[_mutex unlock];
 }
 @end
 

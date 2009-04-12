@@ -29,9 +29,6 @@
 
 	threadTimer = [MPCodeTimer codeTimerWithSectionName: [NSString stringWithFormat: @"Thread_%d", threadID]];
 
-	//mutableStringPool = [[MPPool alloc] initWithClass: [NSMutableString class]];
-	//cstrconv = [[MPStringToCStringConverter alloc] init];
-
 	handleMessageWithName = sel_registerName( [MPHandlerOfAnyMessageSelector UTF8String] );
 
 	[strategy setWorking: NO];
@@ -57,8 +54,6 @@
 	[requestNameToSubscribedSubjects release];
 	[subjectsWhichHandleAllMessages release];
 	[allSubjects release];
-	//[mutableStringPool release];
-	//[cstrconv release];
 	[threadTimer release];
 
 	[super dealloc];
@@ -182,7 +177,6 @@
 		return;	
 	}
 	//
-	//
 	[strategy setUpdating: YES];
 
 	[strategy update];
@@ -212,7 +206,6 @@
 	NSString *nameForStack = nil;
 	NSString *prefix = nil, *suffix = nil;
 	NSMutableDictionary *targetToSubscribedObjects = nil;
-	//NSEnumerator *enumer = nil;
 	id currentSubject = nil;
 	BOOL isRequest = NO;
 
@@ -285,10 +278,10 @@
 		
 		[strategy unlockMutex];
 	}
-	else
-	{
+	//else
+	//{
 		//[[MPNotificationCenter defaultCenter] postNotification: notification];
-	}
+	//}
 
 	[notification release];
 
@@ -476,14 +469,6 @@
 
 - (void) yield
 {
-	//[strategy update];
-
-	//NSUInteger count = [allSubjects count], i;
-	//for (i=0; i<count; ++i)
-	//{
-		//[[allSubjects objectAtIndex: i] update];
-	//}
-	//[self processNextMessage];
 	[self threadRoutine];
 }
 

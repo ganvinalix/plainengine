@@ -5,6 +5,7 @@
 {
 @private
 	id<MPVariant> _result;
+	NSLock *_mutex;
 }
 + resultCradle;
 @end

@@ -40,7 +40,10 @@
 	if(file) fclose(file);
 	file = NULL;
 }
-- (BOOL) isOpened { return file != NULL; }
+- (BOOL) isOpened 
+{ 
+	return file != NULL; 
+}
 - (BOOL) write: (NSString *)theMessage withLevel: (mplog_level)theLevel
 {
 	if(!file) return NO;
@@ -52,7 +55,7 @@
 
 	fprintf(file, "%s", [theMessage UTF8String]);
 	fflush(file);
-	//printf("%@", theMessage);
+
 	return YES; 
 }
 @end

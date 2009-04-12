@@ -36,7 +36,7 @@
 	}
 	else
 	{
-		[gLog add: warning withFormat: @"There is no current thread into MPAPI instance."];
+		[gLog add: alert withFormat: @"There is no current thread into MPAPI instance."];
 	}
 	//edited by ChaoX (I had almost broken my eyes when read that)
 }
@@ -50,16 +50,14 @@
 {
 	NSAssert(aName, @"Message name must not be nil");
 
-	BOOL wasNil = NO;
 	if(anUserInfo == nil) 
-	{
 		anUserInfo = [emptyDictionaryPool newObject];
-		wasNil = YES;
-	}
+	else
+		[anUserInfo retain];
 
 	MPPostNotification(aName, anUserInfo);
 
-	if(wasNil) [anUserInfo release];
+	[anUserInfo release];
 }
 
 -(id<MPVariant>) postRequestWithName: (NSString *)aName
@@ -71,12 +69,10 @@
 {
 	NSAssert(aName, @"Message name must not be nil");
 
-	BOOL wasNil = NO;
 	if(anUserInfo == nil) 
-	{
 		anUserInfo = [emptyDictionaryPool newObject];
-		wasNil = YES;
-	}
+	else
+		[anUserInfo retain];
 
 	MPResultCradle *response = [MPResultCradle new];
 	MPVariant *result = nil;
@@ -111,7 +107,7 @@
 
 	[response release];
 
-	if(wasNil) [anUserInfo release];
+	[anUserInfo release];
 
 	return result;
 }
@@ -123,8 +119,8 @@
 
 - (void) setCurrentThread: (MPThread *)aThread
 {
-	if(_thread) [_thread release];
-	if(aThread) _thread = [aThread retain];
+	[_thread release];
+	_thread = [aThread retain];
 }
 
 - (id<MPLog>) log
