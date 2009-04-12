@@ -257,15 +257,18 @@ NSRecursiveLock *objectClassMutex;
 
 -(id) getLocalDelegatePointer: (Class)delegate
 {
+	MPRemovalStableListStoredPosition *storedPos = [delegatesList storePosition];
 	[delegatesList moveToHead];
 	id del;
 	while ((del = [delegatesList next]) != nil)
 	{
 		if ([del isMemberOfClass: delegate])
 		{
+			[delegatesList restorePosition: storedPos];
 			return del;		
 		}
 	}
+	[delegatesList restorePosition: storedPos];
 	return nil;
 }
 
@@ -477,7 +480,7 @@ NSRecursiveLock *objectClassMutex;
 			[[objsbyfeature objectAtIndex: i] removeLocalDelegate: delegate];
 		}
 		[objsbyfeature release];
-		[gLog add: notice withFormat: @"MPObject: delegate \"%@\" removed for feature \"%@\";", delegate, feature];
+		[gLog add: notice withFormat: @"M PObject: delegate \"%@\" removed for feature \"%@\";", delegate, feature];
 		ret = YES;
 	}
 	else

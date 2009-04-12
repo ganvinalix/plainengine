@@ -194,10 +194,13 @@
 	{
 		if ([thr unsignedIntValue])
 		{
+			[gLog add: notice withFormat: @"MPSubjectManager: Trying to stop thread \"%@\"...", [threads objectForKey: thr]];
 			[[threads objectForKey: thr] stop];
 		}
 	}
-	[[threads objectForKey: [NSNumber numberWithUnsignedInt: 0]] stop];
+	thr = [NSNumber numberWithUnsignedInt: 0];
+	[gLog add: notice withFormat: @"MPSubjectManager: Trying to stop thread \"%@\"...", [threads objectForKey: thr]];
+	[[threads objectForKey: thr] stop];
 	MPSM_UNLOCK;
 
 	[gLog add: notice withFormat: @"MPSubjectManager: stopped"];

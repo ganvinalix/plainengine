@@ -47,7 +47,6 @@ NSDictionary *encodingsDictionary = nil;
 
 		encodingsDictionary = [encodingsDictionaryMutable copy];
 		[encodingsDictionaryMutable release];
-		NSLog(@"%@", encodingsDictionary);
 	}
 }
 

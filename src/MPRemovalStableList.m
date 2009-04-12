@@ -93,6 +93,7 @@ void deleteListNode(listNodeStruct *node)
 				[node->object release];
 				node->object = nil;
 				node->sheduledToRemove = YES;
+				node = node->next;
 			}
 			else
 			{
@@ -104,11 +105,16 @@ void deleteListNode(listNodeStruct *node)
 				{
 					tail = node->prev;
 				}
-				deleteListNode(node);
+				listNodeStruct *temp = node;
+				node = node->next;
+				deleteListNode(temp);
 			}
 			found = YES;
 		}
-		node = node->next;
+		else
+		{
+			node = node->next;
+		}
 	}
 	return found;
 }
