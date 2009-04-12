@@ -371,15 +371,19 @@ NSRecursiveLock *objectClassMutex;
 	NSUInteger oldindex = [delegatesArray indexOfObject: delegate];
 	if (oldindex != NSNotFound)
 	{
+		NSArray *objects;
 		MPOC_LOCK;
-		NSArray *objects = [MPObject getAllObjects];
+		objects = [[MPObject getAllObjects] copy];
+		MPOC_UNLOCK;
 		NSUInteger i, count = [objects count];
 		for (i=0; i<count; ++i)
 		{
 			[[objects objectAtIndex: i] removeLocalDelegate: delegate];
 		}
+		MPOC_LOCK;
 		[delegatesArray removeObject: delegate];
 		MPOC_UNLOCK;
+		[objects release];
 		[gLog add: notice withFormat: @"MPObject: delegate \"%@\" removed;", delegate];
 		return YES;
 	}
@@ -457,21 +461,22 @@ NSRecursiveLock *objectClassMutex;
 {
 	NSMutableArray *delegs;
 	BOOL ret = NO;
-	MPOC_LOCK;
 	delegs = [delegatesByFeature objectForKey: feature];
 	if (delegs && [delegs containsObject: delegate])
 	{
+		NSArray *objsbyfeature;
+		MPOC_LOCK;
 		[delegs removeObject: delegate];
 		[[featuresByDelegate objectForKey: delegate] removeObject: feature];
 
-		//delegate may be removed while removing another delegate (by removing feature, e.g.)
-		//so, we need to create copy of delegates array which can't be changed 
-		NSArray *objsbyfeature = [self getObjectsByFeature: feature];
+		objsbyfeature = [[self getObjectsByFeature: feature] copy];
+		MPOC_UNLOCK;
 		NSUInteger i, count = [objsbyfeature count];
 		for (i=0; i<count; ++i)
 		{
 			[[objsbyfeature objectAtIndex: i] removeLocalDelegate: delegate];
 		}
+		[objsbyfeature release];
 		[gLog add: notice withFormat: @"MPObject: delegate \"%@\" removed for feature \"%@\";", delegate, feature];
 		ret = YES;
 	}
@@ -480,7 +485,6 @@ NSRecursiveLock *objectClassMutex;
 		[gLog add: warning withFormat: @"MPObject: attempt to remove delegate \"%@\" for feature \"%@\" which doesn't exists",
 		   	delegate, feature];
 	}
-	MPOC_UNLOCK;
 	return ret;
 }
 
