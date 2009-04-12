@@ -11,6 +11,7 @@
 @interface MPDictionary : NSDictionary <MPCDictionaryRepresentable>
 {
 @private
+	NSLock *accessLock;
 	BOOL dictowning;
 	id valconv;
 	id kconv;
@@ -56,6 +57,7 @@
 @interface MPMutableDictionary : NSMutableDictionary <MPCDictionaryRepresentable>
 {
 @private
+	NSLock *accessLock;
 	BOOL dictowning;
 	MPCDictionary dict;
 	id objconv, valconv;

@@ -94,7 +94,7 @@ NSDictionary *encodingsDictionary = nil;
 	lua = luaL_newstate();
 	if (!lua)
 	{
-		[[api log] add: critical withFormat: @"MPLuaSubject: Error creating lua context."];
+		[[api log] add: critical withFormat: @"MPLuaSubject: Error creating lua context (%@).", scriptFileName];
 		return;
 	}
 	REGISTER_LUA_STATE(lua);
@@ -188,7 +188,7 @@ NSDictionary *encodingsDictionary = nil;
 
 	if (luaL_dofile(lua, [scriptFileName UTF8String]))
 	{
-		[[api log] add: error withFormat: @"MPLuaSubject: Error loading script"];
+		[[api log] add: error withFormat: @"MPLuaSubject: Error loading script (%@).", scriptFileName];
 		return;
 	}
 

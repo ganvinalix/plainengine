@@ -120,11 +120,16 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 
 - (id) objectForKey: (id)aKey
 {
+	if (!dict)
+	{
+		return nil;
+	}
 	MP_NSSTRING_CHECK(aKey);
-	NSString *str;
-	str = nil;
+	NSString *str = nil;
 	char const *val;
-	val = dict_find(dict, [valconv stringToCStr: aKey]);
+	[accessLock lock];
+	val = dict_find(dict, [kconv stringToCStr: aKey]);
+	[accessLock unlock];
 	if (val)
 	{
 		str = [NSString stringWithUTF8String: val];
@@ -141,7 +146,7 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 		       forKeys: (id *)keys
 				 count: (unsigned)count
 {
-	[super init];
+	[self init];
 	valconv = [[MPStringToCStringConverter alloc] initWithCapacity: 5];
 	kconv = [[MPStringToCStringConverter alloc] initWithCapacity: 5];
 	dict = dict_getempty();
@@ -184,8 +189,9 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 - init
 {
 	[super init];
+	accessLock = [NSLock new];
 	kconv = nil;
-	valconv = [[MPStringToCStringConverter alloc] initWithCapacity: 5];
+	valconv = nil;
 	dict = NULL;
 	dictowning = YES;
 	return self;
@@ -202,6 +208,7 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 
 - (void) dealloc
 {
+	[accessLock release];
 	[valconv release];
 	[kconv release];
 	if (dictowning)
@@ -226,7 +233,9 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 	NSString *str;
 	str = nil;
 	char const *val;
+	[accessLock lock];
 	val = dict_find(dict, [valconv stringToCStr: aKey]);
+	[accessLock unlock];
 	if (val)
 	{
 		str = [NSString stringWithCString: val];
@@ -311,6 +320,7 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 {
 	valconv = [[MPStringToCStringConverter alloc] initWithCapacity: 5];
 	objconv = [[MPStringToCStringConverter alloc] initWithCapacity: 5];
+	accessLock = [NSLock new];
 	[super init];
 	if (newDict)
 	{
@@ -334,6 +344,7 @@ void DictionaryEnumeratorFunction(char *val, void *tag)
 {
 	[valconv release];
 	[objconv release];
+	[accessLock release];
 	if (dictowning)
 	{
 		dict_free(dict);
