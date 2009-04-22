@@ -18,9 +18,14 @@
 	iterator = NULL;
 	i = 0;
 	_class = cls;
+
+	// check that list isn't empty
 	methodList = class_nextMethodList(_class, &iterator);
 	if(methodList == NULL) return nil;
+	// assign default value
 	_method = methodList->method_list[i];
+	// rewind
+	[self rewind];
 
 	[super init];
 	return self;
@@ -31,7 +36,7 @@
 	[super dealloc];
 }
 //
-- (SEL) getMethodName
+- (SEL) methodName
 {
 	return _method.method_name;
 }
@@ -39,14 +44,16 @@
 {
 	return _method.method_types;
 }*/
-- (IMP) getMethodImplementation
+- (IMP) methodImplementation
 {
 	return _method.method_imp;
 }
 //
-- (BOOL) moveToNext
+- (BOOL) nextMethod
 {
-	if(i >= methodList->method_count-1)
+	if(!(methodList && iterator))
+		methodList = class_nextMethodList(_class, &iterator);
+	else if(i >= methodList->method_count-1)
 	{
 		methodList = class_nextMethodList(_class, &iterator);
 		if(methodList == NULL)
@@ -62,6 +69,12 @@
 	_method = methodList->method_list[i];
 	return YES;
 }
+- (void) rewind
+{
+	methodList = NULL;
+	iterator = NULL;
+}
+
 @end
 
 //

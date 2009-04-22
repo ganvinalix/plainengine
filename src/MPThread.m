@@ -29,7 +29,7 @@
 
 	threadTimer = [MPCodeTimer codeTimerWithSectionName: [NSString stringWithFormat: @"Thread_%d", threadID]];
 
-	handleMessageWithName = sel_registerName( [MPHandlerOfAnyMessageSelector UTF8String] );
+	selFor_MPHandlerOfAnyMessage = sel_registerName( [MPHandlerOfAnyMessageSelector UTF8String] );
 
 	[strategy setWorking: NO];
 	[strategy setDone: YES];
@@ -169,21 +169,21 @@
 	// that's all
 	[gLog add: notice withFormat: @"MPThread: Thread %@ has been stopped.", self];
 }
+
 //-----
 - (void) threadRoutine
 {
-	if([strategy isPaused])
+	if( [strategy isPaused] )
 	{
 		return;	
 	}
-	//
-	[strategy setUpdating: YES];
 
+	[strategy setUpdating: YES];
 	[strategy update];
 
 	id curSubject = nil;
-	NSUInteger count = [allSubjects count], i;
-	for(i=0; i<count; ++i)
+	NSUInteger count = [allSubjects count], i = 0;
+	for(; i < count; ++i)
 	{
 		curSubject = [allSubjects objectAtIndex: i];
 		if( ![routinesStack containsObject: curSubject] )
@@ -193,17 +193,17 @@
 			[routinesStack removeObject: curSubject];
 		}
 	}
-	while( [self processNextMessage] );
+	while( [self processNextMessage] ) {}
 
 	[strategy setUpdating: NO];
 
 	MP_SLEEP(1);
 }
+
 - (BOOL) processNextMessage
 {
 	NSNotification *notification = nil;
-	NSString *notificationName = nil;
-	NSString *nameForStack = nil;
+	NSString *notificationName = nil, *nameForStack = nil;
 	NSString *prefix = nil, *suffix = nil;
 	NSMutableDictionary *targetToSubscribedObjects = nil;
 	id currentSubject = nil;
@@ -218,23 +218,23 @@
 	[notification retain];
 	[notifications popTop];
 
+#define BIND_VARS(_stackPrefix, _prefix, _suffix, _targetToSubscribedObjects) \
+	nameForStack = [NSString stringWithFormat: @#_stackPrefix"%@", notificationName]; \
+	prefix = _prefix; \
+	suffix = _suffix; \
+	targetToSubscribedObjects = _targetToSubscribedObjects;
 
 	notificationName = [notification name];
 	isRequest = [[notification object] isKindOfClass: [MPResultCradle class]];
 	if(isRequest)
 	{
-		nameForStack = [NSString stringWithFormat: @"r_%@", notificationName];
-		prefix = MPHandlerOfRequestPrefix;
-		suffix = MPHandlerOfRequestSuffix;
-		targetToSubscribedObjects = requestNameToSubscribedSubjects;
+		BIND_VARS(r_, MPHandlerOfRequestPrefix, MPHandlerOfRequestSuffix, requestNameToSubscribedSubjects);
 	}
 	else
 	{
-		nameForStack = [NSString stringWithFormat: @"m_%@", notificationName];
-		prefix = MPHandlerOfMessagePrefix;
-		suffix = @"";
-		targetToSubscribedObjects = messageNameToSubscribedSubjects;
+		BIND_VARS(m_, MPHandlerOfMessagePrefix, @"", messageNameToSubscribedSubjects);
 	}
+#undef BIND_VARS
 	//[gLog add: info withFormat: @"MPThread: message with name: '%@' has been recieved; stack: %@; Thread: %@", notificationName, routinesStack, self];
 
 	// not necessary to process message if same one is deferred already
@@ -252,36 +252,36 @@
 		NSArray *currentArrayOfSubjects = [targetToSubscribedObjects objectForKey: notificationName];
 		if(currentArrayOfSubjects != nil)
 		{
-			// if subject appear in this array, then it must conforms to selector
+			// if subject appear in this array, then it must conform to selector
 			if(!isRequest)
 				[currentArrayOfSubjects makeObjectsPerformSelector: currentSelector withObject: [notification userInfo]];
 			else
 			{
 				NSUInteger i = 0;
 				for(; i < [currentArrayOfSubjects count]; ++i)
-				{
-					[[currentArrayOfSubjects objectAtIndex: i] performSelector: currentSelector withObject: [notification userInfo] withObject: [notification object]];
-				}
+					[[currentArrayOfSubjects objectAtIndex: i] 
+											performSelector: currentSelector 
+											withObject: [notification userInfo] 
+											withObject: [notification object]];
 			}
 		}
 
+		// deliver message to subjects which are subscribed to all messages
 		NSUInteger i = 0, count = [subjectsWhichHandleAllMessages count];
 		for (i=0; i<count; ++i)
 		{
 			currentSubject = [subjectsWhichHandleAllMessages objectAtIndex: i];
-			[currentSubject performSelector: 
-	   			handleMessageWithName withObject: notificationName withObject: [notification userInfo]];
+			[currentSubject performSelector: selFor_MPHandlerOfAnyMessage 
+							withObject: notificationName 
+							withObject: [notification userInfo]];
 		}
 	
 		// well done. remove message name
 		[routinesStack removeObject: nameForStack];
-		
 		[strategy unlockMutex];
 	}
 	//else
-	//{
 		//[[MPNotificationCenter defaultCenter] postNotification: notification];
-	//}
 
 	[notification release];
 
@@ -290,71 +290,26 @@
 //
 - (BOOL) addSubject: (id<MPSubject>)aSubject withName: (NSString *)aName
 {
-	// stuff
-	NSString *const prefixes[] = {MPHandlerOfMessagePrefix, MPHandlerOfRequestPrefix};
-	NSAssert(elements_count <= 2, @"Number of elements  in the 'targets' enum greater than in the array of target's names.");
-
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
 	// if thread is not stoped
 	if([self isWorking]) return NO;
 
-	// if the subject are already in the collection then return
+	// if the subject are already in the collection then add it with another name and return
 	if ([subjects objectForKey: aName])
 	{
 		return [self addSubject: aSubject withName: [NSString stringWithFormat: @"%@_", aName]];
 	}
+
+	NSAutoreleasePool *pool = [NSAutoreleasePool new];
+
+	[gLog add: notice withFormat: @"MPThread: Adding subject %@ with name %@ ...", aSubject, aName];
+
 	// else add current subject to the collection 
 	[subjects setObject: aSubject forKey: aName];
 	[allSubjects addObject: aSubject];
 
-	// selectors registration here
-	[gLog add: notice withFormat: @"MPThread: Begining of parsing methods of %@ subject with name %@...", aSubject, aName];
-
-	Class classObject = [aSubject class];
-	NSUInteger i = 0;
-	NSString *nameOfCurrentMethod = nil, *significantPartOfName = nil;
-
-	id <MPMethodList> methodList = MPGetMethodListForClass(classObject);
-
-	// method list iterating and registration of specific methods
-	if(methodList != nil)
-	{
-		do
-		{
-			nameOfCurrentMethod = [NSString stringWithUTF8String: sel_getName([methodList getMethodName])];
-			if( [nameOfCurrentMethod hasPrefix: MPHandlerPrefix] )
-			{
-				significantPartOfName = [nameOfCurrentMethod substringFromIndex: [MPHandlerOfMessagePrefix length]];
-				NSRange divider = [significantPartOfName rangeOfString: @":"];
-				significantPartOfName = [significantPartOfName substringToIndex: divider.location];
-
-				// in this loop i changes from message_receiving to request_receiving, 
-				// thuns we register handlers for messages, feature adding, feature removing and requests.
-				for(i = 0; i < elements_count; ++i)
-				{
-					if( [nameOfCurrentMethod hasPrefix: prefixes[i]] )
-					{
-						[self bindSubject: aSubject to: i withName: significantPartOfName];
-						[gLog add: notice withFormat: 
-								  @"MPThread: The %@ handler for [%@] has been successfully binded.", prefixes[i], significantPartOfName];
-					}	
-				}
-
-			} // if hasPrefix
-		} while([methodList moveToNext]);// while
-	} // if methodList != NULL
-
-	// register the handler for all messages if any
-	if( [aSubject respondsToSelector: handleMessageWithName] )
-	{
-		[subjectsWhichHandleAllMessages addObject: aSubject];
-		[gLog add: notice withFormat: @"MPThread: The handler for any event has been successfully added binded."];
-	}
-
-	[gLog add: notice withFormat: @"MPThread: End of parsing."];
-	// end of registration
-
+	// bind subject to messages it responds to
+	[self bindMethodsOfSubject: aSubject];
+	
 	// send API to the subject
 	MPAPI *api = [MPAPI api];
 	[api setCurrentThread: self];
@@ -409,9 +364,52 @@
 		       	@"there are non subject object in the subjects dictionary!");
 	return [[subj retain] autorelease];
 }
-- (BOOL) bindSubjectWithName: (NSString *)aSubjectName to: (subject_binding_target)aTarget withName: (NSString *)aName
+
+- (void) bindMethodsOfSubject: (id<MPSubject>)aSubject
 {
-	return [self bindSubject: [self getSubjectByName: aSubjectName] to: aTarget withName: aName];
+	//stuff
+	NSString *const prefixes[] = {MPHandlerOfMessagePrefix, MPHandlerOfRequestPrefix};
+	NSAssert(elements_count <= 2, @"Number of elements  in the 'targets' enum greater than in the array of target's names.");
+
+	[gLog add: notice withFormat: @"MPThread: Begining of parsing methods of %@ subject ...", aSubject];
+
+	Class classObject = [aSubject class];
+	NSUInteger i = 0;
+	NSString *nameOfCurrentMethod = nil, *significantPartOfMethodName = nil;
+	id <MPMethodList> methodList = MPGetMethodListForClass(classObject);
+
+	// method list iterating and registration of specific methods
+	while( [methodList nextMethod] )
+	{
+		nameOfCurrentMethod = [NSString stringWithUTF8String: sel_getName([methodList methodName])];
+		if( ![nameOfCurrentMethod hasPrefix: MPHandlerPrefix] )
+			continue;
+
+		significantPartOfMethodName = [nameOfCurrentMethod substringFromIndex: [MPHandlerOfMessagePrefix length]];
+		NSRange divider = [significantPartOfMethodName rangeOfString: @":"];
+		significantPartOfMethodName = [significantPartOfMethodName substringToIndex: divider.location];
+
+		// in this loop i changes from message_receiving to request_receiving, 
+		// thuns we register handlers for messages, feature adding, feature removing and requests.
+		for(i = 0; i < elements_count; ++i)
+			if( [nameOfCurrentMethod hasPrefix: prefixes[i]] )
+			{
+				[self bindSubject: aSubject to: i withName: significantPartOfMethodName];
+				[gLog add: notice withFormat: 
+						@"MPThread: The %@ handler for [%@] has been successfully binded.", 
+						prefixes[i], 
+						significantPartOfMethodName];
+			}
+	} // while
+
+	// register the handler for all messages if any
+	if( [aSubject respondsToSelector: selFor_MPHandlerOfAnyMessage] )
+	{
+		[subjectsWhichHandleAllMessages addObject: aSubject];
+		[gLog add: notice withFormat: @"MPThread: The handler for any event has been successfully binded."];
+	}
+
+	[gLog add: notice withFormat: @"MPThread: End of parsing."];
 }
 - (BOOL) bindSubject: (id<MPSubject>)aSubject to: (subject_binding_target)aTarget withName: (NSString *)aName
 {

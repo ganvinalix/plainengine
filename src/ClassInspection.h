@@ -1,11 +1,12 @@
 #import <Foundation/Foundation.h>
 		
 @protocol MPMethodList
-- (SEL) getMethodName;
+- (SEL) methodName;
 //- (char *) getMethodTypes;
-- (IMP) getMethodImplementation;
+- (IMP) methodImplementation;
 
-- (BOOL) moveToNext;
+- (BOOL) nextMethod;
+- (void) rewind;
 @end
 
 id<MPMethodList> MPGetMethodListForClass(Class cls);

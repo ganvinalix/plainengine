@@ -3,7 +3,6 @@
 #import <MPSubject.p>
 #import <MPThreadStrategy.h>
 #import <MPUtility.h>
-#import <MPStringToCStringConverter.h>
 
 typedef enum
 {
@@ -29,7 +28,7 @@ typedef enum
 	NSMutableDictionary *requestNameToSubscribedSubjects; // request name to array of subscribed subjects
 	NSMutableArray *subjectsWhichHandleAllMessages;
 	NSMutableArray *allSubjects;
-	SEL handleMessageWithName;
+	SEL selFor_MPHandlerOfAnyMessage;
 }
 - init;
 - initWithStrategy: (MPThreadStrategy *)aStrategy withID: (unsigned)thId;
@@ -51,17 +50,24 @@ typedef enum
 - (void) threadRoutine;
 - (BOOL) processNextMessage;
 - (void) yield;
+
 //
 - (BOOL) addSubject: (id<MPSubject>)aSubject withName: (NSString *)aName;
 - (BOOL) removeSubjectWithName: (NSString *)aName;
-//
-- (BOOL) bindSubjectWithName: (NSString *)aName to: (subject_binding_target)aTarget withName: (NSString *)aName;
+
+// Subjects (un)binding functons
+// binds subject to messages it responds to
+- (void) bindMethodsOfSubject: (id<MPSubject>)aSubject;
+// binds subject (aSubject) to message with a specified type (aTarget) and a name (aName)
 - (BOOL) bindSubject: (id<MPSubject>)aSubject to: (subject_binding_target)aTarget withName: (NSString *)aName;
+// unbinds subject from all messages it binded to
 - (void) unbindSubject: (id<MPSubject>)aSubject;
-//
-- (id<MPSubject>) getSubjectByName: (NSString *)aName;
-//
+
+//- (id<MPSubject>) getSubjectByName: (NSString *)aName;
+
+// returns thread description as a string
 - (NSString*) description;
+// returns thread id which is specified in engine configuration file
 - (unsigned) getID;
 @end
 
