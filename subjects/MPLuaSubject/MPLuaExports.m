@@ -100,6 +100,49 @@ int luaMPPostMessage(lua_State *lua)
 	return 0;
 }
 
+int luaMPPostRequest(lua_State *lua)
+{
+	LUA_LOCK;
+	id<MPVariant> result = nil;
+	if (lua_gettop(lua) == 1)
+	{
+		const char *message = lua_tostring(lua, -1);
+		lua_pop(lua, 1);
+	
+		LOAD_API;
+	
+		result = [api postRequestWithName: [NSString stringWithUTF8String: message]];
+
+	}
+	else
+	{
+		const char *message = lua_tostring(lua, -2);
+		int tableindex = lua_gettop(lua);
+
+		MPMutableDictionary *params = [MPMutableDictionary new];
+		lua_pushnil(lua);
+		while (lua_next(lua, tableindex) != 0)
+		{
+			[params setObject: [NSString stringWithUTF8String: lua_tostring(lua, -1)]
+					   forKey: [NSString stringWithUTF8String: lua_tostring(lua, -2)]];
+			lua_pop(lua, 1); //remove value, keep key for next iteration
+		}
+
+		lua_pop(lua, 2);
+
+		LOAD_API;
+
+		result = [api postRequestWithName: [NSString stringWithUTF8String: message] userInfo: params];
+		[params release];
+
+	}
+	lua_pushstring(lua, [[result stringValue] UTF8String]);
+	LUA_UNLOCK;
+	return 1;
+}
+
+
+
 int luaMPYield(lua_State *lua)
 {
 	LUA_LOCK;

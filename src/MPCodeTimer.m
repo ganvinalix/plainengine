@@ -67,8 +67,9 @@ NSMutableDictionary *timersData = nil;
 	//Or there is still no info; then array must be created.
 	if (aTimerData == nil)
 	{
-		aTimerData = [NSMutableArray arrayWithCapacity: 5];
+		aTimerData = [[NSMutableArray alloc] initWithCapacity: 5];
 		[timersData setObject: aTimerData forKey: sectionName];
+		[aTimerData release];
 	}
 	timerData = [aTimerData retain]; //Timer contains only link to section info.
 	//So, we wouldn't need to search for it;
@@ -101,12 +102,6 @@ NSMutableDictionary *timersData = nil;
 	statistics.maxTimeSampleUnfinished=0;
 	statistics.averageTimeUnfinished=0;
 
-	//if (!timersData)
-	//{
-	//	return statistics; //quit when timersData is not created;
-	//}
-	
-	
 	//To be sure that the last session is closed:
 	MPTimerData *aTimerData;
 	NSMutableArray *aSection;

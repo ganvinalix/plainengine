@@ -31,13 +31,15 @@ int main(int argc, const char *argv[])
 		[gLog add: notice withFormat: @"Parsing complete"];
 
 		[gLog add: notice withFormat: @"Linking..."];
-		state = MPLinkModules(descriptions, subjman);
+		state = [MPLinkModules(descriptions, subjman) retain];
 		[gLog add: notice withFormat: @"Linking complete"];
 
 		MPAutoreleasePool *runPool = [MPAutoreleasePool new];
 		
 		if(state != nil)
+		{
 			[subjman run];
+		}
 
 		[runPool release];
 
@@ -50,8 +52,12 @@ int main(int argc, const char *argv[])
 	@finally
 	#endif
 	{
+		[subjman removeSubjects];
 		[subjman release];
+
 		MPUnloadModules(state);
+		[state release];
+
 		[pool release];
 
 		[gLog add: notice withFormat: @"There were:"];

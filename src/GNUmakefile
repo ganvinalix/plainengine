@@ -20,7 +20,6 @@ MPForkedThreadStrategy.m \
 MPSubroutineThreadStrategy.m \
 MPSystemSubject.m \
 MPAPI.m \
-error_names.m \
 core_constants.m \
 MPDictionaryPooler.m\
 MPLinker.m \
@@ -29,7 +28,6 @@ MPAssertionHandler.m \
 
 plainEngine_HEADER_FILES = \
 common.h \
-error_names.h \
 MPNotificationQueue.h \
 MPNotifications.h \
 MPObject.h \
@@ -55,7 +53,6 @@ libMPUtility_LIBRARIES_DEPEND_UPON += -ldl
 libMPUtility_HEADER_FILES = \
 common_defines.h \
 numeric_types.h \
-error_names.h \
 dictionary.h \
 release_bunch.h \
 universal_delegate_headers.h \
@@ -95,7 +92,6 @@ MPPool.m \
 MPMapper.m \
 MPPair.m \
 MPAutoreleasePool.m \
-error_names.m \
 MPStringToCStringConverter.m \
 MPModule.m \
 MPRemovalStableList.m \

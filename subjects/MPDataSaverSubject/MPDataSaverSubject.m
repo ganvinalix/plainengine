@@ -31,7 +31,6 @@
 	}
 	[dataFileName release];
 	[dataTree release];
-	[self save];
 	[super dealloc];
 }
 

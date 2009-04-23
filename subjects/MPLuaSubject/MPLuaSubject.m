@@ -173,6 +173,7 @@ NSDictionary *encodingsDictionary = nil;
 	#define REGISTER_LUA_FUNCTION(f) lua_register(lua, #f, lua##f);
 	REGISTER_LUA_FUNCTION(MPLog);
 	REGISTER_LUA_FUNCTION(MPPostMessage);
+	REGISTER_LUA_FUNCTION(MPPostRequest);
 	REGISTER_LUA_FUNCTION(MPYield);
 	REGISTER_LUA_FUNCTION(MPGetMilliseconds);
 	REGISTER_LUA_FUNCTION(MPObjectByName);

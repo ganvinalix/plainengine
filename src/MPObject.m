@@ -293,19 +293,11 @@ NSRecursiveLock *objectClassMutex;
 
 	if ([delegate respondsToSelector: @selector(newDelegateWithObject:withUserInfo:)])
 	{
-		/*
-		localDelegate = [delegate performSelector: @selector(newDelegateWithObject:)
-									   withObject: self
-									   withObject: [[delegateClassPerUserInfo objectForKey: delegate] getUserInfo]];
-		*/
 		localDelegate = [delegate newDelegateWithObject: self
 										   withUserInfo: [[delegateClassPerUserInfo objectForKey: delegate] getUserInfo]];
 	}
 	else if ([delegate respondsToSelector: @selector(newDelegateWithObject:)])
 	{
-		/*
-		localDelegate = [delegate performSelector: @selector(newDelegateWithObject:) withObject: self];
-		*/
 		localDelegate = [delegate newDelegateWithObject: self];
 	}
 	else

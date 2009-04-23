@@ -23,11 +23,10 @@ typedef enum
 	// proflng
 	MPCodeTimer *threadTimer;
 	// containers
-	NSMutableDictionary *subjects; // name to subject
+	NSMutableArray *subjects; // name to subject
 	NSMutableDictionary *messageNameToSubscribedSubjects; // message name to array of subscribed subjects
 	NSMutableDictionary *requestNameToSubscribedSubjects; // request name to array of subscribed subjects
 	NSMutableArray *subjectsWhichHandleAllMessages;
-	NSMutableArray *allSubjects;
 	SEL selFor_MPHandlerOfAnyMessage;
 }
 - init;
@@ -52,8 +51,8 @@ typedef enum
 - (void) yield;
 
 //
-- (BOOL) addSubject: (id<MPSubject>)aSubject withName: (NSString *)aName;
-- (BOOL) removeSubjectWithName: (NSString *)aName;
+- (BOOL) addSubject: (id<MPSubject>)aSubject; 
+- (BOOL) removeSubject: (id<MPSubject>)aSubject;
 
 // Subjects (un)binding functons
 // binds subject to messages it responds to
@@ -62,8 +61,6 @@ typedef enum
 - (BOOL) bindSubject: (id<MPSubject>)aSubject to: (subject_binding_target)aTarget withName: (NSString *)aName;
 // unbinds subject from all messages it binded to
 - (void) unbindSubject: (id<MPSubject>)aSubject;
-
-//- (id<MPSubject>) getSubjectByName: (NSString *)aName;
 
 // returns thread description as a string
 - (NSString*) description;

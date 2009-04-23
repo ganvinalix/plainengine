@@ -8,6 +8,7 @@
 {
 	NSMutableDictionary *threads;
 	NSMutableDictionary *subjectToThread;
+	NSMutableDictionary *nameToSubject;
 	BOOL paused;
 	BOOL isWorking;
 	NSLock *accessMutex;
@@ -33,6 +34,8 @@
 - (void) run;
 /** Stops all subjects and finishes program */
 - (void) terminate;
+/** Removes all subjects from subject manager */
+- (void) removeSubjects;
 
 @end
 

@@ -19,15 +19,14 @@
 
 	strategy = [aStrategy retain];
 
-	subjects = [[NSMutableDictionary alloc] init];
 	routinesStack = [[NSMutableArray alloc] initWithCapacity: 20];
 	messageNameToSubscribedSubjects = [[NSMutableDictionary alloc] initWithCapacity: 20];
 	requestNameToSubscribedSubjects = [[NSMutableDictionary alloc] initWithCapacity: 20];
 	subjectsWhichHandleAllMessages = [[NSMutableArray alloc] initWithCapacity: 20];
-	allSubjects = [[NSMutableArray alloc] initWithCapacity: 20];
+	subjects = [[NSMutableArray alloc] initWithCapacity: 20];
 	notifications = [strategy newNotificationQueue];
 
-	threadTimer = [MPCodeTimer codeTimerWithSectionName: [NSString stringWithFormat: @"Thread_%d", threadID]];
+	threadTimer = [[MPCodeTimer codeTimerWithSectionName: [NSString stringWithFormat: @"Thread_%d", threadID]] retain];
 
 	selFor_MPHandlerOfAnyMessage = sel_registerName( [MPHandlerOfAnyMessageSelector UTF8String] );
 
@@ -47,13 +46,12 @@
 	[self stop];
 
 	[notifications release];
-	[subjects release];
 	[strategy release];
 	[routinesStack release];
 	[messageNameToSubscribedSubjects release];
 	[requestNameToSubscribedSubjects release];
 	[subjectsWhichHandleAllMessages release];
-	[allSubjects release];
+	[subjects release];
 	[threadTimer release];
 
 	[super dealloc];
@@ -105,12 +103,11 @@
 
 	// sending start to all subjects
 	NSEnumerator *subjectEnumerator = [subjects objectEnumerator];
-	NSEnumerator *keysEnumerator = [subjects keyEnumerator];
-	id<MPSubject> currentSubject = nil, currentName = nil;
-	while( (currentSubject = [subjectEnumerator nextObject]) && (currentName = [keysEnumerator nextObject]) )
+	id<MPSubject> currentSubject = nil;
+	while( (currentSubject = [subjectEnumerator nextObject]) != nil )
 	{
 		[currentSubject start];
-		[gLog add: notice withFormat: @"MPThread: Subject [%@] has been started.", currentName];
+		[gLog add: notice withFormat: @"MPThread: Subject [%@] has been started.", currentSubject];
 	}
 
 	[strategy setPrepared: YES];
@@ -159,12 +156,11 @@
 	}
 	// now sending stop to all subjects
 	NSEnumerator *subjectEnumerator = [subjects objectEnumerator];
-	NSEnumerator *keysEnumerator = [subjects keyEnumerator];
-	id<MPSubject> currentSubject = nil, currentName = nil;
-	while( (currentSubject = [subjectEnumerator nextObject]) && (currentName = [keysEnumerator nextObject]) )
+	id<MPSubject> currentSubject = nil;
+	while( (currentSubject = [subjectEnumerator nextObject]) != nil )
 	{
 		[currentSubject stop];
-		[gLog add: notice withFormat: @"MPThread: Subject [%@] has been stopped.", currentName];
+		[gLog add: notice withFormat: @"MPThread: Subject [%@] has been stopped.", currentSubject];
 	}
 	// that's all
 	[gLog add: notice withFormat: @"MPThread: Thread %@ has been stopped.", self];
@@ -182,14 +178,14 @@
 	[strategy update];
 
 	id curSubject = nil;
-	NSUInteger count = [allSubjects count], i = 0;
+	NSUInteger count = [subjects count], i = 0;
 	for(; i < count; ++i)
 	{
-		curSubject = [allSubjects objectAtIndex: i];
+		curSubject = [subjects objectAtIndex: i];
 		if( ![routinesStack containsObject: curSubject] )
 		{
 			[routinesStack addObject: curSubject];
-			[[allSubjects objectAtIndex: i] update];
+			[[subjects objectAtIndex: i] update];
 			[routinesStack removeObject: curSubject];
 		}
 	}
@@ -288,24 +284,24 @@
 	return YES;
 }
 //
-- (BOOL) addSubject: (id<MPSubject>)aSubject withName: (NSString *)aName
+- (BOOL) addSubject: (id<MPSubject>)aSubject 
 {
 	// if thread is not stoped
 	if([self isWorking]) return NO;
 
 	// if the subject are already in the collection then add it with another name and return
-	if ([subjects objectForKey: aName])
+	if ([subjects containsObject: aSubject])
 	{
-		return [self addSubject: aSubject withName: [NSString stringWithFormat: @"%@_", aName]];
+		[gLog add: warning withFormat: @"MPThread: Attempt to add already existing subject: %@", aSubject];
+		return NO;
 	}
 
 	NSAutoreleasePool *pool = [NSAutoreleasePool new];
 
-	[gLog add: notice withFormat: @"MPThread: Adding subject %@ with name %@ ...", aSubject, aName];
+	[gLog add: notice withFormat: @"MPThread: Adding subject %@...", aSubject];
 
 	// else add current subject to the collection 
-	[subjects setObject: aSubject forKey: aName];
-	[allSubjects addObject: aSubject];
+	[subjects addObject: aSubject];
 
 	// bind subject to messages it responds to
 	[self bindMethodsOfSubject: aSubject];
@@ -317,29 +313,26 @@
 
 	[pool release];
 
-	[gLog add: notice withFormat: @"MPThread: Subject with name \"%@\" has been added to thread %@.", aName, self];
+	[gLog add: notice withFormat: @"MPThread: Subject %@ has been added to thread %@.", aSubject, self];
 
 	return YES;
 }
-
-- (BOOL) removeSubjectWithName: (NSString *)aName
+- (BOOL) removeSubject: (id<MPSubject>)aSubject
 {
+	NSAssert(aSubject, @"[MPThread removeSubject]: aSubject is nil"); 
 	if([self isWorking]) return NO;
 
-	id subj;
-	subj = [subjects objectForKey: aName];
-	if (!subj)
+	if (![strategy isDone])
 	{
-		return NO;
+		[aSubject stop];
 	}
-	[subj stop];
-	[self unbindSubject: subj];
-	[subjects removeObjectForKey: aName];
-	[allSubjects removeObject: subj];
-	[gLog add: notice withFormat: @"MPThread: Subject with name \"%@\" has been removed from thread %@.", aName, self];
+	[self unbindSubject: aSubject];
+	[subjects removeObject: aSubject];
+	[gLog add: notice withFormat: @"MPThread: Subject %@ has been removed from thread %@.", aSubject, self];
 
 	return YES;
 }
+
 
 - (void) pause
 {
@@ -354,15 +347,6 @@
 	[strategy setWorking: YES];
 	[strategy setPaused: NO];
 	[gLog add: notice withFormat: @"MPThread: Thread %@ has been resumed.", self];
-}
-- (id<MPSubject>) getSubjectByName: (NSString *)aName
-{
-	[strategy lockMutex];
-	id <MPSubject> subj = [subjects objectForKey: aName];
-	[strategy unlockMutex];
-	NSAssert([subj conformsToProtocol: @protocol(MPSubject)] == YES,
-		       	@"there are non subject object in the subjects dictionary!");
-	return [[subj retain] autorelease];
 }
 
 - (void) bindMethodsOfSubject: (id<MPSubject>)aSubject
@@ -472,9 +456,10 @@
 
 - (NSString*) description
 {
-	NSEnumerator *enumer = [allSubjects objectEnumerator];
+	NSEnumerator *enumer = [subjects objectEnumerator];
 	id subject;
-	NSMutableString *description = [NSMutableString stringWithFormat: @"(%p with ID [%d]: ", self, threadID];
+	//NSMutableString *description = [NSMutableString stringWithFormat: @"(%p with ID [%d]: ", self, threadID];
+	NSMutableString *description = [NSMutableString stringWithFormat: @"(ID [%d]: ",threadID];
 	BOOL first = YES;
 	while ((subject = [enumer nextObject]) != nil)
 	{

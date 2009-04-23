@@ -156,8 +156,8 @@ id MPLinkModules(NSArray *descriptions, MPSubjectManager *subjMan)
 		return nil;
 	}
 
-	[[descriptions retain] autorelease];
-	[[subjMan retain] autorelease];
+	[descriptions retain];
+	[subjMan retain];
 
 	NSMutableDictionary *modules = [NSMutableDictionary dictionaryWithCapacity: 20];
 	MPModule *module = nil;
@@ -216,6 +216,8 @@ id MPLinkModules(NSArray *descriptions, MPSubjectManager *subjMan)
 		];
 	}
 
+	[subjMan release];
+	[descriptions release];
 
 	return modules;
 }

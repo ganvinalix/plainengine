@@ -8,6 +8,7 @@ int luaErrorHandler(lua_State *lua);
 int luaMPLog(lua_State *lua); 
 
 int luaMPPostMessage(lua_State *lua);
+int luaMPPostRequest(lua_State *lua);
 
 int luaMPYield(lua_State *lua);
 

@@ -5,7 +5,7 @@
 
 /**
  * Class which repeats functions of NSDictionary except:
- * 1) Permits only NSString as keys and objects; Throws exception with name MPIsNotNSString if don't follow this;
+ * 1) Permits only NSString as keys and objects; 
  * 2) Has ability to get pointer to dictionary structure with elements of MPDictionary which can be used in pure-C code
  */
 @interface MPDictionary : NSDictionary <MPCDictionaryRepresentable>
@@ -50,7 +50,7 @@
 
 /**
  * Class which repeats functions of NSMutableDictionary except:
- * 1) Permits only NSString as keys and objects; Throws exception with name MPIsNotNSString if don't follow this;
+ * 1) Permits only NSString as keys and objects; 
  * 2) Has ability to get pointer to dictionary structure with elements of MPDictionary which can be used in pure-C code
  * WARNING: This class isn't derived from MPDictionary!
  */

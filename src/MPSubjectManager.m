@@ -36,6 +36,7 @@
 {
 	BOOL ret=YES;
 	MPSM_LOCK;
+	[gLog add: notice withFormat: @"MPSubjectManager: Adding subject %@ with name \"%@\"", subject, name];
 	MPThread *curThread;
 	NSNumber *thrnum;
 	thrnum = [[NSNumber alloc] initWithUnsignedInt: thread];
@@ -47,11 +48,12 @@
 		[curThread release];
 	}
 	[thrnum release];
-	if (![curThread addSubject: subject withName: name])
+	if (![curThread addSubject: subject])
 	{
 		ret = NO;
 	}
 	[subjectToThread setObject: curThread forKey: name];
+	[nameToSubject setObject: subject forKey: name];
 	MPSM_UNLOCK;
 	return ret;
 }
@@ -60,9 +62,10 @@
 {
 	BOOL ret=NO;
 	MPSM_LOCK;
-	if ([[subjectToThread objectForKey: name] removeSubjectWithName: name])
+	if ([[subjectToThread objectForKey: name] removeSubject: [nameToSubject objectForKey: name]])
 	{
 		[subjectToThread removeObjectForKey: name];
+		[nameToSubject removeObjectForKey: name];
 		ret = YES;
 	}
 	MPSM_UNLOCK;
@@ -85,15 +88,6 @@
 		}
 	}
 
-	/*
-	NSEnumerator *enumer;
-	enumer = [threads objectEnumerator];
-	MPThread *thr;
-	while ( (thr = [enumer nextObject]) != nil )
-	{
-		[thr pause];
-	}
-	*/
 	MPSM_UNLOCK;
 }
 
@@ -211,29 +205,45 @@
 	isWorking = NO;
 }
 
+- (void) removeSubjects
+{
+	NSAutoreleasePool *pool = [MPAutoreleasePool new];
+	id name;
+	NSArray *subjectNames = [nameToSubject allKeys];
+
+	NSEnumerator *enumer = nil;
+	enumer = [subjectNames objectEnumerator];
+	while ((name = [enumer nextObject]) != nil)
+	{
+		[self removeSubjectWithName: name];
+	}
+	[pool release];
+}
+
 - init
 {
 	[super init];
 	paused = NO;
 	isWorking = NO;
-	threads = [[NSMutableDictionary alloc] init];
-	subjectToThread = [[NSMutableDictionary alloc] init];
-	accessMutex = [[NSLock alloc] init];
+	threads = [NSMutableDictionary new];
+	subjectToThread = [NSMutableDictionary new];
+	nameToSubject = [NSMutableDictionary new];
+	accessMutex = [NSLock new];
 	
 	MPThread *mainThread;
-	NSNumber *thrnum;
-	thrnum = [[NSNumber alloc] initWithUnsignedInt: 0];
+	NSNumber *threadNum;
+	threadNum = [[NSNumber alloc] initWithUnsignedInt: 0];
 	mainThread = [[MPThread alloc] initWithStrategy: [MPThreadStrategy subroutineStrategy] withID: 0];
 	MPSM_LOCK;
 	id<MPSubject> syssubj;
 	syssubj = [[MPSystemSubject alloc] initWithSubjectManager: self]; 
-	[mainThread addSubject: syssubj withName: MPSystemSubjectName];
-	[threads setObject: mainThread forKey: thrnum];
+	[mainThread addSubject: syssubj];
+	[threads setObject: mainThread forKey: threadNum];
 	[subjectToThread setObject: mainThread forKey: MPSystemSubjectName];
 	[syssubj release];
 	MPSM_UNLOCK;
 
-	[thrnum release];
+	[threadNum release];
 
 
 	return self;
@@ -241,20 +251,9 @@
 
 - (void) dealloc
 {
-	/*NSEnumerator *enumer;
-	enumer = [threads objectEnumerator];
-	MPThread *thr;
-	NSString *threadStatName = nil;
-
-	while ( (thr = [enumer nextObject]) != nil )
-	{
-		threadStatName = [NSString stringWithFormat: @"Thread_%d", [thr getID]];
-		[gLog add: notice withFormat: @"%@", 
-			[MPCodeTimer printStatisticsByName: threadStatName]];
-	}*/
-	
 	[accessMutex release];
 	[threads release];
+	[nameToSubject release];
 	[subjectToThread release];
 	[super dealloc];
 }
