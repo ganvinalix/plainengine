@@ -20,7 +20,7 @@ typedef enum
 	MPNotificationQueue *notifications;
 	MPThreadStrategy *strategy;
 	NSMutableArray *routinesStack;
-	// proflng
+	// profilng
 	MPCodeTimer *threadTimer;
 	// containers
 	NSMutableArray *subjects; // name to subject
