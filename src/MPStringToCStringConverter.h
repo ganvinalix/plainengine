@@ -1,5 +1,4 @@
 #import <Foundation/Foundation.h>
-#import <numeric_types.h>
 
 /** This class is used for often-used string to CString conversions.
     It contains precached buffer which automatically widens when need.

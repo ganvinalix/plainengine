@@ -52,7 +52,6 @@ LIBRARY_NAME = libMPUtility
 libMPUtility_LIBRARIES_DEPEND_UPON += -ldl
 libMPUtility_HEADER_FILES = \
 common_defines.h \
-numeric_types.h \
 dictionary.h \
 release_bunch.h \
 universal_delegate_headers.h \

@@ -1,5 +1,4 @@
 #import <Foundation/Foundation.h>
-#import <numeric_types.h>
 
 /** Structure with MPCodeTimer section statistics */
 typedef struct

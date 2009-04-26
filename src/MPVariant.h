@@ -1,5 +1,4 @@
 #import <Foundation/Foundation.h>
-#import <numeric_types.h>
 #import <MPVariant.p>
 
 /** This class is an universal data container that support NSString, NSInteger and double types and conversion between them;*/

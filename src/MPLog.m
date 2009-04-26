@@ -1,7 +1,6 @@
 #define _INSIDE_LOG_M
 
 #import <MPLog.h>
-#import <numeric_types.h>
 #import <stdarg.h>
 #import <common_defines.h>
 

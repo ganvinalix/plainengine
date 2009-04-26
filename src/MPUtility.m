@@ -17,11 +17,7 @@ NSString *unsignedToString(NSUInteger uns)
 
 NSUInteger stringToUnsigned(NSString *string)
 {
-	#ifdef MP_OLD_GNUSTEP_SUPPORT
-	return (NSUInteger)[string intValue];
-	#else
 	return (NSUInteger)[string integerValue];
-	#endif
 }
 
 void *stringToPointer(NSString *string)

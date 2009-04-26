@@ -127,19 +127,7 @@
 			break;
 		case type_int:
 			intComputed = YES;
-			//Tambourine for old GNUstep versions;
-			#ifdef MP_OLDGNUSTEPSUPPORT
-			if (![theStringValue respondsToSelector: @selector(integerValue)])
-			{
-				theIntegerValue = [theStringValue intValue]; 
-			}
-			else
-			{
-				theIntegerValue = [(id)theStringValue integerValue];
-			}
-			#else
 			theIntegerValue = [theStringValue integerValue];
-			#endif
 			break;
 	}
 	return self;
@@ -193,19 +181,7 @@
 				NSAssert(0, @"MPVariant error: type is 'int' but value of this type undefined");
 				break;
 			case type_string:
-				//Tambourine for old GNUstep versions;
-				#ifdef MP_OLDGNUSTEPSUPPORT
-				if (![theStringValue respondsToSelector: @selector(integerValue)])
-				{
-					theIntegerValue = [theStringValue intValue]; 
-				}
-				else
-				{
-					theIntegerValue = [(id)theStringValue integerValue];
-				}
-				#else
 				theIntegerValue = [theStringValue integerValue];
-				#endif
 				break;
 			case type_double:
 				theIntegerValue = theDoubleValue;
