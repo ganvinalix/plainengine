@@ -21,7 +21,6 @@ MPSubroutineThreadStrategy.m \
 MPSystemSubject.m \
 MPAPI.m \
 core_constants.m \
-MPDictionaryPooler.m\
 MPLinker.m \
 MPResultCradle.m \
 MPAssertionHandler.m \
@@ -41,7 +40,6 @@ MPSubroutineThreadStrategy.h \
 MPForkedThreadStrategy.h \
 MPSystemSubject.h \
 core_constants.h \
-MPDictionaryPooler.h \
 MPLinker.h \
 MPResultCradle.h \
 MPResultCradle.p \
