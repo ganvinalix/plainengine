@@ -6,10 +6,10 @@
 	NSNumber *objectHandle;
 	NSString *objectName;
 	NSMutableDictionary *features;
-	//NSMutableArray *delegates;
 	MPRemovalStableList *delegatesList;
-	NSMutableDictionary *delegatesPerCount;
-	NSUInteger internalRetainCount;
+	NSMutableDictionary *countPerDelegate; //delegate reference counters
+	NSUInteger internalRetainCount; //Number of object system containers object is in.
+									//When retainCount would be equal to internalRetainCount, object would be deallocated.
 	NSRecursiveLock *accessMutex;
 	BOOL removed;
 }
@@ -26,9 +26,12 @@
 /** Removes all objects from object system */
 +(void) cleanup;
 
+-(id) getLocalDelegatePointer: (Class)delegate;
+
 /** Creates delegate instance and adds it to object delegates array if there is no such delegate.
- 	Otherwise increases internal delegate "reference counter"*/
+ 	Otherwise increases internal delegate reference counter*/
 -(void) setLocalDelegate: (Class)delegate;
+
 /** Decreases "reference counter" of delegate instance. If it became equal to 0, removes it */
 -(void) removeLocalDelegate: (Class)delegate;
 

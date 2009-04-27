@@ -120,7 +120,7 @@
 		case type_none:
 			break; //nop
 		case type_string:
-			break; //nop
+			break; //nop (already loaded before)
 		case type_double:
 			doubleComputed = YES;
 			theDoubleValue = [theStringValue doubleValue];

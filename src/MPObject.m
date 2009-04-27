@@ -10,19 +10,20 @@ id handleToString(id handle)
 	return [handle stringValue];
 }
 
-MPMapper *handleMapper;
-MPHandle handleCounter;
-NSUInteger defaultNameCount;
-NSMutableArray *delegatesArray;
-NSMutableDictionary *delegatesByFeature;
-NSMutableDictionary *featuresByDelegate;
-NSMutableDictionary *delegateClassPerUserInfo;
-NSMutableArray *objectsArray;
-NSMutableDictionary *featureByObjectName;
-NSMutableDictionary *objectByHandle;
-NSMutableDictionary *objectByName;
-NSRecursiveLock *objectClassMutex;
+MPMapper *handleMapper; //handle-to-string cache
+MPHandle handleCounter; //global handle counter to provide unique handles
+NSUInteger defaultNameCount; //default name counter to provide unique default names
+NSMutableArray *delegatesArray; //array of global delegate classes
+NSMutableDictionary *delegatesByFeature; //dictionary which maps array of delegate classes to feature
+NSMutableDictionary *featuresByDelegate; //dictionary which maps to delegate class array of features, for which this delegate class is registered
+NSMutableDictionary *delegateClassPerUserInfo; //dictionary which maps MPUserInfoWrapper to delegate class
+NSMutableArray *objectsArray; //array of all objects
+NSMutableDictionary *objectsByFeature; //dictionary which maps to feature array of objects having this feature
+NSMutableDictionary *objectByHandle; //dictionary which maps object to its handle
+NSMutableDictionary *objectByName; //dictionary which maps object to its name
+NSRecursiveLock *objectClassMutex; //global mutex
 
+//this protocol isn't being used. It is need just to declare some selectors.
 @protocol MPObjectDelegateClassDeclarations
 +newDelegateWithObject: (id)anObject;
 +newDelegateWithObject: (id)anObject withUserInfo: (void *)anUserInfo;
@@ -80,6 +81,17 @@ NSRecursiveLock *objectClassMutex;
 
 @implementation MPObject
 
+/* Here some useful macroses are defined:
+ *
+ * (all ...LOCK and ...UNLOCK are exception-safe if compiled with MP_USE_EXCEPTIONS and no-op if compiled without MP_USE_EXCEPTIONS)
+ * MPO_LOCK - locks current object if need
+ * MPO_UNLOCK - unlocks current object if need (paired with MPO_LOCK)
+ * MPO_TUNLOCK - temporary unlock current object with saving delegate list position
+ * MPO_TLOCK - paired to MPO_TUNLOCK. Locks again object and restores delegate list position
+ * MPOC_LOCK - locks global mutex
+ * MPOC_UNLOCK - unlocks global mutex
+ */
+
 #ifndef MPOBJECT_ENABLESYNCHRONISATION
 
 #define MPO_LOCK
@@ -129,10 +141,21 @@ NSRecursiveLock *objectClassMutex;
 
 #else
 
-#define MPO_LOCK [accessMutex lock];
-#define MPO_UNLOCK [accessMutex unlock];
-#define MPOC_LOCK [objectClassMutex lock];
-#define MPOC_UNLOCK [objectClassMutex unlock];
+#define MPO_LOCK \
+	[accessMutex lock];\
+	{
+
+#define MPO_UNLOCK
+	}\
+	[accessMutex unlock];
+
+#define MPOC_LOCK\
+	[objectClassMutex lock];\
+	{
+
+#define MPOC_UNLOCK
+	}\
+	[objectClassMutex unlock];
 
 #endif
 
@@ -143,6 +166,8 @@ NSRecursiveLock *objectClassMutex;
 #else
 	#define MPO_DETAILLOG(x) 
 #endif
+
+//==================================================
 
 +(void) load
 {
@@ -156,7 +181,7 @@ NSRecursiveLock *objectClassMutex;
 	objectsArray = [NSMutableArray new];
 	objectByHandle = [NSMutableDictionary new];
 	objectByName = [NSMutableDictionary new];
-	featureByObjectName = [NSMutableDictionary new];
+	objectsByFeature = [NSMutableDictionary new];
 	objectClassMutex = [NSRecursiveLock new];
 }
 
@@ -175,7 +200,7 @@ NSRecursiveLock *objectClassMutex;
 	MPO_DETAILLOG(@"MPObject: cleanup phase 2 (deregistering all objects)");
 	[objectByHandle removeAllObjects];
 	[objectByName removeAllObjects];
-	[featureByObjectName removeAllObjects];
+	[objectsByFeature removeAllObjects];
 	[objectsArray removeAllObjects];
 
 	MPO_DETAILLOG(@"MPObject: cleanup finished");
@@ -214,7 +239,7 @@ NSRecursiveLock *objectClassMutex;
 	features = [NSMutableDictionary new];
 	delegatesList = [MPRemovalStableList new];
 	accessMutex = [NSRecursiveLock new];
-	delegatesPerCount = [NSMutableDictionary new];
+	countPerDelegate = [NSMutableDictionary new];
 	removed = NO;
 	internalRetainCount = 0;
 	id obj;
@@ -240,6 +265,8 @@ NSRecursiveLock *objectClassMutex;
 			[self setLocalDelegate: [delegatesArray objectAtIndex: i]];
 		}
 		MPOC_UNLOCK;
+
+
 		MPMutableDictionary *params;
 		params = [[MPMutableDictionary alloc] init];
 		[params setObject: objectName								forKey: MPParamObjectName];
@@ -274,7 +301,7 @@ NSRecursiveLock *objectClassMutex;
 
 -(void) setLocalDelegate: (Class)delegate
 {
-	MPCounter *cntr = [delegatesPerCount objectForKey: delegate];
+	MPCounter *cntr = [countPerDelegate objectForKey: delegate];
 	if (cntr && (cntr->value))
 	{
 		#ifdef MPOBJECT_DETAILLOGGING
@@ -287,7 +314,7 @@ NSRecursiveLock *objectClassMutex;
 
 	MPO_LOCK;
 	cntr = [MPCounter new];
-	[delegatesPerCount setObject: cntr forKey: delegate];
+	[countPerDelegate setObject: cntr forKey: delegate];
 	[cntr release];
 	id localDelegate;
 
@@ -315,7 +342,7 @@ NSRecursiveLock *objectClassMutex;
 
 -(void) removeLocalDelegate: (Class)delegate
 {
-	MPCounter *cntr = [delegatesPerCount objectForKey: delegate];
+	MPCounter *cntr = [countPerDelegate objectForKey: delegate];
 	if (!cntr)
 	{
 		return;
@@ -367,17 +394,22 @@ NSRecursiveLock *objectClassMutex;
 	if (oldindex != NSNotFound)
 	{
 		NSArray *objects;
+		/* TODO: remove this code
 		MPOC_LOCK;
 		objects = [[MPObject getAllObjects] copy];
 		MPOC_UNLOCK;
+		*/
+
+		objects = [MPObject getAllObjects];
+		MPOC_LOCK;
 		NSUInteger i, count = [objects count];
 		for (i=0; i<count; ++i)
 		{
 			[[objects objectAtIndex: i] removeLocalDelegate: delegate];
 		}
-		MPOC_LOCK;
 		[delegatesArray removeObject: delegate];
 		MPOC_UNLOCK;
+
 		[objects release];
 		[gLog add: notice withFormat: @"MPObject: delegate \"%@\" removed;", delegate];
 		return YES;
@@ -457,7 +489,7 @@ NSRecursiveLock *objectClassMutex;
 	NSMutableArray *delegs;
 	BOOL ret = NO;
 	delegs = [delegatesByFeature objectForKey: feature];
-	if (delegs && [delegs containsObject: delegate])
+	if ([delegs containsObject: delegate]) //would be false if delegs doesn't exist
 	{
 		NSArray *objsbyfeature;
 		MPOC_LOCK;
@@ -533,12 +565,8 @@ NSRecursiveLock *objectClassMutex;
 {
 	SEL aSelector = [anInvocation selector];
 	BOOL responded = NO;
-	//static int h=0;
-	//++h;
 	MPO_LOCK;
 
-
-	//[gLog add: info withFormat: @"%d: Message %s came to object %@", h, sel_getName(aSelector), self];
 	id delegate;
 	MPRemovalStableListStoredPosition oldPosition = [delegatesList storePosition];
 	[delegatesList moveToTail];
@@ -556,7 +584,6 @@ NSRecursiveLock *objectClassMutex;
 			MPO_TLOCK;
 
 			[delegate release];
-			//[gLog add: info withFormat: @"%d: Message \"%s\" sent to delegate \"%@\" of object \"%@\"", h, sel_getName(aSelector), [delegate class], self];
 			responded = YES;
 		}
 	}
@@ -568,7 +595,6 @@ NSRecursiveLock *objectClassMutex;
 		[gLog add: warning withFormat: @"MPObject: no delegate of object \"%@\" to respond to selector: \"%s\";",
 			self, sel_getName(aSelector)];
 	}
-	//[gLog add: info withFormat: @"%d: Finish", h];
 }
 
 -(BOOL) respondsToSelector: (SEL)aSelector
@@ -608,17 +634,17 @@ NSRecursiveLock *objectClassMutex;
 
 +(NSArray *) getObjectsByFeature: (NSString *)name
 {
-	NSArray *objectsByFeature;
+	NSArray *objectsForFeature;
 	MPOC_LOCK;
-	objectsByFeature = [featureByObjectName objectForKey: name];
-	if (!objectsByFeature)
+	objectsForFeature = [objectsByFeature objectForKey: name];
+	if (!objectsForFeature)
 	{
-		objectsByFeature = [NSMutableArray new];
-		[featureByObjectName setObject: objectsByFeature forKey: name];
-		[objectsByFeature release];
+		objectsForFeature = [NSMutableArray new];
+		[objectsByFeature setObject: objectsForFeature forKey: name];
+		[objectsForFeature release];
 	}
 	MPOC_UNLOCK;
-	return [NSArray arrayWithArray: objectsByFeature];
+	return [NSArray arrayWithArray: objectsForFeature];
 }
 
 +(id<MPObject>) getObjectByName: (NSString *)name
@@ -789,17 +815,18 @@ NSRecursiveLock *objectClassMutex;
 	[userInfo retain];
 	NSMutableArray *featuresArray;
 	MPOC_LOCK;
-	featuresArray = [featureByObjectName objectForKey: name];
+	featuresArray = [objectsByFeature objectForKey: name];
 	if (!featuresArray)
 	{
 		featuresArray = [[NSMutableArray alloc] init];
-		[featureByObjectName setObject: featuresArray forKey: name];
+		[objectsByFeature setObject: featuresArray forKey: name];
 	}
 	if (![featuresArray containsObject: self])
 	{
 		[featuresArray addObject: self];
 		++internalRetainCount;
 
+		//assign delegate for this feature
 		NSArray *dels = [delegatesByFeature objectForKey: name];
 		NSUInteger i, count=[dels count];
 		for (i=0; i<count; ++i)
@@ -831,6 +858,8 @@ NSRecursiveLock *objectClassMutex;
 	[delegatesList restorePosition: storedPos];
 
 	[features setObject: newData forKey: name];
+
+	[newData release]; //give ownership to features
 	#ifdef MPOBJECT_DETAILLOGGING
 	[gLog add: info withFormat: @"MPObject: \"%@\": Feature \"%@\" set to \"%@\" with params: \"%@\"",
 		objectName, name, [data stringValue], userInfo];
@@ -877,17 +906,22 @@ NSRecursiveLock *objectClassMutex;
 		}
 		[delegatesList restorePosition: storedPos];
 		
-		NSArray *dels;
+		NSMutableArray *dels;
+
 		MPOC_LOCK;
 		dels = [delegatesByFeature objectForKey: name];
-		[[featureByObjectName objectForKey: name] removeObject: self];
-		MPOC_UNLOCK;
+		if ([dels containsObject: self])
+		{
+			--internalRetainCount;
+			[dels removeObject: self];
+		}
 		
 		count=[dels count];
 		for (i=0; i<count; ++i)
 		{
 			[self removeLocalDelegate: [dels objectAtIndex: i]];
 		}
+		MPOC_UNLOCK;
 		
 		#ifdef MPOBJECT_DETAILLOGGING
 		[gLog add: info withFormat: @"MPObject: \"%@\": Feature \"%@\" removed with user info: \"%@\"",
@@ -923,7 +957,11 @@ NSRecursiveLock *objectClassMutex;
 {
 	MPO_LOCK;
 	MPOC_LOCK;
-	if (!removed && ([self retainCount]-1 <= internalRetainCount))
+	NSAssert2(removed || ([self retainCount]-1 >= internalRetainCount), @"internalRetainCount (%u) is more than [self retainCount]-1 (%u)",
+									internalRetainCount, [self retainCount]-1);
+	if (!removed && ([self retainCount]-1 == internalRetainCount))	//[self retainCount] is still not actually decreased
+																	//(but would be at the end of this method)
+																	//so we count it as [self retainCount]-1
 	{
 		#ifdef MPOBJECT_DETAILLOGGING
 		[gLog add: info withFormat: @"MPObject: removing object \"%@\"...", objectName];
@@ -938,13 +976,13 @@ NSRecursiveLock *objectClassMutex;
 		MPPostNotification(MPObjectRemovedMessage, params);
 		[params release];
 
-
 		[objectsArray removeObject: self];	
 		[objectByName removeObjectForKey: objectName];
 		[objectByHandle removeObjectForKey: objectHandle];
+		internalRetainCount -= 3;
 
 		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-		NSEnumerator *enumer = [[[features copy] autorelease] keyEnumerator];
+		NSEnumerator *enumer = [[features allKeys] objectEnumerator];
 		id featureKey;
 		while ((featureKey = [enumer nextObject]) != nil)
 		{
@@ -982,7 +1020,7 @@ NSRecursiveLock *objectClassMutex;
 	[features release];
 	[delegatesList release];
 	[accessMutex release];
-	[delegatesPerCount release];
+	[countPerDelegate release];
 	[super dealloc];
 
 	#ifdef MPOBJECT_DETAILLOGGING
