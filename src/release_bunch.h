@@ -7,7 +7,7 @@
   (Useful, when you need to allocate many memory blocks
   and free all of them after.)
   */
-typedef void* release_bunch;
+typedef struct release_bunch_structTAG* release_bunch;
 
 /** Creates release bunch */
 release_bunch relbunch_create();

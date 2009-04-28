@@ -7,7 +7,7 @@ typedef struct release_bunch_nodeTAG
 	struct release_bunch_nodeTAG *next;
 } release_bunch_node;
 
-typedef struct
+typedef struct release_bunch_structTAG
 {
 	release_bunch_node *head, *tail;
 } release_bunch_struct;

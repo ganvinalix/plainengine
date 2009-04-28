@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <MPObject.p>
 
-@interface MPObject : NSObject <MPObject, NSCoding>
+@interface MPObject : NSObject <MPObject, NSCoding, NSCopying>
 {
 	NSNumber *objectHandle;
 	NSString *objectName;
@@ -18,7 +18,7 @@
 
 -init;
 -initWithName: (NSString *)name withHandle: (NSNumber *)handle;
--(void) release;
+-(oneway void) release;
 -(void) dealloc;
 
 +(BOOL) existsObjectWithName: (NSString *)name;

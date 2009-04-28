@@ -9,9 +9,9 @@ extern "C"
 #endif
 
 /** Typedef for pointer to dictionary */
-typedef void * dictionary;
+typedef struct tagD* dictionary;
 /** Typedef for pointer to enumerator */
-typedef void * dict_enumerator;
+typedef struct tagDE* dict_enumerator;
 
 /** Allocates and returns empty ready-to-use dictionary */
 dictionary dict_getempty();

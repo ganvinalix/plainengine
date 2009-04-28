@@ -39,7 +39,6 @@
 	{
 		[gLog add: alert withFormat: @"There is no current thread into MPAPI instance."];
 	}
-	//edited by ChaoX (I had almost broken my eyes when read that)
 }
 
 -(void) postMessageWithName: (NSString *)aName

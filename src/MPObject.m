@@ -953,7 +953,7 @@ NSRecursiveLock *objectClassMutex; //global mutex
 	return [NSString stringWithFormat: @"%@ [%@]", objectName, objectHandle];
 }
 
--(void) release
+-(oneway void) release
 {
 	MPO_LOCK;
 	MPOC_LOCK;

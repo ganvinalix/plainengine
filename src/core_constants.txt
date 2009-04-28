@@ -8,7 +8,6 @@ MPPauseMessage=pause
 MPResumeMessage=resume
 MPObjectCreatedMessage=objectCreated
 MPObjectRemovedMessage=objectRemoved
-MPNotificationSystem
 MPParamObjectName=objectName
 MPParamObjectHandle=objectHandle
 MPSystemSubjectName=SystemSubject

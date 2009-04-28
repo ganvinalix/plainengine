@@ -10,7 +10,6 @@ NSString *const MPPauseMessage = @"pause";
 NSString *const MPResumeMessage = @"resume";
 NSString *const MPObjectCreatedMessage = @"objectCreated";
 NSString *const MPObjectRemovedMessage = @"objectRemoved";
-NSString *const MPNotificationSystem = @"MPNotificationSystem";
 NSString *const MPParamObjectName = @"objectName";
 NSString *const MPParamObjectHandle = @"objectHandle";
 NSString *const MPSystemSubjectName = @"SystemSubject";
