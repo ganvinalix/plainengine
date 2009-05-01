@@ -103,7 +103,8 @@
 
 	result = [response getResult];
 	// if abnormal exititng
-	if(result == nil) result = [MPVariant variantWithString: @""];
+	if(result == nil) 
+		result = [MPVariant variantWithString: @""];
 
 	[response release];
 
