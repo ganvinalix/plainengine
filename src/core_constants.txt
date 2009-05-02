@@ -11,3 +11,9 @@ MPObjectRemovedMessage=objectRemoved
 MPParamObjectName=objectName
 MPParamObjectHandle=objectHandle
 MPSystemSubjectName=SystemSubject
+
+MPSubjectNameKey=name 
+MPSubjectAliasKey=alias
+MPSubjectModuleNameKey=module
+MPSubjectThreadIdKey=thread
+MPSubjectParameterKey=parameters

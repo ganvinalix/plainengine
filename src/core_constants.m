@@ -13,4 +13,9 @@ NSString *const MPObjectRemovedMessage = @"objectRemoved";
 NSString *const MPParamObjectName = @"objectName";
 NSString *const MPParamObjectHandle = @"objectHandle";
 NSString *const MPSystemSubjectName = @"SystemSubject";
+NSString *const MPSubjectNameKey = @"name";
+NSString *const MPSubjectAliasKey = @"alias";
+NSString *const MPSubjectModuleNameKey = @"module";
+NSString *const MPSubjectThreadIdKey = @"thread";
+NSString *const MPSubjectParameterKey = @"parameters";
 

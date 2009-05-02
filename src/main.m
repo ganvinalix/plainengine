@@ -9,20 +9,21 @@
 #define MP_ADDSUBJECT(manager, subject, thread) \
 	[manager addSubject: [[[subject alloc] init] autorelease] toThread: thread withName: @#subject];
 
-id readPlist()
+id buildPlistFromData(NSData *plistData)
 {
-	NSLog(@"Try to read config file.\n");
+	NSLog(@"Try to build plist from data.\n");
 	
 	NSString *error = nil;
-	NSData *plistData = [NSData dataWithContentsOfFile: @"./startoptions.plist"];
+	[plistData retain];
 	id plist = [NSPropertyListSerialization propertyListFromData: plistData
 											mutabilityOption: NSPropertyListImmutable
 													  format: NULL
 											errorDescription: &error];
+	[plistData release];
+
 	if(!plist) 
 	{
 		NSLog(@"There were error: \n, %@ \n", error);
-		[error release];
 	}
 	else 
 		NSLog (@"Success.\n");
@@ -36,7 +37,7 @@ id readPlist()
 	return plist;
 }
 
-NSDictionary *buildLogOptions(id plist)
+NSDictionary *buildLogOptionsFromPlist(NSDictionary *plist)
 {
 	// make logfile defaults
 	NSDictionary *logDefaults = [NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithBool: YES], @"enabled",
@@ -67,8 +68,9 @@ int main(int argc, const char *argv[])
 	{
 	#endif
 
-		id plist = readPlist();
-		NSDictionary *logFileOpts = buildLogOptions(plist);
+		NSData *plistData = [NSData dataWithContentsOfFile: @"./startoptions.plist"];
+		id plist = buildPlistFromData(plistData);
+		NSDictionary *logFileOpts = buildLogOptionsFromPlist(plist);
 
 		if( [[logFileOpts objectForKey: @"enabled"] boolValue] )
 		{
@@ -81,7 +83,7 @@ int main(int argc, const char *argv[])
 		subjman = [[MPSubjectManager alloc] init];
 
 		[gLog add: notice withFormat: @"Parsing linker config..."];
-		descriptions = MPParseLinkerConfig([NSString stringWithContentsOfFile: @"subjects.conf"]);
+		descriptions = MPBuildDescriptionsFromPlist(plist);
 		[gLog add: notice withFormat: @"Parsing complete"];
 
 		[gLog add: notice withFormat: @"Linking..."];

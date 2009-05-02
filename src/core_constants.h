@@ -13,4 +13,9 @@ extern NSString *const MPObjectRemovedMessage;
 extern NSString *const MPParamObjectName;
 extern NSString *const MPParamObjectHandle;
 extern NSString *const MPSystemSubjectName;
+extern NSString *const MPSubjectNameKey;
+extern NSString *const MPSubjectAliasKey;
+extern NSString *const MPSubjectModuleNameKey;
+extern NSString *const MPSubjectThreadIdKey;
+extern NSString *const MPSubjectParameterKey;
 

@@ -1,5 +1,6 @@
 #import <MPLinker.h>
 #import <MPUtility.h>
+#import <core_constants.h>
 
 @implementation MPSubjectDescription
 
@@ -11,35 +12,57 @@
 {
 	threadId = tId;
 
-	if(subjectName)
-	{
-		[subjectName release];
-		subjectName = nil;
-	}
-	if(sName) subjectName = [sName copy];
+	[subjectName release];
+	subjectName = nil;
+	subjectName = [sName copy];
 
-	if(subjectAlias)
-	{
-		[subjectAlias release];
-		subjectAlias = nil;
-	}
-	if (sAlias) subjectAlias = [sAlias copy];
+	[subjectAlias release];
+	subjectAlias = nil;
+	subjectAlias = [sAlias copy];
 
-	if(moduleName)
-	{
-		[moduleName release];
-		moduleName = nil;
-	}
-	if(mName) moduleName = [mName copy];
+	[moduleName release];
+	moduleName = nil;
+	moduleName = [mName copy];
 	
-	if(params)
-	{
-		[params release];
-		params = nil;
-	}
-	if(par) params = [par copy];
+	[params release];
+	params = nil;
+	params = [par copy];
 }
 
+#define CHECK_THAT_STRING(x) \
+	NSAssert( [x isKindOfClass: [NSString class]], @"Invalid plist structure!");
+- initWithDictionary: (NSDictionary *)aDictonary
+{
+	if(!aDictonary)
+		return nil;
+
+	[super init];
+
+	subjectName = nil;
+	subjectAlias = nil;
+	moduleName = nil;
+	params = nil;
+	threadId = 0;
+	
+	CHECK_THAT_STRING( [aDictonary objectForKey: MPSubjectNameKey] );
+	CHECK_THAT_STRING( [aDictonary objectForKey: MPSubjectModuleNameKey] );
+
+	NSMutableString *alias = [[aDictonary objectForKey: MPSubjectAliasKey] mutableCopy];
+	if( !alias || [alias isEqualToString: @""] )
+	{
+		[alias release];
+		alias = [[aDictonary objectForKey: MPSubjectNameKey] copy];
+	}
+	
+	[self setSubjectName: [aDictonary objectForKey: MPSubjectNameKey]
+			subjectAlias: alias
+			  moduleName: [aDictonary objectForKey: MPSubjectModuleNameKey]
+				threadId: [[aDictonary objectForKey: MPSubjectThreadIdKey] intValue]
+		parametersString: [aDictonary objectForKey: MPSubjectParameterKey]];
+
+	return self;
+}
+#undef CHECK_THAT_STRING
 
 - initWithSubjectName: (NSString *)sName
 		 subjectAlias: (NSString *)sAlias
@@ -48,16 +71,19 @@
 	 parametersString: (NSString *)par
 {
 	[super init];
+
 	subjectName = nil;
 	subjectAlias = nil;
 	moduleName = nil;
 	params = nil;
 	threadId = 0;
+
 	[self setSubjectName: sName
 			subjectAlias: sAlias
 			  moduleName: mName
 				threadId: tId
 		parametersString: par];
+
 	return self;
 }
 - init
@@ -94,7 +120,44 @@
 {
 	return threadId;
 }
+- (NSString *) description
+{
+	NSString *str = [NSString stringWithFormat: @"Name: %@\t Alias: %@\t Module: %@\t Thread: %d\t Params: %@\n",
+												subjectName, subjectAlias, moduleName, threadId, params];
+
+	return str;
+}
 @end
+
+NSArray *MPBuildDescriptionsFromPlist(NSDictionary *plist)
+{
+	id subjects = [plist objectForKey: @"Subjects"];
+	if(subjects)
+		NSCAssert( [subjects isKindOfClass: [NSArray class]], @"Invalid plist structure!");
+
+	id enumer = [subjects objectEnumerator], obj = nil;
+	NSUInteger i = 0;
+
+	NSMutableArray *result = [NSMutableArray array];
+	MPSubjectDescription *desc = nil;
+	while( (obj = [enumer nextObject]) != nil )
+	{
+		++i;
+
+		if( ![obj isKindOfClass: [NSDictionary class]] )
+		{
+			[gLog add: warning withFormat: @"Subject description #%d isn't a dictionary!"];
+			continue;
+		}
+
+		desc = [[MPSubjectDescription alloc] initWithDictionary: obj];
+		[gLog add: notice withFormat: @"%@", [desc description]];
+		[result addObject: desc];
+		[desc release];
+	}
+
+	return result;
+}
 
 NSArray *MPParseLinkerConfig(NSString *config)
 {
@@ -149,7 +212,6 @@ NSArray *MPParseLinkerConfig(NSString *config)
 
 id MPLinkModules(NSArray *descriptions, MPSubjectManager *subjMan)
 {
-
 	if( (descriptions == nil) || (subjMan == nil) || ([descriptions count] < 1) ) 
 	{
 		[gLog add: error withFormat: @"MPLinkModules: invalid arguments"];
@@ -167,7 +229,7 @@ id MPLinkModules(NSArray *descriptions, MPSubjectManager *subjMan)
 	NSEnumerator *descEnumerator = [descriptions objectEnumerator];
 	while ( (currentDesc = [descEnumerator nextObject]) != nil )
 	{
-		if(![currentDesc isKindOfClass: [MPSubjectDescription class]])
+		if( ![currentDesc isKindOfClass: [MPSubjectDescription class]] )
 		{
 			[gLog add: warning withFormat: @"There is non description object in array of MPSubjectDescription"];
 			continue;

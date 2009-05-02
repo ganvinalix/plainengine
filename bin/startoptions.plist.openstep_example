@@ -1,0 +1,7 @@
+{
+	LogFile = 
+	{
+		enabled = "YES";
+		path = "./hist.log";
+	};
+}

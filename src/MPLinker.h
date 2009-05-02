@@ -8,8 +8,10 @@
 	NSUInteger threadId;
 }
 - init;
+- initWithDictionary: (NSDictionary *)aDictonary;
+
 - initWithSubjectName: (NSString *)sName
-		   subjectAlias: (NSString *)sAlias
+		 subjectAlias: (NSString *)sAlias
 		   moduleName: (NSString *)mName
 			 threadId: (NSUInteger)tId
 	 parametersString: (NSString *)par;
@@ -28,6 +30,7 @@
 @end
 
 NSArray *MPParseLinkerConfig(NSString *config);
+NSArray *MPBuildDescriptionsFromPlist(NSDictionary *plist);
 id MPLinkModules(NSArray *descriptions, MPSubjectManager *subjMan);
 void MPUnloadModules(id linkerState);
 

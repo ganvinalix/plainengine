@@ -145,15 +145,15 @@ NSRecursiveLock *objectClassMutex; //global mutex
 	[accessMutex lock];\
 	{
 
-#define MPO_UNLOCK
+#define MPO_UNLOCK \
 	}\
 	[accessMutex unlock];
 
-#define MPOC_LOCK\
+#define MPOC_LOCK \
 	[objectClassMutex lock];\
 	{
 
-#define MPOC_UNLOCK
+#define MPOC_UNLOCK \
 	}\
 	[objectClassMutex unlock];
 
@@ -503,7 +503,7 @@ NSRecursiveLock *objectClassMutex; //global mutex
 			[[objsbyfeature objectAtIndex: i] removeLocalDelegate: delegate];
 		}
 		[objsbyfeature release];
-		[gLog add: notice withFormat: @"M PObject: delegate \"%@\" removed for feature \"%@\";", delegate, feature];
+		[gLog add: notice withFormat: @"MPObject: delegate \"%@\" removed for feature \"%@\";", delegate, feature];
 		ret = YES;
 	}
 	else
