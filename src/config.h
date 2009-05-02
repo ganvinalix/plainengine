@@ -8,9 +8,6 @@
 // (useful for debug but strongly decreases perfomance)
 //#define MPOBJECT_DETAILLOGGING
 
-// Number of thread updates after which autorelease pool would be cleaned
-//#define MPTHREAD_CLEAN_POOL_INTERVAL 25 
-
 #define MPTHREAD_CLEAN_POOL_THRESHOLD 50
 
 // Maximum time (in milliseconds) of waiting for request result

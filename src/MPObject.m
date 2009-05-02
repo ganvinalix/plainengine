@@ -266,11 +266,10 @@ NSRecursiveLock *objectClassMutex; //global mutex
 		}
 		MPOC_UNLOCK;
 
-
-		MPMutableDictionary *params;
-		params = [[MPMutableDictionary alloc] init];
-		[params setObject: objectName								forKey: MPParamObjectName];
-		[params setObject: [handleMapper getObject: objectHandle]	forKey: MPParamObjectHandle];
+		MPDictionary *params = [[MPDictionary alloc] initWithObjectsAndKeys:
+			objectName,								MPParamObjectName,
+			[handleMapper getObject: objectHandle],	MPParamObjectHandle,
+			nil];
 		MPPostNotification(MPObjectCreatedMessage, params);
 		[params release];
 
@@ -968,11 +967,10 @@ NSRecursiveLock *objectClassMutex; //global mutex
 		#endif
 		removed = YES;
 
-		MPMutableDictionary *params;
-		params = [MPMutableDictionary new];
-		[params setObject: objectName								forKey: MPParamObjectName];
-		[params setObject: [handleMapper getObject: objectHandle]	forKey: MPParamObjectHandle];
-		
+		MPDictionary *params = [[MPDictionary alloc] initWithObjectsAndKeys:
+			objectName,								MPParamObjectName,
+			[handleMapper getObject: objectHandle],	MPParamObjectHandle,
+			nil];
 		MPPostNotification(MPObjectRemovedMessage, params);
 		[params release];
 

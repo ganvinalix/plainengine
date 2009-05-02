@@ -1,5 +1,4 @@
 #import <MPVariant.h>
-#import <common.h>
 
 @implementation MPVariant
 
