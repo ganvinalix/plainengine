@@ -7,6 +7,7 @@ TOOL_NAME = plainEngine
 
 plainEngine_TOOL_LIBS += -lMPUtility
 plainEngine_LIB_DIRS += -L./obj/
+plainEngine_INCLUDE_DIRS += -I../include/
  
 plainEngine_OBJC_FILES = \
 main.m \
@@ -47,6 +48,7 @@ MPAssertionHandler.h \
 
 
 LIBRARY_NAME = libMPUtility
+libMPUtility_INCLUDE_DIRS += -I../include/
 libMPUtility_LIBRARIES_DEPEND_UPON += -ldl
 libMPUtility_HEADER_FILES = \
 common_defines.h \
