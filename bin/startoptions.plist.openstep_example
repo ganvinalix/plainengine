@@ -1,7 +1,7 @@
 {
 	LogFile = 
 	{
-		enabled = "YES";
+		enabled = "$log=YES$";
 		path = "./hist.log";
 	};
 	Subjects = 
@@ -22,7 +22,7 @@
 
 		{ 
 			module = "./MPSpriteRenderSubject.module"; name = "MPSpriteRenderSubject"; thread = 0;
-			parameters = "showCursor:YES width:640 heigth:480 fullscreen:NO grabInput:NO";
+			parameters = "showCursor:$cursor=YES$ width:640 heigth:480 fullscreen:NO grabInput:NO";
 		}
 	);
 }

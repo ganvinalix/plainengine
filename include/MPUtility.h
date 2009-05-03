@@ -7,6 +7,7 @@ extern "C"
 
 #import <MPLog.h>
 #import <MPFileLogChannel.h>
+#import <MPConfigFacilities.h>
 #import <MPConfigDictionary.h>
 #import <MPCodeTimer.h>
 #import <MPDictionary.h>

@@ -152,7 +152,11 @@ id <MPLog> theGlobalLog = nil;
 		
 	// adds log chnnel
 	if(theChannel != nil)
+	{
+		[mutex lock];
 		[channels addObject: theChannel];
+		[mutex unlock];
+	}
 	else
 		//@throw [NSException exceptionWithName:@"Nil log channel" reason:@"Attempt to add nil like a log channel" userInfo:nil];
 		return NO;
@@ -160,7 +164,10 @@ id <MPLog> theGlobalLog = nil;
 	if( ![theChannel isOpened] )
 		if( ![theChannel open] )
 		{
+			[mutex lock];
 			[channels removeLastObject];
+			[mutex unlock];
+
 			return NO;
 		}
 	return YES;
@@ -181,12 +188,19 @@ id <MPLog> theGlobalLog = nil;
 
 - (BOOL) removeChannel: (id <MPLogChannel>)theChannel
 {
+	[mutex lock];
+
 	if( ![channels containsObject: theChannel] )
+	{
+		[mutex unlock];
 		return NO;
+	}
 		
 	NSUInteger anObjectIdx = [channels indexOfObject: theChannel];
 	[[channels objectAtIndex: anObjectIdx] close];
 	[channels removeObjectAtIndex: anObjectIdx];
+
+	[mutex unlock];
 	
 	return YES;
 }

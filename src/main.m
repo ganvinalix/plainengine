@@ -5,51 +5,10 @@
 #import <core_constants.h>
 
 #import <MPLinker.h>
+#import <MPUtility.h>
 
 #define MP_ADDSUBJECT(manager, subject, thread) \
 	[manager addSubject: [[[subject alloc] init] autorelease] toThread: thread withName: @#subject];
-
-id buildPlistFromData(NSData *plistData)
-{
-	NSLog(@"Try to build plist from data.\n");
-	
-	NSString *error = nil;
-	[plistData retain];
-	id plist = [NSPropertyListSerialization propertyListFromData: plistData
-											mutabilityOption: NSPropertyListImmutable
-													  format: NULL
-											errorDescription: &error];
-	[plistData release];
-
-	if(!plist) 
-	{
-		NSLog(@"There were error: \n, %@ \n", error);
-	}
-	else 
-		NSLog (@"Success.\n");
-	
-	BOOL valid = [plist isKindOfClass: [NSDictionary class]];
-	NSCAssert(valid, @"Invalid plist structure!");
-	
-	if(!valid)
-		plist = nil;
-	
-	return plist;
-}
-
-NSDictionary *buildLogOptionsFromPlist(NSDictionary *plist)
-{
-	// make logfile defaults
-	NSDictionary *logDefaults = [NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithBool: YES], @"enabled",
-																			@"./hist.log", @"path", nil];
-	id logOpts = [plist objectForKey: @"LogFile"];
-	if(logOpts)
-		NSCAssert( [logOpts isKindOfClass: [NSDictionary class]], @"Invalid plist structure!");
-	
-	NSDictionary *logOptsResult = MPCreateConfigDictionary(logDefaults, logOpts);
-	
-	return logOptsResult;
-}
 
 int main(int argc, const char *argv[]) 
 {
@@ -68,9 +27,12 @@ int main(int argc, const char *argv[])
 	{
 	#endif
 
-		NSData *plistData = [NSData dataWithContentsOfFile: @"./startoptions.plist"];
-		id plist = buildPlistFromData(plistData);
-		NSDictionary *logFileOpts = buildLogOptionsFromPlist(plist);
+		NSString *prepConfig = MPPreprocessString( [NSString stringWithContentsOfFile: @"./startoptions.plist"], 
+												 MPBuildDictionaryFromCmd(argc, argv) );
+		//[prepConfig writeToFile: @"./processed.tmp" atomically: YES];
+		NSData *plistData = [prepConfig dataUsingEncoding: NSUTF8StringEncoding];
+		id plist = MPBuildPlistFromData(plistData);
+		NSDictionary *logFileOpts = MPBuildLogOptionsFromPlist(plist);
 
 		if( [[logFileOpts objectForKey: @"enabled"] boolValue] )
 		{

@@ -1,4 +1,4 @@
-#import<Foundation/Foundation.h>
+#import <Foundation/Foundation.h>
 
 /**
 	<p>Creates a config dicionary from deafults and user options:</p>

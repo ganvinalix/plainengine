@@ -5,7 +5,7 @@
 	<key>LogFile</key>
 	<dict>
 		<key>enabled</key>
-		<string>YES</string>
+		<string>$log=YES$</string>
 		<key>path</key>
 		<string>./hist.log</string>
 	</dict>
