@@ -18,7 +18,9 @@ id MPBuildPlistFromData(NSData *plistData)
 		[gLog add: error withFormat: @"There were error: \n, %@ \n", error_desc];
 	}
 	else 
+	{
 		[gLog add: notice withFormat: @"Success.\n"];
+	}
 	
 	BOOL valid = [plist isKindOfClass: [NSDictionary class]];
 	NSCAssert(valid, @"Invalid plist structure!");
@@ -32,11 +34,14 @@ id MPBuildPlistFromData(NSData *plistData)
 NSDictionary *MPBuildLogOptionsFromPlist(NSDictionary *plist)
 {
 	// make logfile defaults
-	NSDictionary *logDefaults = [NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithBool: YES], @"enabled",
-																			@"./hist.log", @"path", nil];
+	NSDictionary *logDefaults = [NSDictionary dictionaryWithObjectsAndKeys: 
+													[NSNumber numberWithBool: YES], @"enabled",
+													@"./hist.log", @"path", 
+													nil];
+
 	id logOpts = [plist objectForKey: @"LogFile"];
 	if(logOpts)
-		NSCAssert( [logOpts isKindOfClass: [NSDictionary class]], @"Invalid plist structure!");
+		NSCAssert([logOpts isKindOfClass: [NSDictionary class]], @"Invalid plist structure!");
 	
 	NSDictionary *logOptsResult = MPCreateConfigDictionary(logDefaults, logOpts);
 	
