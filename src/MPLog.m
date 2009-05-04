@@ -1,5 +1,3 @@
-#define _INSIDE_LOG_M
-
 #import <MPLog.h>
 #import <stdarg.h>
 #import <common_defines.h>
@@ -46,6 +44,16 @@ NSString *levels[levels_count] = { @"Alert", @"Crit", @"Error", @"Warning", @"No
 // implementation of MPLog
 @implementation MPLog
 id <MPLog> theGlobalLog = nil;
+
++ (void) load
+{
+	theGlobalLog = [MPLog new]; 
+}
+
++ (MPLog *) defaultLog
+{
+	return theGlobalLog;
+}
 
 - init
 {
@@ -94,14 +102,10 @@ id <MPLog> theGlobalLog = nil;
 	va_list arglist;
 	va_start(arglist, theFormat);
 
-	/*char buffer[4096];
-	vsnprintf( (char*)&buffer, 4096, [theFormat UTF8String], arglist);*/
-	//vprintf([theFormat UTF8String], arglist);
 	NSString *buffer = [[[NSString alloc] initWithFormat: theFormat arguments: arglist] autorelease];
 
 	va_end(arglist);
 
-	BOOL error = NO;
 	NSMutableString *finalMessage = [NSMutableString stringWithCapacity: 255];
 	NSMutableString *lvlStr = [NSMutableString string];
 	
@@ -124,19 +128,14 @@ id <MPLog> theGlobalLog = nil;
 	id <MPLogChannel> currentChannel = nil;
 	NSUInteger i, count;
 	count = [channels count];
-	for (i=0; i<count; ++i)
+	for (i = 0; i < count; ++i)
 	{
 		currentChannel = [channels objectAtIndex: i];
 		if( ![currentChannel write: finalMessage withLevel: theLevel] )
 		{
-			error = YES;
 			[self removeChannel: currentChannel];
-			break;
+			[self add: error withFormat: @"MPLog: Dead log channel closed"];
 		}
-	}
-	if(error)
-	{
-		[self add: error withFormat: @"MPLog: Dead log channel closed"];
 	}
 	
 	[mutex unlock];

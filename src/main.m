@@ -12,7 +12,6 @@
 
 int main(int argc, const char *argv[]) 
 {
-	theGlobalLog = [MPLog new]; 
 	NSAutoreleasePool *pool = [NSAutoreleasePool new];
 
 	MPSubjectManager *subjman = nil;
@@ -61,6 +60,7 @@ int main(int argc, const char *argv[])
 
 		[runPool release];
 
+
 	#ifdef MP_USE_EXCEPTIONS
 	}
 	@catch(NSException *exc)
@@ -93,8 +93,6 @@ int main(int argc, const char *argv[])
 		}
 		
 		[gLog add: notice withFormat: @"End."];
-		
-		[theGlobalLog release];
 	}
 	return 0;
 }

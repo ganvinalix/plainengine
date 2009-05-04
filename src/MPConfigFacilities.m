@@ -3,7 +3,7 @@
 
 id MPBuildPlistFromData(NSData *plistData)
 {
-	[gLog add: notice withFormat: @"Try to build plist from data.\n"];
+	[gLog add: notice withFormat: @"Try to build plist from data.n"];
 	
 	NSString *error_desc = nil;
 	[plistData retain];
@@ -15,11 +15,11 @@ id MPBuildPlistFromData(NSData *plistData)
 
 	if(!plist) 
 	{
-		[gLog add: error withFormat: @"There were error: \n, %@ \n", error_desc];
+		[gLog add: error withFormat: @"There were error: \n, %@ ", error_desc];
 	}
 	else 
 	{
-		[gLog add: notice withFormat: @"Success.\n"];
+		[gLog add: notice withFormat: @"Success."];
 	}
 	
 	BOOL valid = [plist isKindOfClass: [NSDictionary class]];
@@ -68,27 +68,28 @@ NSString *MPPreprocessString(NSString *str, NSDictionary *userOpts)
 	for(i = 0; i < [parts count]; ++i)
 	{
 		currentPart = [parts objectAtIndex: i];
+
 		if( ((i+1) % 2) == 1 )
 		{
 			[outputStr appendString: currentPart];
+			continue;
 		}
 		else if( [currentPart isEqualToString: @""] )
 		{
 			[outputStr appendString: @"$"];
+			continue;
 		}
-		else
-		{
-			paramAndValue = [currentPart componentsSeparatedByString: @"="];
 
-			if( [paramAndValue count] != 2 )
-				continue;
+		paramAndValue = [currentPart componentsSeparatedByString: @"="];
 
-			NSString *userValue = [userOpts objectForKey: [paramAndValue objectAtIndex: 0]];
-			if(!userValue)
-				userValue = [paramAndValue objectAtIndex: 1];
+		if( [paramAndValue count] != 2 )
+			continue;
 
-			[outputStr appendString: userValue];
-		}
+		NSString *userValue = [userOpts objectForKey: [paramAndValue objectAtIndex: 0]];
+		if(!userValue)
+			userValue = [paramAndValue objectAtIndex: 1];
+
+		[outputStr appendString: userValue];
 	}
 
 	[pool release];

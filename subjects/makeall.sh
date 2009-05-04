@@ -2,7 +2,7 @@
 
 if [ "$1" = "help" ]; then
 	echo Compiles all subjects;
-	echo If you do not want some subject to be compiled, you should create file "nomake" is subject directory;
+	echo If you do not want some subject to be compiled, you should create file "nomake" in a subject directory;
 	echo Returns count of failed compilations;
 	exit;
 fi
