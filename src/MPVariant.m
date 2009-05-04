@@ -5,7 +5,8 @@
 -init
 {
 	[self initWithNothing];
-	theStringValue = [[NSMutableString alloc] init];
+	theStringValue = [NSMutableString new];
+	theBinaryDataValue = [NSMutableData new];
 	return self;
 }
 
@@ -37,12 +38,22 @@
 
 }
 
+-initWithBinaryData: (NSData *)newvalue
+{
+	[self init];
+	type = type_binary;
+	binComputed = YES;
+	[theBinaryDataValue setData: newvalue];
+	return self;
+}
+
 -initWithNothing
 {
 	[super init];
-	strComputed = intComputed = doubleComputed = NO;
+	strComputed = intComputed = doubleComputed = binComputed = NO;
 	type = type_none;
 	theStringValue = nil;
+	theBinaryDataValue = nil;
 	theDoubleValue = 0.f;
 	theIntegerValue = 0;
 	return self;
@@ -63,7 +74,14 @@
 	if ([anObject isKindOfClass: [MPVariant class]])
 	{
 		MPVariant *obj = anObject;
-		return [[self stringValue] isEqual: [obj stringValue]];
+		if (([obj dataType] != type_binary) && (type != type_binary)) //To avoid unnecessary conversion to NSData
+		{
+			return [[self stringValue] isEqual: [obj stringValue]];
+		}
+		else
+		{
+			return [[self binaryDataValue] isEqual: [obj binaryDataValue]];
+		}
 	}
 	else if ([anObject isKindOfClass: [NSNumber class]])
 	{
@@ -72,6 +90,10 @@
 	else if ([anObject isKindOfClass: [NSString class]])
 	{
 		return [[self stringValue] isEqual: anObject];
+	}
+	else if ([anObject isKindOfClass: [NSData class]])
+	{
+		return [[self binaryDataValue] isEqual: anObject];
 	}
 	return NO;
 }
@@ -101,39 +123,66 @@
 	return [[[MPVariant alloc] initWithDouble: newvalue] autorelease];
 }
 
++variantWithBinaryData: (NSData *)newvalue
+{
+	return [[[MPVariant alloc] initWithBinaryData: newvalue] autorelease];
+}
+
 -(void) encodeWithCoder: (NSCoder *)encoder
 {
-	[encoder encodeObject: [self stringValue]	forKey: @"MPVariant_value"];
-	[encoder encodeInt: type					forKey: @"MPVariant_type"];
+	if (type != type_binary)
+	{
+		[encoder encodeObject: [self stringValue]	forKey: @"MPVariant_value"];
+	}
+	else
+	{
+		[encoder encodeObject: [self binaryDataValue]	forKey: @"MPVariant_value"];
+	}
+	[encoder encodeInt: type	forKey: @"MPVariant_type"];
 }
 
 -(id) initWithCoder: (NSCoder *)decoder
 {
-	strComputed = YES;
 	intComputed = NO;
 	doubleComputed = NO;
-	theStringValue = [[decoder decodeObjectForKey: @"MPVariant_value"] retain];
+	binComputed = NO;
+	strComputed = NO;
 	type = [decoder decodeIntForKey: @"MPVariant_type"];
-	switch (type)
+	if (type != type_binary)
 	{
-		case type_none:
-			break; //nop
-		case type_string:
-			break; //nop (already loaded before)
-		case type_double:
-			doubleComputed = YES;
-			theDoubleValue = [theStringValue doubleValue];
-			break;
-		case type_int:
-			intComputed = YES;
-			theIntegerValue = [theStringValue integerValue];
-			break;
+		strComputed = YES;
+		theStringValue = [[decoder decodeObjectForKey: @"MPVariant_value"] retain];
+		theBinaryDataValue = [NSMutableData new];
+		switch (type)
+		{
+			case type_none:
+				break; //nop
+			case type_binary:
+				break; //would not happen
+			case type_string:
+				break; //nop (already loaded before)
+			case type_double:
+				doubleComputed = YES;
+				theDoubleValue = [theStringValue doubleValue];
+				break;
+			case type_int:
+				intComputed = YES;
+				theIntegerValue = [theStringValue integerValue];
+				break;
+		}
+	}
+	else
+	{
+		binComputed = YES;
+		theStringValue = [NSMutableString new];
+		theBinaryDataValue = [[decoder decodeObjectForKey: @"MPVariant_value"] retain];
 	}
 	return self;
 }
 
 -(void) dealloc
 {
+	[theBinaryDataValue release];
 	[theStringValue release];
 	[super dealloc];
 }
@@ -145,11 +194,17 @@
 
 -(NSString *) stringValue
 {
+	NSMutableData *convData = nil;
 	if (!strComputed)
 	{
 		switch (type)
 		{
 		case type_none:
+			break;
+		case type_binary:
+			convData = [NSMutableData dataWithData: theBinaryDataValue];
+			[convData appendBytes: "\0" length: sizeof("\0")]; //Now string is correct (null-terminated) in any case
+			[theStringValue setString: [NSString stringWithUTF8String: [convData bytes]]];
 			break;
 		case type_string:
 			//This should not happen;
@@ -164,7 +219,7 @@
 		}
 		strComputed = YES;
 	}
-	return [[theStringValue copy] autorelease];
+	return theStringValue;
 }
 
 -(NSInteger) integerValue
@@ -178,6 +233,9 @@
 			case type_int:
 				//This should not happen;
 				NSAssert(0, @"MPVariant error: type is 'int' but value of this type undefined");
+				break;
+			case type_binary:
+				theIntegerValue = [[self stringValue] integerValue];
 				break;
 			case type_string:
 				theIntegerValue = [theStringValue integerValue];
@@ -203,6 +261,9 @@
 				//This should not happen;
 				NSAssert(0, @"MPVariant error: type is 'double' but value of this type undefined");
 				break;
+			case type_binary:
+				theDoubleValue = [[self stringValue] doubleValue];
+				break;
 			case type_string:
 				theDoubleValue = [theStringValue doubleValue];
 				break;
@@ -214,6 +275,19 @@
 	}
 
 	return theDoubleValue;
+}
+
+-(NSData *) binaryDataValue
+{
+	if (!binComputed)
+	{
+		NSString *strValue = [self stringValue];
+		[theBinaryDataValue setData: [strValue dataUsingEncoding: NSUTF8StringEncoding]];
+		[theBinaryDataValue appendBytes: "\0" length: sizeof("")]; //terminator
+		binComputed = YES;
+	}
+
+	return theBinaryDataValue;
 }
 
 -(NSString *) description

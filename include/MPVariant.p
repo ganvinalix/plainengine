@@ -5,7 +5,7 @@ typedef enum
 	type_none=0,
 	type_string,
 	type_int,
-	//type_uint,
+	type_binary,
 	type_double
 } MPVariantType;
 
@@ -21,6 +21,8 @@ typedef enum
 -initWithInteger: (NSInteger)newvalue;
 /** Initializes this with given double */
 -initWithDouble: (double)newvalue;
+/** Initializes this with given NSData */
+-initWithBinaryData: (NSData *)newvalue;
 
 /** Returns new empty MPVariant */
 +variant;
@@ -30,6 +32,8 @@ typedef enum
 +variantWithInteger: (NSInteger)newvalue;
 /** Returns new MPVariant with given double*/
 +variantWithDouble: (double)newvalue;
+/** Returns new MPVariant with given NSData */
++variantWithBinaryData: (NSData *)newvalue;
 
 /** Copies reciever and allocates copy in given zone */
 -copyWithZone: (NSZone *)zone;
@@ -48,6 +52,8 @@ typedef enum
 -(NSInteger) integerValue;
 /** Returns value as double */
 -(double) doubleValue;
+/** Returns value as NSData */
+-(NSData *) binaryDataValue;
 
 /** Equal to stringValue */
 -(NSString *) description;
