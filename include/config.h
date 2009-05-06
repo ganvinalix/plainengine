@@ -8,6 +8,9 @@
 // (useful for debug but strongly decreases perfomance)
 //#define MPOBJECT_DETAILLOGGING
 
+// Enabling this flag would cause checking of method signature equality for each delegated methods with same selector
+#define MPOBJECT_SELECTOR_EQUALITY_CHECK
+
 #define MPTHREAD_CLEAN_POOL_THRESHOLD 50
 
 // Maximum time (in milliseconds) of waiting for request result

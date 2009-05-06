@@ -140,6 +140,7 @@ MP_HANDLER_OF_MESSAGE(consoleInput)
 				DO_TYPE_CHECK(double,		doubleValue);
 				DO_TYPE_CHECK(float,		floatValue);
 				DO_TYPE_CHECK(unsigned,		intValue);
+				DO_TYPE_CHECK(int,			intValue);
 				DO_TYPE_CHECK(long,			longValue);
 				DO_TYPE_CHECK(long long,	longLongValue);
 

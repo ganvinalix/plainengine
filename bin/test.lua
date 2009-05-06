@@ -1,6 +1,6 @@
 function dropBox(name, x, y)
 	local boxObj = MPCreateObject(name)
-	boxObj.mass = 3
+	boxObj.mass = 1
 	boxObj.restitution = 0.1
 	boxObj.friction = 0.7
 
@@ -196,14 +196,14 @@ function start()
 
 	camera = MPCreateObject("camera")
 	camera.camera = 1
-	camera:setScaleXY(0.1, 0.1);
+	camera:setScaleXY(0.1, 0.1)
 end
 
 function MPMessageHandlers.keyDown(args)
 	if args.keyName == "escape" then
 		MPPostMessage("exit")
 	elseif args.keyName == "d" then
-		dropNew(0, 0)
+		dropNew(0, 4)
 	end
 end
 

@@ -30,7 +30,11 @@ function delegateClass:collidedWithatXYZ(objh, x, y, z)
 	if alpha > 2*math.pi then
 		alpha = alpha - 2*math.pi
 	end
-	alpha = alpha-math.pi -- tambourine
+	-- tambourine
+	alpha = alpha-math.pi 
+	if alpha < 0 then
+		alpha = alpha + 2*math.pi
+	end
 
 	local cornerInterval = 0.3
 	local tramplineAngle = 0
@@ -38,7 +42,6 @@ function delegateClass:collidedWithatXYZ(objh, x, y, z)
 	local function between(a, b)
 		return (alpha >= a) and (alpha <= b)
 	end
-
 
 	if between(math.pi/4 - cornerInterval, math.pi/4 + cornerInterval) then
 		tramplineAngle = math.pi/4 -- /^

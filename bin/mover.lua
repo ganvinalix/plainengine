@@ -34,8 +34,8 @@ keyLeft = false
 keyRight = false
 
 accel = 0.01
-vaccel = 5
-jumpImpulse = 2.5
+vaccel = 0.5
+jumpImpulse = 1.8
 
 
 function MPMessageHandlers.keyUp(args)

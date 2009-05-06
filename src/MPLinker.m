@@ -122,7 +122,7 @@
 }
 - (NSString *) description
 {
-	NSString *str = [NSString stringWithFormat: @"Name: %@\t Alias: %@\t Module: %@\t Thread: %d\t Params: %@\n",
+	NSString *str = [NSString stringWithFormat: @"Name: %@\t Alias: %@\t Module: %@\t Thread: %d\t Params: %@",
 												subjectName, subjectAlias, moduleName, threadId, params];
 
 	return str;

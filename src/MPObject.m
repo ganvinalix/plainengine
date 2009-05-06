@@ -534,6 +534,7 @@ NSRecursiveLock *objectClassMutex; //global mutex
 	else
 	{
 		NSMethodSignature *sig = nil;
+		NSMethodSignature *firstSignature = nil; //signature which was found first 
 		MPO_LOCK;
 	
 		id delegate;
@@ -541,17 +542,27 @@ NSRecursiveLock *objectClassMutex; //global mutex
 		[delegatesList moveToTail];
 		while ((delegate = [delegatesList prev]) != nil)
 		{
-			BOOL responds;
 			MPO_TUNLOCK;
-			responds = [delegate respondsToSelector: selector];
+			sig = [delegate methodSignatureForSelector: selector];
 			MPO_TLOCK;
-			if (responds)
+			
+			if (sig)
 			{
-				MPO_TUNLOCK;
-				sig = [delegate methodSignatureForSelector: selector];
-				MPO_TLOCK;
+				#ifdef MPOBJECT_SELECTOR_EQUALITY_CHECK
+				if (!firstSignature)
+				{
+					firstSignature = sig;
+				}
+				else
+				{
+					NSAssert([sig isEqual: firstSignature], @"Selector equality checking failed");
+				}
+
+				#else
 
 				break;
+
+				#endif
 			}
 		}
 		[delegatesList restorePosition: oldPosition];
