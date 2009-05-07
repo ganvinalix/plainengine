@@ -365,7 +365,7 @@
 	// method list iterating and registration of specific methods
 	while( [methodList nextMethod] )
 	{
-		nameOfCurrentMethod = [NSString stringWithUTF8String: sel_getName([methodList methodName])];
+		nameOfCurrentMethod = NSStringFromSelector([methodList methodName]);
 		if( ![nameOfCurrentMethod hasPrefix: MPHandlerPrefix] )
 			continue;
 
