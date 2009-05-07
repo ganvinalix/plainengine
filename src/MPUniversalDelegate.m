@@ -566,12 +566,5 @@ NSLock *commonMutex = nil;
 	return self;
 }
 
-/*
--(void) doesNotRecognizeSelector: (SEL)anSelector
-{
-	NSLog(@"%s", sel_getName(anSelector));
-}
-*/
-
 @end
 

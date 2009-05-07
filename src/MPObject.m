@@ -188,22 +188,22 @@ NSRecursiveLock *objectClassMutex; //global mutex
 +(void) cleanup
 {
 	MPOC_LOCK;
-	MPO_DETAILLOG(@"MPObject: cleanup started");
+	[gLog add: notice withFormat: @"MPObject: cleanup started"];
 
-	MPO_DETAILLOG(@"MPObject: cleanup phase 1 (cleaning internal reference counter of all objects)");
+	[gLog add: notice withFormat: @"MPObject: cleanup phase 1 (cleaning internal reference counter of all objects)"];
 	NSUInteger i, count = [objectsArray count];
 	for (i=0;i<count;++i)
 	{
 		((MPObject *)[objectsArray objectAtIndex: i])->internalRetainCount=0;
 	}
 
-	MPO_DETAILLOG(@"MPObject: cleanup phase 2 (deregistering all objects)");
+	[gLog add: notice withFormat: @"MPObject: cleanup phase 2 (deregistering all objects)"];
 	[objectByHandle removeAllObjects];
 	[objectByName removeAllObjects];
 	[objectsByFeature removeAllObjects];
 	[objectsArray removeAllObjects];
 
-	MPO_DETAILLOG(@"MPObject: cleanup finished");
+	[gLog add: notice withFormat: @"MPObject: cleanup finished"];
 	MPOC_UNLOCK;
 }
 
@@ -300,7 +300,10 @@ NSRecursiveLock *objectClassMutex; //global mutex
 
 -(void) setLocalDelegate: (Class)delegate
 {
-	MPCounter *cntr = [countPerDelegate objectForKey: delegate];
+	BOOL shouldReturn = NO;
+	MPCounter *cntr = nil;
+	MPO_LOCK;
+	cntr = [countPerDelegate objectForKey: delegate];
 	if (cntr && (cntr->value))
 	{
 		#ifdef MPOBJECT_DETAILLOGGING
@@ -308,6 +311,11 @@ NSRecursiveLock *objectClassMutex; //global mutex
 			delegate, self];
 		#endif
 		++(cntr->value);
+		shouldReturn = YES;
+	}
+	MPO_UNLOCK;
+	if (shouldReturn)
+	{
 		return;
 	}
 
@@ -336,6 +344,53 @@ NSRecursiveLock *objectClassMutex; //global mutex
 		delegate, self];
 	#endif
 	[localDelegate release];
+
+	#ifdef MPOBJECT_SELECTOR_EQUALITY_CHECK
+	id<MPMethodList> methodListOfAddedDelegate = MPGetMethodListForClass([delegate class]);
+	while ([methodListOfAddedDelegate nextMethod])
+	{
+		SEL methodSelector = [methodListOfAddedDelegate methodName];
+
+		if (!methodSelector)
+		{
+			continue;
+		}
+
+		if (!sel_isMapped(methodSelector))
+		{
+			continue;
+		}
+
+		NSMethodSignature *signatureOfCurrentDelegate = nil;
+
+		MPO_TUNLOCK;
+		signatureOfCurrentDelegate = [localDelegate methodSignatureForSelector: methodSelector];
+		MPO_TLOCK;
+
+		MPRemovalStableListStoredPosition *oldPos = [delegatesList storePosition];
+		[delegatesList moveToHead];
+		id anotherDelegate;
+		while ((anotherDelegate = [delegatesList next]) != nil)
+		{
+			NSMethodSignature *signatureOfAnotherDelegate = nil;
+			MPO_TUNLOCK;
+			signatureOfAnotherDelegate = [anotherDelegate methodSignatureForSelector: methodSelector];
+			MPO_TLOCK;
+			if (signatureOfAnotherDelegate)
+			{
+				if(![signatureOfCurrentDelegate isEqual: signatureOfAnotherDelegate])
+				{
+					[gLog add: warning withFormat: @"MPObject: selector equality pre-checking failed on adding delegate \"%@\"\n"
+													"Conflicted with delegate \"%@\" on method \"%@\"",
+													localDelegate, anotherDelegate, NSStringFromSelector(methodSelector)];
+				}
+			}
+		}
+		
+		[delegatesList restorePosition: oldPos];
+	}
+	#endif
+
 	MPO_UNLOCK;
 }
 
@@ -393,13 +448,8 @@ NSRecursiveLock *objectClassMutex; //global mutex
 	if (oldindex != NSNotFound)
 	{
 		NSArray *objects;
-		/* TODO: remove this code
-		MPOC_LOCK;
-		objects = [[MPObject getAllObjects] copy];
-		MPOC_UNLOCK;
-		*/
 
-		objects = [MPObject getAllObjects];
+		objects = [[MPObject getAllObjects] retain];
 		MPOC_LOCK;
 		NSUInteger i, count = [objects count];
 		for (i=0; i<count; ++i)
@@ -527,14 +577,17 @@ NSRecursiveLock *objectClassMutex; //global mutex
 
 -(NSMethodSignature *) methodSignatureForSelector: (SEL)selector
 {
-	if ([super respondsToSelector: selector])
+	NSMethodSignature *superSig;
+	if ((superSig = [super methodSignatureForSelector: selector]) != nil)
 	{
-		return [super methodSignatureForSelector: selector];
+		return superSig;
 	}
 	else
 	{
 		NSMethodSignature *sig = nil;
+		#ifdef MPOBJECT_SELECTOR_EQUALITY_CHECK
 		NSMethodSignature *firstSignature = nil; //signature which was found first 
+		#endif
 		MPO_LOCK;
 	
 		id delegate;
@@ -564,6 +617,10 @@ NSRecursiveLock *objectClassMutex; //global mutex
 
 				#endif
 			}
+
+			#ifdef MPOBJECT_SELECTOR_EQUALITY_CHECK
+			sig = firstSignature; //sig may become nil in last iteration
+			#endif
 		}
 		[delegatesList restorePosition: oldPosition];
 		MPO_UNLOCK;
@@ -639,7 +696,7 @@ NSRecursiveLock *objectClassMutex; //global mutex
 
 +(NSArray *) getAllObjects
 {
-	return objectsArray;
+	return [[objectsArray copy] autorelease];
 }
 
 +(NSArray *) getObjectsByFeature: (NSString *)name

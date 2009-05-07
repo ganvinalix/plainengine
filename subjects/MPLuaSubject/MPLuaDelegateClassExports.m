@@ -110,7 +110,7 @@ DECLARE_SET_FEATURE_FUNC(luaDelegateSetFeature)
 	lua_getfield(lua, -1, "setFeature");
 	if (lua_isnil(lua, -1))
 	{
-		lua_pop(lua, 2);
+		lua_pop(lua, 3);
 		LUA_UNLOCK;
 		return;
 	}
@@ -119,7 +119,7 @@ DECLARE_SET_FEATURE_FUNC(luaDelegateSetFeature)
 	lua_pushstring(lua, featureValue);
 	pushLuaTableFromStringDictionary(lua, [[[MPDictionary alloc] initWithCDictionary: userDict] autorelease]);
 	lua_pcall(lua, 4, 0, errorHandler);
-	lua_pop(lua, 3);
+	lua_pop(lua, 2);
 	NSCAssert1(test == lua_gettop(lua), @"Lua stack debalanced - %d", lua_gettop(lua)-test); //TODO: Remove later
 	LUA_UNLOCK;
 }
@@ -138,14 +138,14 @@ DECLARE_REMOVE_FEATURE_FUNC(luaDelegateRemoveFeature)
 	lua_getfield(lua, -1, "removeFeature");
 	if (lua_isnil(lua, -1))
 	{
-		lua_pop(lua, 2);
+		lua_pop(lua, 3);
 		return;
 	}
 	lua_getfield(lua, LUA_REGISTRYINDEX, FIELD_FROM_STRUCT(luaDelegateStruct, name)); //self
 	lua_pushstring(lua, featureName);
 	pushLuaTableFromStringDictionary(lua, [[[MPDictionary alloc] initWithCDictionary: userDict] autorelease]);
 	lua_pcall(lua, 3, 0, errorHandler);
-	lua_pop(lua, 3);
+	lua_pop(lua, 2);
 	NSCAssert1(test == lua_gettop(lua), @"Lua stack debalanced - %d", lua_gettop(lua)-test); //TODO: Remove later
 	LUA_UNLOCK;
 }
@@ -338,8 +338,8 @@ MPUniversalDelegateClassObject *getClassObjectFromTop(lua_State *lua)
 
 	delegateClassObject = [MPUniversalDelegateClassObject registerDelegateClassWithInitFunc: luaDelegateInit
 																			  withCleanFunc: luaDelegateClean
-																		 withSetFeatureFunc: NULL//luaDelegateSetFeature
-																	  withRemoveFeatureFunc: NULL//luaDelegateRemoveFeature
+																		 withSetFeatureFunc: luaDelegateSetFeature
+																	  withRemoveFeatureFunc: luaDelegateRemoveFeature
 																		 withUserInfoLength: sizeof(luaDelegateStruct)	
 																			  withClassInfo: classInfo];
 		

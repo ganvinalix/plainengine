@@ -1,7 +1,0 @@
-{
-	keyDown = $keyName_keyDown;
-	escape_keyDown = exit;
-	d_keyDown = "consoleInput commandname=e/commandparams=drnew.mpb";
-	mouseButton = "mouse$button$state X=$X/Y=$Y";
-	mouse1down = "explosion X=$X/Y=$Y/radius=1.0/impulseCoefficient=-0.075/maximalImpulse=5";
-}
