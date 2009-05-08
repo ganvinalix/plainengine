@@ -25,3 +25,8 @@
 
 @end
 
+void MPBindAssertionHandlerToThread(NSThread *thread)
+{
+	[[thread threadDictionary] setObject: [[MPAssertionHandler new] autorelease] forKey: @"NSAssertionHandler"];
+}
+

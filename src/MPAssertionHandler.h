@@ -10,3 +10,5 @@
 
 @end
 
+void MPBindAssertionHandlerToThread(NSThread *thread);
+

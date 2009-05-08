@@ -18,9 +18,7 @@ int main(int argc, const char *argv[])
 	id descriptions = nil, state = nil;
 
 	// set exception handler with blackjack and hookers
-	[[[NSThread currentThread] threadDictionary] setObject: 
-			 [[MPAssertionHandler new] autorelease] forKey: @"NSAssertionHandler"];
-
+	MPBindAssertionHandlerToThread([NSThread currentThread]);
 	#ifdef MP_USE_EXCEPTIONS
 	@try
 	{
