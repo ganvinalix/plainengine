@@ -1,4 +1,5 @@
 #import <MPForkedThreadStrategy.h>
+#import <MPAssertionHandler.h>
 #import <common.h>
 
 @implementation MPForkedThreadStrategy
@@ -130,6 +131,9 @@
 {
 	MPAutoreleasePool *pool = [[MPAutoreleasePool alloc] init];
 	
+	// set exception handler with blackjack and hookers
+	MPBindAssertionHandlerToThread([NSThread currentThread]);
+
 	//NSUInteger counter=0;
 	[self setWorking: YES];
 	while(![self isDone])

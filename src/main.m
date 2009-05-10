@@ -19,6 +19,7 @@ int main(int argc, const char *argv[])
 
 	// set exception handler with blackjack and hookers
 	MPBindAssertionHandlerToThread([NSThread currentThread]);
+
 	#ifdef MP_USE_EXCEPTIONS
 	@try
 	{
