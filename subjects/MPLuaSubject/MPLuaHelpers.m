@@ -21,7 +21,7 @@ void pushLuaTableFromStringDictionary(lua_State *lua, id dictionary)
 	LUA_UNLOCK;
 }
 
-void pushMPObject(lua_State *lua, id object)
+void pushMPObject(lua_State *lua, id object, BOOL shouldRetain)
 {
 	LUA_LOCK;
 	if (!object)
@@ -30,9 +30,13 @@ void pushMPObject(lua_State *lua, id object)
 	}
 	else
 	{
-		[object retain];
-		id *luaobj = lua_newuserdata(lua, sizeof(id));
-		*luaobj = object;
+		if (shouldRetain)
+		{
+			[object retain];
+		}
+		id *luaobj = lua_newuserdata(lua, sizeof(id)*2);
+		luaobj[0] = object;
+		luaobj[1] = shouldRetain ? object : nil; 
 		int objIndex = lua_gettop(lua);
 		lua_getfield(lua, LUA_REGISTRYINDEX, "MPObjectMetaTable");	
 		lua_setmetatable(lua, objIndex);
@@ -40,12 +44,16 @@ void pushMPObject(lua_State *lua, id object)
 	LUA_UNLOCK;
 }
 
-id getMPObjectFromStack(lua_State *lua, int index)
+id getMPObjectFromStack(lua_State *lua, int index, BOOL *isRetained)
 {
 	LUA_LOCK;
-	id obj = *(id *)lua_touserdata(lua, index);
+	id *objInfo = (id *)lua_touserdata(lua, index);
 	LUA_UNLOCK;
-	return obj;
+	if (isRetained)
+	{
+		*isRetained = (objInfo[1] != nil);
+	}
+	return objInfo[0];
 }
 
 /*

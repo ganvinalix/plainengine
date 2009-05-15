@@ -166,7 +166,7 @@ int luaMPObjectByName(lua_State *lua)
 	LOAD_API;
 	id object = [[api getObjectSystem] getObjectByName: [NSString stringWithUTF8String: lua_tostring(lua, -1)]];
 	lua_pop(lua, 1);
-	pushMPObject(lua, object);
+	pushMPObject(lua, object, YES);
 	LUA_UNLOCK;
 	return 1;
 }
@@ -177,7 +177,7 @@ int luaMPObjectByHandle(lua_State *lua)
 	LOAD_API;
 	id object = [[api getObjectSystem] getObjectByHandle: [[[NSNumber alloc] INIT_WITH_MPHANDLE: lua_tointeger(lua, -1)] autorelease]];
 	lua_pop(lua, 1);
-	pushMPObject(lua, object);
+	pushMPObject(lua, object, YES);
 	LUA_UNLOCK;
 	return 1;
 }
@@ -190,7 +190,7 @@ int luaMPNewObject(lua_State *lua)
 	LOAD_API;
 	id object = [[api getObjectSystem] newObjectWithName: [NSString stringWithUTF8String: lua_tostring(lua, -1)]];
 	lua_pop(lua, 1);
-	pushMPObject(lua, object);
+	pushMPObject(lua, object, YES);
 	LUA_UNLOCK;
 	return 1;
 }
@@ -208,7 +208,7 @@ int luaMPCreateObject(lua_State *lua)
 	[objectsScheduledToRelease addObject: object];
 	[object release];
 
-	pushMPObject(lua, object);
+	pushMPObject(lua, object, YES);
 	LUA_UNLOCK;
 	return 1;
 }
@@ -222,7 +222,7 @@ void pushArrayOfObjects(lua_State *lua, NSArray *array)
 
 	for (i=0; i<count; ++i)
 	{
-		pushMPObject(lua, [array objectAtIndex: i]);
+		pushMPObject(lua, [array objectAtIndex: i], YES);
 		lua_rawseti(lua, arrayIndex, i+1);
 	}
 	LUA_UNLOCK;

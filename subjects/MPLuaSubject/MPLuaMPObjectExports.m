@@ -10,7 +10,7 @@ int luaMPObjectSystemMetaTable_index(lua_State *lua)
 	LOAD_API;
 	const char *objectName = lua_tostring(lua, -1);
 	lua_pop(lua, 2);
-	pushMPObject(lua, [[api getObjectSystem] getObjectByName: [NSString stringWithUTF8String: objectName]]);
+	pushMPObject(lua, [[api getObjectSystem] getObjectByName: [NSString stringWithUTF8String: objectName]], YES);
 	LUA_UNLOCK;
 	return 1;
 }
@@ -19,7 +19,7 @@ int luaMPObject_getName(lua_State *lua)
 {
 	LUA_LOCK;
 	lua_remove(lua, 1); //remove unnecessary 'self'
-	id obj = getMPObjectFromStack(lua, lua_upvalueindex(1));//*(id *)(lua_touserdata(lua, lua_upvalueindex(1)));
+	id obj = getMPObjectFromStack(lua, lua_upvalueindex(1), NULL);
 	lua_pushstring(lua, [[obj getName] UTF8String]);
 	LUA_UNLOCK;
 	return 1;
@@ -29,7 +29,7 @@ int luaMPObject_getHandle(lua_State *lua)
 {
 	LUA_LOCK;
 	lua_remove(lua, 1); //remove unnecessary 'self'
-	id obj = getMPObjectFromStack(lua, lua_upvalueindex(1));//*(id *)(lua_touserdata(lua, lua_upvalueindex(1)));
+	id obj = getMPObjectFromStack(lua, lua_upvalueindex(1), NULL);
 	lua_pushnumber(lua, [[obj getHandle] doubleValue]);
 	LUA_UNLOCK;
 	return 1;
@@ -39,7 +39,7 @@ int luaMPObject_hasFeature(lua_State *lua)
 {
 	LUA_LOCK;
 	lua_remove(lua, 1); //remove unnecessary 'self'
-	id obj = getMPObjectFromStack(lua, lua_upvalueindex(1));//*(id *)(lua_touserdata(lua, lua_upvalueindex(1)));
+	id obj = getMPObjectFromStack(lua, lua_upvalueindex(1), NULL);
 	const char *featureName = lua_tostring(lua, -1);
 	lua_pop(lua, 1);
 	lua_pushboolean(lua, [obj hasFeature: [NSString stringWithUTF8String: featureName]]);
@@ -51,11 +51,11 @@ int luaMPObject_copyWithName(lua_State *lua)
 {
 	LUA_LOCK;
 	lua_remove(lua, 1); //remove unnecessary 'self'
-	id obj = getMPObjectFromStack(lua, lua_upvalueindex(1));//*(id *)(lua_touserdata(lua, lua_upvalueindex(1)));
+	id obj = getMPObjectFromStack(lua, lua_upvalueindex(1), NULL);
 	const char *newName = lua_tostring(lua, -1);
 	id newobj = [obj copyWithName: [NSString stringWithUTF8String: newName]];
 	lua_pop(lua, 1);
-	pushMPObject(lua, newobj);
+	pushMPObject(lua, newobj, YES);
 	LUA_UNLOCK;
 	return 1;
 }
@@ -64,9 +64,9 @@ int luaMPObject_copy(lua_State *lua)
 {
 	LUA_LOCK;
 	lua_remove(lua, 1); //remove unnecessary 'self'
-	id obj = getMPObjectFromStack(lua, lua_upvalueindex(1));//*(id *)(lua_touserdata(lua, lua_upvalueindex(1)));
+	id obj = getMPObjectFromStack(lua, lua_upvalueindex(1), NULL);
 	id newobj = [obj copy];
-	pushMPObject(lua, newobj);
+	pushMPObject(lua, newobj, YES);
 	LUA_UNLOCK;
 	return 1;
 }
@@ -75,7 +75,7 @@ int luaMPObject_getAllFeatures(lua_State *lua)
 {
 	LUA_LOCK;
 	lua_remove(lua, 1); //remove unnecessary 'self'
-	id obj = getMPObjectFromStack(lua, lua_upvalueindex(1));//*(id *)(lua_touserdata(lua, lua_upvalueindex(1)));
+	id obj = getMPObjectFromStack(lua, lua_upvalueindex(1), NULL);
 	NSDictionary *features = [obj getAllFeatures];
 	
 	lua_createtable(lua, 0, [features count]);
@@ -96,7 +96,7 @@ int luaMPObject_getFeatureData(lua_State *lua)
 {
 	LUA_LOCK;
 	lua_remove(lua, 1); //remove unnecessary 'self'
-	id obj = getMPObjectFromStack(lua, lua_upvalueindex(1));//*(id *)(lua_touserdata(lua, lua_upvalueindex(1)));
+	id obj = getMPObjectFromStack(lua, lua_upvalueindex(1), NULL);
 
 	const char *featureName = lua_tostring(lua, -1);
 	lua_pushstring(lua, [[[obj getFeatureData: [NSString stringWithUTF8String: featureName]] stringValue] UTF8String]);
@@ -108,7 +108,7 @@ int luaMPObject_setFeature(lua_State *lua)
 {
 	LUA_LOCK;
 	lua_remove(lua, 1); //remove unnecessary 'self'
-	id obj = getMPObjectFromStack(lua, lua_upvalueindex(1));//*(id *)(lua_touserdata(lua, lua_upvalueindex(1)));
+	id obj = getMPObjectFromStack(lua, lua_upvalueindex(1), NULL);
 	int argcount = lua_gettop(lua);
 
 	NSString *featureName = [NSString stringWithUTF8String: lua_tostring(lua, -argcount)];
@@ -147,7 +147,7 @@ int luaMPObject_removeFeature(lua_State *lua)
 	lua_remove(lua, 1); //remove unnecessary 'self'
 	int argcount = lua_gettop(lua);
 
-	id obj = getMPObjectFromStack(lua, lua_upvalueindex(1));//*(id *)(lua_touserdata(lua, lua_upvalueindex(1)));
+	id obj = getMPObjectFromStack(lua, lua_upvalueindex(1), NULL);
 
 	NSString *featureName = [NSString stringWithUTF8String: lua_tostring(lua, -argcount)];
 	id userInfo = [MPMutableDictionary new];
@@ -178,7 +178,7 @@ int luaMPObject_respondsTo(lua_State *lua)
 {
 	LUA_LOCK;
 	lua_remove(lua, 1); //remove unnecessary 'self'
-	id obj = getMPObjectFromStack(lua, lua_upvalueindex(1));//*(id *)(lua_touserdata(lua, lua_upvalueindex(1)));
+	id obj = getMPObjectFromStack(lua, lua_upvalueindex(1), NULL);
 	const char *selName = lua_tostring(lua, -1);
 	lua_pop(lua, 1);
 	lua_pushboolean(lua, [obj respondsToSelector: sel_registerName(selName)]);
@@ -193,7 +193,7 @@ int luaMPObject_dcall(lua_State *lua)
 	lua_remove(lua, 1); //remove unnecessary 'self'
 	int luaargcount = lua_gettop(lua);
 
-	id object = getMPObjectFromStack(lua, lua_upvalueindex(1));//*(id *)(lua_touserdata(lua, lua_upvalueindex(1)));
+	id object = getMPObjectFromStack(lua, lua_upvalueindex(1), NULL);
 	const char *methodName = lua_tostring(lua, lua_upvalueindex(2));
 	LOAD_API;
 
@@ -208,8 +208,7 @@ int luaMPObject_dcall(lua_State *lua)
 		[[api log] add: warning withFormat: @"MPLuaSubject: (DCaller) No delegate of object '%@' to respond to selector \"%s\".", object, methodName];
 		relbunch_release(rbunch);
 		lua_pushnil(lua);
-		LUA_UNLOCK;
-		return 1;
+		LUA_UNLOCK_AND_RETURN(1);
 	}
 
 	NSInvocation *inv = [[NSInvocation invocationWithMethodSignature: sig] retain];
@@ -221,9 +220,8 @@ int luaMPObject_dcall(lua_State *lua)
 	{
 		[[api log] add: error withFormat: @"MPLuaSubject: (DCaller) Not enough arguments;"];
 		relbunch_release(rbunch);
-		LUA_UNLOCK;
 
-		return 1;
+		LUA_UNLOCK_AND_RETURN(1);
 	}
 	if (argcount < luaargcount)
 	{
@@ -266,9 +264,8 @@ int luaMPObject_dcall(lua_State *lua)
 			[[api log] add: error withFormat: @"MPLuaSubject: (DCaller) type \'%s\' not supported", [sig getArgumentTypeAtIndex: i]];
 			relbunch_release(rbunch);
 			lua_pushnil(lua);
-			LUA_UNLOCK;
 
-			return 1;
+			LUA_UNLOCK_AND_RETURN(1);
 		}
 
 		[inv setArgument: arg atIndex: i];
@@ -319,9 +316,8 @@ int luaMPObject_dcall(lua_State *lua)
 	#undef CHECK_TYPE
 
 	relbunch_release(rbunch);
-	LUA_UNLOCK;
 
-	return returnCount;
+	LUA_UNLOCK_AND_RETURN(returnCount);
 }
 
 int luaMPObjectMetaTable_index(lua_State *lua)
@@ -369,7 +365,7 @@ int luaMPObjectMetaTable_index(lua_State *lua)
 int luaMPObjectMetaTable_newindex(lua_State *lua)
 {
 	LUA_LOCK;
-	id object = getMPObjectFromStack(lua, -3);//*(id *)(lua_touserdata(lua, -3));
+	id object = getMPObjectFromStack(lua, -3, NULL);
 
 	const char *featureName = lua_tostring(lua, -2);
 	const char *featureValue = lua_tostring(lua, -1);
@@ -383,8 +379,8 @@ int luaMPObjectMetaTable_newindex(lua_State *lua)
 int luaMPObjectMetaTable_eq(lua_State *lua)
 {
 	LUA_LOCK;
-	id object1 = getMPObjectFromStack(lua, -1);//*(id *)(lua_touserdata(lua, -1));
-	id object2 = getMPObjectFromStack(lua, -2);//*(id *)(lua_touserdata(lua, -2));
+	id object1 = getMPObjectFromStack(lua, -1, NULL);
+	id object2 = getMPObjectFromStack(lua, -2, NULL);
 
 	lua_pop(lua, 2);
 	lua_pushboolean(lua, [object1 isEqual: object2]);
@@ -395,8 +391,12 @@ int luaMPObjectMetaTable_eq(lua_State *lua)
 int luaMPObjectMetaTable_gc(lua_State *lua)
 {
 	LUA_LOCK;
-	id object = getMPObjectFromStack(lua, -1);//*(id *)(lua_touserdata(lua, -1));
-	[object release];
+	BOOL isRetained;
+	id object = getMPObjectFromStack(lua, -1, &isRetained);
+	if (isRetained)
+	{
+		[object release];
+	}
 	lua_pop(lua, 1);
 	LUA_UNLOCK;
 	return 0;

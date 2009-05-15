@@ -214,7 +214,7 @@ NSDictionary *encodingsDictionary = nil;
 
 - (void) stop
 {
-	UNREGISTER_LUA_STATE(lua);
+	LUA_LOCK;
 	NSUInteger i, count;
 	count = [delegateClassesScheduledToUnregisterFrom count];
 	for (i=0; i<count; ++i)
@@ -240,6 +240,8 @@ NSDictionary *encodingsDictionary = nil;
 		[[api log] add: notice withFormat: @"MPLuaSubject: Lua state closed"];
 	}
 	[objectsScheduledToRelease removeAllObjects];
+	LUA_UNLOCK;
+	UNREGISTER_LUA_STATE(lua);
 	lua = NULL;
 }
 

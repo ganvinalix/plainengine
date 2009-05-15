@@ -880,17 +880,17 @@ NSRecursiveLock *objectClassMutex; //global mutex
 {
 	MPO_LOCK;
 	[userInfo retain];
-	NSMutableArray *featuresArray;
+	NSMutableArray *objectsForFeature;
 	MPOC_LOCK;
-	featuresArray = [objectsByFeature objectForKey: name];
-	if (!featuresArray)
+	objectsForFeature = [objectsByFeature objectForKey: name];
+	if (!objectsForFeature)
 	{
-		featuresArray = [[NSMutableArray alloc] init];
-		[objectsByFeature setObject: featuresArray forKey: name];
+		objectsForFeature = [[NSMutableArray alloc] init];
+		[objectsByFeature setObject: objectsForFeature forKey: name];
 	}
-	if (![featuresArray containsObject: self])
+	if (![objectsForFeature containsObject: self])
 	{
-		[featuresArray addObject: self];
+		[objectsForFeature addObject: self];
 		++internalRetainCount;
 
 		//assign delegate for this feature
@@ -953,6 +953,10 @@ NSRecursiveLock *objectClassMutex; //global mutex
 	if (value)
 	{
 		[features removeObjectForKey: name];
+
+		NSMutableArray *objectsForFeature = [objectsByFeature objectForKey: name];
+		NSAssert(objectsForFeature, @"objectsForFeature array must exist");
+		[objectsForFeature removeObject: self];
 		--internalRetainCount;
 
 		NSUInteger i, count;

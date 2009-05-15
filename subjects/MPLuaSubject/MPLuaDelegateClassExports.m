@@ -22,7 +22,6 @@ DECLARE_INIT_FUNC(luaDelegateInit)
 	luaDelegateClassInfo *clInfo = classInfo;
 	lua_State *lua = clInfo->lua;
 	LUA_LOCK;
-	int test = lua_gettop(lua); //TODO: Remove later
 
 	lua_getfield(lua, LUA_REGISTRYINDEX, "errorHandler");
 	int errorHandler = lua_gettop(lua);
@@ -43,7 +42,10 @@ DECLARE_INIT_FUNC(luaDelegateInit)
 	if (!lua_isnil(lua, -1))
 	{
 		lua_getfield(lua, LUA_REGISTRYINDEX, clInfo->name);
-		pushMPObject(lua, [[api getObjectSystem] getObjectByHandle: [[[NSNumber alloc] INIT_WITH_MPHANDLE: oHandle] autorelease]]);
+		pushMPObject(
+				lua,
+				[[api getObjectSystem] getObjectByHandle: [[[NSNumber alloc] INIT_WITH_MPHANDLE: oHandle] autorelease]],
+				NO); //delegate must have weak reference to owner
 		lua_pcall(lua, 2, 1, errorHandler);
 		lua_setfield(lua, LUA_REGISTRYINDEX, delegateTableName);
 	}
@@ -65,7 +67,6 @@ DECLARE_INIT_FUNC(luaDelegateInit)
 		}
 	}
 	lua_pop(lua, 2);
-	NSCAssert1(test == lua_gettop(lua), @"Lua stack debalanced - %d", lua_gettop(lua)-test); //TODO: Remove later
 	LUA_UNLOCK;
 }
 
@@ -101,7 +102,6 @@ DECLARE_SET_FEATURE_FUNC(luaDelegateSetFeature)
 	luaDelegateClassInfo *clInfo = classInfo;
 	lua_State *lua = clInfo->lua;
 	LUA_LOCK;
-	int test = lua_gettop(lua); //TODO: Remove later
 
 	lua_getfield(lua, LUA_REGISTRYINDEX, "errorHandler");
 	int errorHandler = lua_gettop(lua);
@@ -111,8 +111,7 @@ DECLARE_SET_FEATURE_FUNC(luaDelegateSetFeature)
 	if (lua_isnil(lua, -1))
 	{
 		lua_pop(lua, 3);
-		LUA_UNLOCK;
-		return;
+		LUA_UNLOCK_AND_RETURN_VOID;
 	}
 	lua_getfield(lua, LUA_REGISTRYINDEX, FIELD_FROM_STRUCT(luaDelegateStruct, name)); //self
 	lua_pushstring(lua, featureName);
@@ -120,7 +119,6 @@ DECLARE_SET_FEATURE_FUNC(luaDelegateSetFeature)
 	pushLuaTableFromStringDictionary(lua, [[[MPDictionary alloc] initWithCDictionary: userDict] autorelease]);
 	lua_pcall(lua, 4, 0, errorHandler);
 	lua_pop(lua, 2);
-	NSCAssert1(test == lua_gettop(lua), @"Lua stack debalanced - %d", lua_gettop(lua)-test); //TODO: Remove later
 	LUA_UNLOCK;
 }
 
@@ -129,7 +127,6 @@ DECLARE_REMOVE_FEATURE_FUNC(luaDelegateRemoveFeature)
 	luaDelegateClassInfo *clInfo = classInfo;
 	lua_State *lua = clInfo->lua;
 	LUA_LOCK;
-	int test = lua_gettop(lua); //TODO: Remove later
 
 	lua_getfield(lua, LUA_REGISTRYINDEX, "errorHandler");
 	int errorHandler = lua_gettop(lua);
@@ -139,27 +136,24 @@ DECLARE_REMOVE_FEATURE_FUNC(luaDelegateRemoveFeature)
 	if (lua_isnil(lua, -1))
 	{
 		lua_pop(lua, 3);
-		return;
+		LUA_UNLOCK_AND_RETURN_VOID;
 	}
 	lua_getfield(lua, LUA_REGISTRYINDEX, FIELD_FROM_STRUCT(luaDelegateStruct, name)); //self
 	lua_pushstring(lua, featureName);
 	pushLuaTableFromStringDictionary(lua, [[[MPDictionary alloc] initWithCDictionary: userDict] autorelease]);
 	lua_pcall(lua, 3, 0, errorHandler);
 	lua_pop(lua, 2);
-	NSCAssert1(test == lua_gettop(lua), @"Lua stack debalanced - %d", lua_gettop(lua)-test); //TODO: Remove later
 	LUA_UNLOCK;
 }
 
 NSMethodSignature *getMethodSignatureAndPushFunction(lua_State *lua, const char *funcname)
 {
 	LUA_LOCK;
-	int test = lua_gettop(lua); //TODO: Remove later
 	NSMethodSignature *sig;
 	lua_getfield(lua, -1, "signatures");
 	if (lua_isnil(lua, -1))
 	{
-		LUA_UNLOCK;
-		return nil; //nil value is already on stack
+		LUA_UNLOCK_AND_RETURN(nil); //nil value is already on stack
 	}
 
 	NSMutableString *parsedfuncname = [NSMutableString string];
@@ -183,18 +177,14 @@ NSMethodSignature *getMethodSignatureAndPushFunction(lua_State *lua, const char 
 			stringReplace(parsedfuncname, @":", @"");
 			lua_getfield(lua, -1, [parsedfuncname UTF8String]);
 
-			NSCAssert1(test+1 == lua_gettop(lua), @"Lua stack debalanced - %d", lua_gettop(lua)-test-1); //TODO: Remove later
-			LUA_UNLOCK;
-			return sig;
+			LUA_UNLOCK_AND_RETURN(sig);
 		}
 	}
 
 	lua_pop(lua, 1);
 
 	lua_pushnil(lua);
-	NSCAssert1(test+1 == lua_gettop(lua), @"Lua stack debalanced - %d", lua_gettop(lua)-test-1); //TODO: Remove later
-	LUA_UNLOCK;
-	return nil;
+	LUA_UNLOCK_AND_RETURN(nil);
 
 }
 
@@ -203,13 +193,10 @@ DECLARE_DELEGATE_METHODSIGNATUREGETTER(luaDelegateMethodSignatureGetter)
 	luaDelegateClassInfo *clInfo = classInfo;
 	lua_State *lua = clInfo->lua;
 	LUA_LOCK;
-	int test = lua_gettop(lua); //TODO: Remove later
 	lua_getfield(lua, LUA_REGISTRYINDEX, FIELD_FROM_STRUCT(luaDelegateStruct, name));
 	NSMethodSignature *sig = getMethodSignatureAndPushFunction(lua, methodName);
 	lua_pop(lua, 2);
-	NSCAssert1(test == lua_gettop(lua), @"Lua stack debalanced - %d", lua_gettop(lua)-test); //TODO: Remove later
-	LUA_UNLOCK;
-	return sig;
+	LUA_UNLOCK_AND_RETURN(sig);
 }
 
 DECLARE_METHOD(luaDelegateCallMethod)
@@ -217,24 +204,20 @@ DECLARE_METHOD(luaDelegateCallMethod)
 	luaDelegateClassInfo *clInfo = classInfo;
 	lua_State *lua = clInfo->lua;
 	LUA_LOCK;
-	int test = lua_gettop(lua); //TODO: Remove later
 
 	lua_getfield(lua, LUA_REGISTRYINDEX, "errorHandler");
 	int errorHandler = lua_gettop(lua);
 
 	lua_getfield(lua, LUA_REGISTRYINDEX, FIELD_FROM_STRUCT(luaDelegateStruct, name));
 
-	NSCAssert1(test+2 == lua_gettop(lua), @"Lua stack debalanced - %d", lua_gettop(lua)-test-2); //TODO: Remove later
 
 	NSMethodSignature *sig = getMethodSignatureAndPushFunction(lua, methodName);
 	if (lua_isnil(lua, lua_gettop(lua)))
 	{
 		lua_pop(lua, 3); //errorHandler, delegateTable, nil
-		LUA_UNLOCK;
-		return;
+		LUA_UNLOCK_AND_RETURN_VOID;
 	}
 
-	NSCAssert1(test+3 == lua_gettop(lua), @"Lua stack debalanced - %d", lua_gettop(lua)-test-3); //TODO: Remove later
 
 	lua_getfield(lua, LUA_REGISTRYINDEX, FIELD_FROM_STRUCT(luaDelegateStruct, name)); //self
 
@@ -313,7 +296,6 @@ DECLARE_METHOD(luaDelegateCallMethod)
 
 	lua_pop(lua, 2); //errorHandler and delegate table
 
-	NSCAssert1(test == lua_gettop(lua), @"Lua stack debalanced - %d", lua_gettop(lua)-test); //TODO: Remove later
 	LUA_UNLOCK;
 }
 
@@ -351,9 +333,7 @@ MPUniversalDelegateClassObject *getClassObjectFromTop(lua_State *lua)
 	lua_pop(lua, 1);
 
 	[delegateClassesScheduledToUnregisterFrom addObject: delegateClassObject];
-	LUA_UNLOCK;
-
-	return delegateClassObject;
+	LUA_UNLOCK_AND_RETURN(delegateClassObject);
 }
 
 int luaMPRegisterDelegateClass(lua_State *lua)
