@@ -13,37 +13,7 @@ typedef enum
 /** This class is an universal data container that support NSString, NSInteger and double types and conversion between them;*/
 @protocol MPVariant <NSObject, NSCoding, NSCopying>
 
-/** Initializes this with none data */
--init;
-/** Initializes this with given NSString */
--initWithString: (NSString *)newvalue;
-/** Initializes this with given NSInteger */
--initWithInteger: (NSInteger)newvalue;
-/** Initializes this with given double */
--initWithDouble: (double)newvalue;
-/** Initializes this with given NSData */
--initWithBinaryData: (NSData *)newvalue;
-
-/** Returns new empty MPVariant */
-+variant;
-/** Returns new MPVariant with given NSString*/
-+variantWithString: (NSString *)newvalue;
-/** Returns new MPVariant with given NSInteger*/
-+variantWithInteger: (NSInteger)newvalue;
-/** Returns new MPVariant with given double*/
-+variantWithDouble: (double)newvalue;
-/** Returns new MPVariant with given NSData */
-+variantWithBinaryData: (NSData *)newvalue;
-
-/** Copies reciever and allocates copy in given zone */
--copyWithZone: (NSZone *)zone;
-/** Copies reciever */
--copy;
-
-/** Deallocates reciever */
--(void) dealloc;
-
-/** Returns data type */
+//** Returns data type */
 -(MPVariantType) dataType;
 
 /** Returns value as NSString */
@@ -54,6 +24,9 @@ typedef enum
 -(double) doubleValue;
 /** Returns value as NSData */
 -(NSData *) binaryDataValue;
+
+/** Copies reciever */
+-(id) copy;
 
 /** Equal to stringValue */
 -(NSString *) description;
