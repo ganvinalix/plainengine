@@ -1,20 +1,7 @@
 #import <Foundation/Foundation.h>
 
-typedef enum
-{
-	type_none=0,
-	type_string,
-	type_int,
-	type_binary,
-	type_double
-} MPVariantType;
-
-
-/** This class is an universal data container that support NSString, NSInteger and double types and conversion between them;*/
+/** This class is an universal data container that support NSString, NSInteger, NSData and double types and conversion between them;*/
 @protocol MPVariant <NSObject, NSCoding, NSCopying>
-
-//** Returns data type */
--(MPVariantType) dataType;
 
 /** Returns value as NSString */
 -(NSString *) stringValue;

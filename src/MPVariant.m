@@ -59,50 +59,6 @@
 	return self;
 }
 
--copyWithZone: (NSZone *)zone
-{
-	return [self retain];
-}
-
--copy
-{
-	return [self copyWithZone: NULL];
-}
-
--(BOOL) isEqual: (id)anObject
-{
-	if ([anObject isKindOfClass: [MPVariant class]])
-	{
-		MPVariant *obj = anObject;
-		if (([obj dataType] != type_binary) && (type != type_binary)) //To avoid unnecessary conversion to NSData
-		{
-			return [[self stringValue] isEqual: [obj stringValue]];
-		}
-		else
-		{
-			return [[self binaryDataValue] isEqual: [obj binaryDataValue]];
-		}
-	}
-	else if ([anObject isKindOfClass: [NSNumber class]])
-	{
-		return [[self stringValue] isEqual: [anObject stringValue]];
-	}
-	else if ([anObject isKindOfClass: [NSString class]])
-	{
-		return [[self stringValue] isEqual: anObject];
-	}
-	else if ([anObject isKindOfClass: [NSData class]])
-	{
-		return [[self binaryDataValue] isEqual: anObject];
-	}
-	return NO;
-}
-
--(NSUInteger) hash
-{
-	return [[self stringValue] hash];
-}
-
 +variant
 {
 	return [[MPVariant alloc] init];
@@ -126,6 +82,11 @@
 +variantWithBinaryData: (NSData *)newvalue
 {
 	return [[[MPVariant alloc] initWithBinaryData: newvalue] autorelease];
+}
+
+-(MPVariantType) dataType
+{
+	return type;
 }
 
 -(void) encodeWithCoder: (NSCoder *)encoder
@@ -185,11 +146,6 @@
 	[theBinaryDataValue release];
 	[theStringValue release];
 	[super dealloc];
-}
-
--(MPVariantType) dataType
-{
-	return type;
 }
 
 -(NSString *) stringValue
@@ -290,6 +246,52 @@
 
 	return theBinaryDataValue;
 }
+
+-copyWithZone: (NSZone *)zone
+{
+	return [self retain];
+}
+
+-copy
+{
+	return [self copyWithZone: NULL];
+}
+
+-(BOOL) isEqual: (id)anObject
+{
+	if ([anObject isKindOfClass: [MPVariant class]])
+	{
+		MPVariant *obj = anObject;
+		if (([obj dataType] != type_binary) && (type != type_binary)) //To avoid unnecessary conversion to NSData
+		{
+			return [[self stringValue] isEqual: [obj stringValue]];
+		}
+		else
+		{
+			return [[self binaryDataValue] isEqual: [obj binaryDataValue]];
+		}
+	}
+	else if ([anObject isKindOfClass: [NSNumber class]])
+	{
+		return [[self stringValue] isEqual: [anObject stringValue]];
+	}
+	else if ([anObject isKindOfClass: [NSString class]])
+	{
+		return [[self stringValue] isEqual: anObject];
+	}
+	else if ([anObject isKindOfClass: [NSData class]])
+	{
+		return [[self binaryDataValue] isEqual: anObject];
+	}
+	return NO;
+}
+
+-(NSUInteger) hash
+{
+	return [[self stringValue] hash];
+}
+
+
 
 -(NSString *) description
 {
