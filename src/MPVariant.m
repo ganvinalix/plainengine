@@ -281,6 +281,7 @@
 {
 	if (!binComputed)
 	{
+		NSAssert(type != type_binary, @"MPVariant error: type is 'binary' but value of this type undefined");
 		NSString *strValue = [self stringValue];
 		[theBinaryDataValue setData: [strValue dataUsingEncoding: NSUTF8StringEncoding]];
 		[theBinaryDataValue appendBytes: "\0" length: sizeof("")]; //terminator
