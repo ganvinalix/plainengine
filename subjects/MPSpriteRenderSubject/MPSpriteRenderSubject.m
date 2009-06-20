@@ -188,7 +188,7 @@ void grabInput(BOOL grab)
 		return;
 	}
 
-	MPBeginProfiligSession(&frame_stat);
+	MPBeginProfilingSession(&frame_stat);
 
 	// rendering 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -212,9 +212,9 @@ void grabInput(BOOL grab)
 		//[gLog add: warning withFormat: @"There is no camera!"];
 	}
 
-	MPBeginProfiligSession(&drawing_stat);
+	MPBeginProfilingSession(&drawing_stat);
 	[MPRenderable renderAll];
-	MPEndProfiligSession(&drawing_stat);
+	MPEndProfilingSession(&drawing_stat);
 	[camera release];
 
 	SDL_GL_SwapBuffers();
@@ -283,7 +283,7 @@ void grabInput(BOOL grab)
 		[[objects objectAtIndex: i] setXY: x : y];
 	}
 	
-	MPEndProfiligSession(&frame_stat);
+	MPEndProfilingSession(&frame_stat);
 }
 
 MP_HANDLER_OF_MESSAGE(showCursor)

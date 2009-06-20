@@ -50,7 +50,7 @@ MPAssertionHandler.h \
 
 
 LIBRARY_NAME = libMPUtility
-libMPUtility_INCLUDE_DIRS += -I../include/
+libMPUtility_INCLUDE_DIRS += -I../include/ 
 libMPUtility_LIBRARIES_DEPEND_UPON += -ldl
 libMPUtility_HEADER_FILES = \
 common_defines.h \

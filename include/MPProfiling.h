@@ -31,6 +31,6 @@ typedef struct
 
 void MPInitProfiling(MPProfilingStatistics *stats);
 void MPBeginProfilingSession(MPProfilingStatistics *stats);
-void MPEndProfiligSession(MPProfilingStatistics *stats);
+void MPEndProfilingSession(MPProfilingStatistics *stats);
 NSString *MPPrintProfilingStatistics(MPProfilingStatistics *stats);
 
