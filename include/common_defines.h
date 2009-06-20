@@ -16,14 +16,6 @@
 /** Macros for logging (sends message as "info");*/
 #define MP_LOG(x) [gLog add: info withFormat: @"%@", x]
 
-/** Begins MPCodeTimer session of section with given name; This macros must be used once per code block*/
-#define MP_BEGIN_PROFILE(name) \
-	MPCodeTimer *_ct_##name = [MPCodeTimer codeTimerWithSectionName: [NSString stringWithUTF8String: #name]]; \
-	[_ct_##name beginSession]
-
-/** Ends MPCodeTimer session of section with given name, created by and only by MP_BEGIN_PROGILE; This macros must be used once per code block*/
-#define MP_END_PROFILE(name) [_ct_##name endSession]
-
 /** Prints MPCodeTimer statistics for section with given name to default log */
 #define MP_PRINT_STATISTICS(name) MP_LOG([MPCodeTimer printStatisticsByName: @#name]);
 

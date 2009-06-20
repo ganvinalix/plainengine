@@ -2,6 +2,8 @@ include $(GNUSTEP_MAKEFILES)/common.make
  
 USE_OBJC_EXCEPTIONS = yes 
 ADDITIONAL_OBJCFLAGS += -fgnu-runtime -fconstant-string-class=NSConstantString -fobjc-exceptions -Wall
+
+debug = no
  
 TOOL_NAME = plainEngine 
 
@@ -58,7 +60,7 @@ universal_delegate_headers.h \
 MPLog.h \
 MPConfigDictionary.h \
 MPFileLogChannel.h \
-MPCodeTimer.h \
+MPProfiling.h \
 MPDictionary.h \
 MPDictionary.p \
 MPVariant.h \
@@ -84,7 +86,7 @@ libMPUtility_OBJC_FILES = \
 MPConfigDictionary.m \
 MPFileLogChannel.m \
 MPLog.m \
-MPCodeTimer.m \
+MPProfiling.m \
 MPDictionary.m \
 MPVariant.m \
 MPUtility.m \

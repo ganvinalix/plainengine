@@ -107,6 +107,9 @@ void grabInput(BOOL grab)
 - (void) start
 {
 	[gLog add: notice withFormat: @"MPSpriteRenderSubject: Starting graphics..."];
+	
+	MPInitProfiling(&frame_stat);
+	MPInitProfiling(&drawing_stat);
 
 	if( SDL_Init(SDL_INIT_VIDEO) < 0 )
 	{ 
@@ -173,8 +176,8 @@ void grabInput(BOOL grab)
 	[[api getObjectSystem] removeDelegate: [MPSpriteRenderDelegate class] forFeature: @"renderable"];
 	[[api getObjectSystem] removeDelegate: [MPCamera class] forFeature: @"camera"];
 	[[api getObjectSystem] removeDelegate: [MPMouse class] forFeature: @"mouse"];
-	MP_PRINT_STATISTICS(rend);
-	MP_PRINT_STATISTICS(graphics_frame);
+	[log add: notice withFormat: @"Drawing statistics:\n %@\n", MPPrintProfilingStatistics(&drawing_stat)];
+	[log add: notice withFormat: @"Whole frame statistics:\n %@\n", MPPrintProfilingStatistics(&frame_stat)];
 	[log add: notice withFormat: @"MPSpriteRenderSubject: stopped."];
 }
 
@@ -185,7 +188,7 @@ void grabInput(BOOL grab)
 		return;
 	}
 
-	MP_BEGIN_PROFILE(graphics_frame);
+	MPBeginProfiligSession(&frame_stat);
 
 	// rendering 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -209,9 +212,9 @@ void grabInput(BOOL grab)
 		//[gLog add: warning withFormat: @"There is no camera!"];
 	}
 
-	MP_BEGIN_PROFILE(rend);
+	MPBeginProfiligSession(&drawing_stat);
 	[MPRenderable renderAll];
-	MP_END_PROFILE(rend);
+	MPEndProfiligSession(&drawing_stat);
 	[camera release];
 
 	SDL_GL_SwapBuffers();
@@ -280,7 +283,7 @@ void grabInput(BOOL grab)
 		[[objects objectAtIndex: i] setXY: x : y];
 	}
 	
-	MP_END_PROFILE(graphics_frame);
+	MPEndProfiligSession(&frame_stat);
 }
 
 MP_HANDLER_OF_MESSAGE(showCursor)

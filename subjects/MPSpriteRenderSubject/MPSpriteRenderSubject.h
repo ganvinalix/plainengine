@@ -9,6 +9,7 @@
 	BOOL winShowCursor;
 	BOOL winGrabInput;
 	NSString *winCaption;
+	MPProfilingStatistics frame_stat, drawing_stat;
 }
 MP_HANDLER_OF_MESSAGE(showCursor);
 MP_HANDLER_OF_MESSAGE(grabInput);

@@ -12,7 +12,7 @@ typedef struct
 	/** maxTimeSample - Minimum time spent on executing one session code (successfully finished sessions)*/
 	NSUInteger minTimeSample;
 	/** minTimeSample - Average time spent on executing one session code (successfully finished sessions)*/
-	NSUInteger averageTime;
+	float averageTime;
 
 	/** totalTimeUnfinished - Total time spent on executing current section code (not finished sessions)*/
 	NSUInteger totalTimeUnfinished;
@@ -23,37 +23,14 @@ typedef struct
 	/** minTimeSampleUnfinished - Minimum time spent on executing one session code (unfinished sessions)*/
 	NSUInteger minTimeSampleUnfinished;
 	/** averageTimeUnfinished - Average time spent on executing one session code (unfinished sessions)*/
-	NSUInteger averageTimeUnfinished;
-} ProfilingStatistics;
+	float averageTimeUnfinished;
 
-/** MPCodeTimer class helps to measure time of code section and (maybe later) gathers statistics of code execution time */
-@interface MPCodeTimer : NSObject 
-{
-@private
-	NSMutableArray* timerData;
-}
-+ (void) load;
+	/** lastTime - Zero or time of a current session */
+	NSUInteger lastTime;
+} MPProfilingStatistics;
 
-/** New timer with section name "default" */
-- init;
-/** New timer with section name given in parameter */
-- (id) initWithSectionByName: (NSString*)sectionName;
-/** Deallocates reciever */
-- (void) dealloc;
-
-/** "Convinience constructor" which creates timer with section name "default" */
-+ (id) codeTimer;
-/** "Convinience constructor" which creates timer with section name given in parameter */
-+ (id) codeTimerWithSectionName: (NSString*)sectionName;
-
-/** Gathers code execution time statistics of section given in parameter and returns them in structure*/
-+ (ProfilingStatistics) getStatisticsByName: (NSString*)sectionName;
-/** Gathers code execution time statistics of section given in parameter and returns them in printable string*/
-+ (NSString *) printStatisticsByName: (NSString*)sectionName;
-
-/** Begins new session. If there is still unfinished session, marks it as "unfinished"*/
-- (void) beginSession;
-/** Ends current session. If there is no active sesion, does nothing*/
-- (void) endSession;
-@end
+void MPInitProfiling(MPProfilingStatistics *stats);
+void MPBeginProfiligSession(MPProfilingStatistics *stats);
+void MPEndProfiligSession(MPProfilingStatistics *stats);
+NSString *MPPrintProfilingStatistics(MPProfilingStatistics *stats);
 

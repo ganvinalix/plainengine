@@ -26,7 +26,7 @@
 	subjects = [[NSMutableArray alloc] initWithCapacity: 20];
 	notifications = [strategy newNotificationQueue];
 
-	threadTimer = [[MPCodeTimer codeTimerWithSectionName: [NSString stringWithFormat: @"Thread_%d", threadID]] retain];
+	//threadTimer = [[MPCodeTimer codeTimerWithSectionName: [NSString stringWithFormat: @"Thread_%d", threadID]] retain];
 
 	selFor_MPHandlerOfAnyMessage = sel_registerName( [MPHandlerOfAnyMessageSelector UTF8String] );
 
@@ -52,7 +52,7 @@
 	[requestNameToSubscribedSubjects release];
 	[subjectsWhichHandleAllMessages release];
 	[subjects release];
-	[threadTimer release];
+	//[threadTimer release];
 
 	[super dealloc];
 }

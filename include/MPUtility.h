@@ -9,7 +9,7 @@ extern "C"
 #import <MPFileLogChannel.h>
 #import <MPConfigFacilities.h>
 #import <MPConfigDictionary.h>
-#import <MPCodeTimer.h>
+#import <MPProfiling.h>
 #import <MPDictionary.h>
 #import <MPPool.h>
 #import <MPMapper.h>
