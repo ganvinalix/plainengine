@@ -30,7 +30,7 @@ typedef struct
 } MPProfilingStatistics;
 
 void MPInitProfiling(MPProfilingStatistics *stats);
-void MPBeginProfiligSession(MPProfilingStatistics *stats);
+void MPBeginProfilingSession(MPProfilingStatistics *stats);
 void MPEndProfiligSession(MPProfilingStatistics *stats);
 NSString *MPPrintProfilingStatistics(MPProfilingStatistics *stats);
 

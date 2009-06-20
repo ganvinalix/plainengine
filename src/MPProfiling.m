@@ -11,7 +11,7 @@ void MPInitProfiling(MPProfilingStatistics *stats)
 	memset(stats, 0, sizeof(MPProfilingStatistics));
 }
 
-void MPBeginProfiligSession(MPProfilingStatistics *stats)
+void MPBeginProfilingSession(MPProfilingStatistics *stats)
 {
 	if(!stats)
 		return;
@@ -37,7 +37,7 @@ void MPBeginProfiligSession(MPProfilingStatistics *stats)
 	stats->lastTime = currentTime;
 }
 
-void MPEndProfiligSession(MPProfilingStatistics *stats)
+void MPEndProfilingSession(MPProfilingStatistics *stats)
 {
 	if(!stats)
 		return;
