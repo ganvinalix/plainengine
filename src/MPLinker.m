@@ -241,7 +241,7 @@ id MPLinkModules(NSArray *descriptions, MPSubjectManager *subjMan)
 			module = [MPModule module];
 			if( ![module loadLibraryWithName: [currentDesc getModuleName]] )
 			{
-				[gLog add: warning withFormat: @"Module with name [%@] not found", [currentDesc getModuleName]];
+				[gLog add: warning withFormat: @"MPLinker: Could not loac the module with name [%@]", [currentDesc getModuleName]];
 				continue;
 			}
 			[modules setObject: module forKey: [currentDesc getModuleName]];

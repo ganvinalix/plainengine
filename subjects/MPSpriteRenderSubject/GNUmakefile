@@ -8,7 +8,7 @@ ADDITIONAL_OBJCFLAGS += -fgnu-runtime -fconstant-string-class=NSConstantString
 LIBRARY_NAME = libMPSpriteRenderSubject
 
 libMPSpriteRenderSubject_OBJC_FLAGS = -fPIC
-libMPSpriteRenderSubject_LIB_DIRS = -L../../lib/ `sdl-config --libs`
+libMPSpriteRenderSubject_LIB_DIRS = -L../../lib/ #`sdl-config --libs`
 libMPSpriteRenderSubject_INCLUDE_DIRS = -I../../include/ `sdl-config --cflags`
 libMPSpriteRenderSubject_LIBRARIES_DEPEND_UPON = -lMPUtility -lSDL -lGL -lGLU -lIL -lILU -lILUT
 
