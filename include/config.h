@@ -11,7 +11,7 @@
 // Enabling this flag would cause checking of method signature equality for each delegated methods with same selector
 #define MPOBJECT_SELECTOR_EQUALITY_CHECK
 
-#define MPTHREAD_CLEAN_POOL_THRESHOLD 50
+#define MPTHREAD_CLEAN_POOL_THRESHOLD 20
 
 // Maximum time (in milliseconds) of waiting for request result
 #define MPTHREAD_MAX_WAIT_FOR_REQUEST_TIME 2000

@@ -28,6 +28,7 @@ objectList *listalloc()
 	head = listalloc();
 	tail = head;
 	size=0;
+
 	return self;
 }
 

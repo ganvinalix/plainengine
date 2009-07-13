@@ -41,6 +41,7 @@ MPMapper *textures = nil;
 	node = nil;
 	[self bindToNode: aNode];
 	visible = YES;
+	isTexNeedsUpdate = YES;
 	texName = nil;
 	texAnimator = nil;
 
@@ -72,6 +73,7 @@ MPMapper *textures = nil;
 {
 	[texName release];
 	texName = [aName copy];
+	isTexNeedsUpdate = YES;
 	return [[NSFileManager defaultManager] fileExistsAtPath: texName];
 }
 
@@ -80,9 +82,12 @@ unsigned prevTex = 0;
 {
 	if(!visible) return;
 
-	if(!texture)
+	if( (!texture) || isTexNeedsUpdate )
 		if(texName)
+		{
 			texture = [[textures getObject: texName] unsignedIntValue];
+			isTexNeedsUpdate = NO;
+		}
 
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();

@@ -1,8 +1,7 @@
 #import <MPAPI.h>
 #import <core_constants.h>
 #import <MPNotifications.h>
-
-@class MPObject;
+#import <MPObject.h>
 
 @implementation MPAPI
 

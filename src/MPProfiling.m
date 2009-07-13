@@ -66,7 +66,7 @@ NSString *MPPrintProfilingStatistics(MPProfilingStatistics *stats)
 	NSMutableString *str = [NSMutableString stringWithCapacity: 225];
 
 	//[str appendFormat: @"Code timer statistics for \"%@\":\n", sectionName];
-	[str appendFormat: @"Total calls: %d (%d - unfinished sessions) \nTotal time: %d (%d - unfinished sessions) \nMaximum time: %d (%d - unfinished sessions) \nMinimum time: %d (%d - unfinished sessions) \nAverage time: %f (%f - unfinished sessions) \n",
+	[str appendFormat: @"Total calls: %d (%d - unfinished sessions) \nTotal time: %d (%d - unfinished sessions) \nMaximum time: %d (%d - unfinished sessions) \nMinimum time: %d (%d - unfinished sessions) \nAverage time: %f (%f - unfinished sessions) \n (time in milliseconds) \n",
 		stats->totalCalls,
 		stats->totalCallsUnfinished,
 		stats->totalTime,

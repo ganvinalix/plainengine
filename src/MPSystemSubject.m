@@ -49,7 +49,6 @@
 
 -(void) update
 {
-
 }
 
 MP_HANDLER_OF_MESSAGE(exit)

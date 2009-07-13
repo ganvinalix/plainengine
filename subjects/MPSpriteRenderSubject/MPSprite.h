@@ -5,6 +5,7 @@
 {
 	id<MPSpriteObject> node;
 	BOOL visible;
+	BOOL isTexNeedsUpdate;
 	unsigned texture;
 	NSString *texName;
 	id<MPAnimator> texAnimator;

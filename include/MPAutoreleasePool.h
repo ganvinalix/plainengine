@@ -13,7 +13,6 @@ typedef struct objectListTag
 	objectList *head;
 	objectList *tail;
 	NSUInteger size;
-	
 }
 
 +new;
