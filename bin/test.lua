@@ -39,6 +39,7 @@ function dropBubble(name, x, y)
 			scaleY=1,
 		})
 	bubbleObj:setXY(x, y)
+	bubbleObj:setFeature("evil_bubble");
 	return bubbleObj
 end
 
