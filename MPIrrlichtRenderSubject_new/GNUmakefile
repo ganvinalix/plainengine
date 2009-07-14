@@ -14,15 +14,15 @@ libMPIrrlichtRenderSubject_LIBRARIES_DEPEND_UPON += -lMPUtility -lIrrlicht -lGL 
 
 libMPIrrlichtRenderSubject_OBJCC_FILES = \
 MPIrrlichtRenderSubject.mm \
-#MPGraphical.mm \
-#MPDrawingStrategy.mm \
+MPGraphical.mm \
+MPDrawingStrategy.mm \
 
 libMPIrrlichtRenderSubject_HEADER_FILES = \
 MPIrrlichtRenderSubject.h \
 MPIrrEventHandler.h \
-#MPGraphical.h \
-#MPDrawingStrategy.h \
-#MPIrrSceneNode.p \
+MPGraphical.h \
+MPDrawingStrategy.h \
+MPIrrSceneNode.p \
 
 include $(GNUSTEP_MAKEFILES)/library.make
 

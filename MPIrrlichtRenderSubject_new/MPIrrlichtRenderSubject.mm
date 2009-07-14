@@ -17,7 +17,7 @@ E_DRIVER_TYPE getDriverTypeByName(NSString *aName)
 	NSCAssert(aName, @"Driver name is nil!");
 
 #define MP_DRIVER_TYPE_BY_NAME(name)\
-	if( [[aName uppercaseString] isEqual: @#name] )\
+	if ( [[aName uppercaseString] isEqual: @#name] )\
 	{\
 		result = EDT_##name;\
 	}
@@ -130,7 +130,7 @@ E_DRIVER_TYPE getDriverTypeByName(NSString *aName)
 	smgr->addToDeletionQueue(cam);
 
 	IBillboardSceneNode* node = smgr->addBillboardSceneNode(0 /*parent*/);
-	if(node)
+	if (node)
 	{
 		node->setPosition(core::vector3df(0,0,0));
 		node->setSize(dimension2d<f32>(20, 20));
@@ -153,7 +153,7 @@ E_DRIVER_TYPE getDriverTypeByName(NSString *aName)
 - (void) update
 {
 	MPBeginProfilingSession(&frame_stat);
-	if(device->run())
+	if (device->run())
 	{
 		MPBeginProfilingSession(&drawing_stat);
 		driver->beginScene(true, true, SColor(255,100,101,140));
