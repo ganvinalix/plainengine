@@ -200,7 +200,7 @@ function start()
 end
 
 function MPMessageHandlers.keyDown(args)
-	if args.keyName == "escape" then
+	if args.keyCode == "27" then
 		MPPostMessage("exit")
 	elseif args.keyName == "d" then
 		dropNew(0, 4)
