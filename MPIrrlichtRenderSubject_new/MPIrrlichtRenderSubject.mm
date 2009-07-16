@@ -2,6 +2,8 @@
 #import <MPUtility.h>
 #import <cstdlib>
 
+#import <MPMouse.h>
+
 using namespace irr;
 
 using namespace core;
@@ -73,7 +75,6 @@ E_DRIVER_TYPE getDriverTypeByName(NSString *aName)
 
 - (void) dealloc
 {
-	delete eventHandler;
 	[api release];
 	[super dealloc];
 }
@@ -84,15 +85,16 @@ E_DRIVER_TYPE getDriverTypeByName(NSString *aName)
 	log = [api log];
 	objSys = [api getObjectSystem];
 
-	eventHandler = new MPIrrEventHandler(api);
 }
 
 - (void) start
 {
 	[log add: notice withFormat: @"Initializing Irrlicht..."];
+	device = createDevice(winDriverType, dimension2d<s32>(winWidth, winHeight), winBpp, winFullscreen, false, false, NULL);
+
+	eventHandler = new MPIrrEventHandler(api, device);
 	NSAssert(eventHandler != NULL, @"eventHandler doesn't initialized!");
-	device = createDevice(winDriverType, dimension2d<s32>(winWidth, winHeight), winBpp, winFullscreen, false, false, eventHandler);
-	//device = createDevice(video::EDT_OPENGL, dimension2d<s32>(640, 480), 32, false, false, false, 0);
+	device->setEventReceiver(eventHandler);
 
 	// start setting window caption
 	unsigned len = [winCaption length]*4;
@@ -123,31 +125,39 @@ E_DRIVER_TYPE getDriverTypeByName(NSString *aName)
 				vector3df(0, 0, 0) //target
 				);
 	float aRatio = cam->getAspectRatio();
-	float scale = 10.0f;
-	cam->setProjectionMatrix(matrix4().buildProjectionMatrixOrthoLH(
-				2*aRatio*scale, 2*scale, cam->getNearValue(), cam->getFarValue()
-				), true);
+	float scale = 1.0f;
+	//cam->setProjectionMatrix(matrix4().buildProjectionMatrixOrthoLH(
+				//aRatio*scale, scale, cam->getNearValue(), cam->getFarValue()
+				//), true);
 	smgr->addToDeletionQueue(cam);
 
 	IBillboardSceneNode* node = smgr->addBillboardSceneNode(0 /*parent*/);
 	if (node)
 	{
-		node->setPosition(core::vector3df(0,0,0));
-		node->setSize(dimension2d<f32>(20, 20));
+		node->setPosition(core::vector3df(1.0,1.0,0));
+		node->setSize(dimension2d<f32>(1, 1));
 		node->setMaterialFlag(video::EMF_LIGHTING, false);
 		node->setMaterialTexture(0, driver->getTexture("./bubble.png"));
 		node->setMaterialType(EMT_TRANSPARENT_ALPHA_CHANNEL);
 	}	
+
+	[[api getObjectSystem] registerDelegate: [MPMouse class] forFeature: @"mouse"];
 
 	[log add: notice withFormat: @"MPIrrlichtRenderSubject: initialization done"];
 }
 
 - (void) stop
 {
+	[[api getObjectSystem] removeDelegate: [MPMouse class] forFeature: @"mouse"];
+	
+	device->setEventReceiver(NULL);
+	delete eventHandler;
+
 	device->drop();
+	[log add: notice withFormat: @"MPIrrlichtRenderSubject: device dropped"];
+
 	[log add: notice withFormat: @"Drawing statistics:\n %@\n", MPPrintProfilingStatistics(&drawing_stat)];
 	[log add: notice withFormat: @"Whole frame statistics:\n %@\n", MPPrintProfilingStatistics(&frame_stat)];
-	[log add: notice withFormat: @"MPIrrlichtRenderSubject: device dropped"];
 }
 
 - (void) update
@@ -157,12 +167,12 @@ E_DRIVER_TYPE getDriverTypeByName(NSString *aName)
 	{
 		MPBeginProfilingSession(&drawing_stat);
 		driver->beginScene(true, true, SColor(255,100,101,140));
-		MPEndProfilingSession(&drawing_stat);
 
 		smgr->drawAll();
 		guienv->drawAll();
 
 		driver->endScene();
+		MPEndProfilingSession(&drawing_stat);
 	}
 	else
 	{

@@ -1,0 +1,2 @@
+@protocol MPNodeStrategy <MPIrrSceneNode>
+@end

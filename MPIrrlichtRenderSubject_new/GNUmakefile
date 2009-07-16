@@ -8,6 +8,7 @@ ADDITIONAL_OBJCFLAGS += -fgnu-runtime -fconstant-string-class=NSConstantString
 LIBRARY_NAME = libMPIrrlichtRenderSubject
 
 libMPIrrlichtRenderSubject_OBJC_FLAGS += -fPIC
+libMPIrrlichtRenderSubject_OBJCC_FLAGS += -fPIC
 libMPIrrlichtRenderSubject_LIB_DIRS += -L../../lib/ -L../../../irrlicht/lib/
 libMPIrrlichtRenderSubject_INCLUDE_DIRS += -I../../include/ -I../../../irrlicht/include/
 libMPIrrlichtRenderSubject_LIBRARIES_DEPEND_UPON += -lMPUtility -lIrrlicht -lGL -lXxf86vm -lXext -lX11
@@ -15,14 +16,16 @@ libMPIrrlichtRenderSubject_LIBRARIES_DEPEND_UPON += -lMPUtility -lIrrlicht -lGL 
 libMPIrrlichtRenderSubject_OBJCC_FILES = \
 MPIrrlichtRenderSubject.mm \
 MPGraphical.mm \
-MPDrawingStrategy.mm \
+
+libMPIrrlichtRenderSubject_OBJC_FILES = \
+MPMouse.m \
 
 libMPIrrlichtRenderSubject_HEADER_FILES = \
 MPIrrlichtRenderSubject.h \
 MPIrrEventHandler.h \
 MPGraphical.h \
-MPDrawingStrategy.h \
 MPIrrSceneNode.p \
+MPMouse.h \
 
 include $(GNUSTEP_MAKEFILES)/library.make
 
