@@ -1,4 +1,5 @@
 #import <Foundation/Foundation.h>
+#import <MPSpinLock.h>
 
 /** This class represents the queue of notifications */
 @interface MPNotificationQueue : NSObject
@@ -6,7 +7,7 @@
 	// the FIFO
 	NSMutableArray *notifications;
 	// synchronization object
-	NSLock *theLock;
+	MPSpinLock *theLock;
 }
 /** Receives notifications and adds them to the FIFO */
 - (void) receiveNotification: (NSNotification *)anNotification;

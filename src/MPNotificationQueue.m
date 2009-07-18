@@ -7,7 +7,7 @@
 {
 	[super init];
 	notifications = [[NSMutableArray alloc] initWithCapacity: 100];
-	theLock = [[NSLock alloc] init];
+	theLock = [[MPSpinLock alloc] init];
 	return self;
 }
 // dealloc method
@@ -25,25 +25,9 @@
 }
 
 // accessors 
-
-// Maximum loops in spin lock
-#define MPSPINLOCK_MAX_LOOPS_COUNT 10
-#define MPSPINLOCK_LOCK(alock) \
-	NSUInteger i##alock = 0; \
-	BOOL success##alock = NO; \
-	do { \
-		success##alock = [alock tryLock]; \
-		++i##alock; \
-	} while( !success##alock && (i##alock < MPSPINLOCK_MAX_LOOPS_COUNT) );\
-	if(!success##alock) {\
-		[alock lock]; \
-	}
-
-	//while( [alock tryLock] );
-
 - (void) popTop
 {
-	MPSPINLOCK_LOCK(theLock);
+	[theLock lock];
 	if([notifications count])
 		[notifications removeObjectAtIndex: 0];
 	[theLock unlock];
@@ -52,7 +36,7 @@
 {
 	id obj = nil;
 
-	MPSPINLOCK_LOCK(theLock);
+	[theLock lock];
 	if([notifications count]) 
 		obj = [notifications objectAtIndex: 0];
 	[theLock unlock];
@@ -65,14 +49,11 @@
 {
 	if(anNotification)
 	{
-		MPSPINLOCK_LOCK(theLock);
+		[theLock lock];
 		[notifications addObject: anNotification];
 		[theLock unlock];
 	}
 }
-
-#undef MPSPINLOCK_LOCK
-#undef MPSPINLOCK_MAX_LOOPS_COUNT
 
 - (NSString*) description
 {
