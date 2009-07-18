@@ -22,3 +22,5 @@
 // Enabling this flag will have MPAutoreleasePool to log all objects it contains on release
 //#define MPAUTORELEASEPOOL_LOGGING
 
+#define MPSPINLOCK_DEFAULT_MAX_LOOPS_COUNT 10
+

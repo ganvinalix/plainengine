@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 
 extern NSMutableDictionary *locksDictionary;
-extern NSLock *luaGlobalLock;
+extern id<NSLocking> luaGlobalLock;
 extern NSDictionary *encodingsDictionary;
 

@@ -77,6 +77,7 @@ MPRemovalStableList.h \
 MPUniversalDelegate.h \
 ClassInspection.h \
 MPConfigFacilities.h \
+MPSpinLock.h \
 
 libMPUtility_C_FILES = \
 dictionary.c \
@@ -100,6 +101,7 @@ MPRemovalStableList.m \
 MPUniversalDelegate.m \
 ClassInspection.m \
 MPConfigFacilities.m \
+MPSpinLock.m \
 
 include $(GNUSTEP_MAKEFILES)/library.make
 include $(GNUSTEP_MAKEFILES)/tool.make 

@@ -20,6 +20,7 @@ extern "C"
 #import <MPStringToCStringConverter.h>
 #import <MPRemovalStableList.h>
 #import <MPUniversalDelegate.h>
+#import <MPSpinLock.h>
 #import <ClassInspection.h>
 #import <common_defines.h>
 

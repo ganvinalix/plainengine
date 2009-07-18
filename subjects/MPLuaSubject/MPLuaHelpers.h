@@ -21,7 +21,7 @@
 #define REGISTER_LUA_STATE(state)\
 	{\
 		[luaGlobalLock lock];\
-		NSLock *_lock = [NSRecursiveLock new];\
+		MPSpinLock *_lock = [[MPSpinLock alloc] initWithLockClass: [NSRecursiveLock class]];\
 		[locksDictionary setObject: _lock forKey: PTR_TO_ID(lua)];\
 		[_lock release];\
 		[luaGlobalLock unlock];\

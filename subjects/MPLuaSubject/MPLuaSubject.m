@@ -1,13 +1,14 @@
 #import <locale.h>
 
 #import <MPCore.h>
+#import <MPUtility.h>
 #import <MPLuaSubject.h>
 #import <MPLuaExports.h>
 #import <MPLuaHelpers.h>
 
 @implementation MPLuaSubject
 
-NSLock *luaGlobalLock = nil;
+id<NSLocking> luaGlobalLock = nil;
 NSMutableDictionary *locksDictionary = nil;
 NSDictionary *encodingsDictionary = nil;
 
@@ -15,7 +16,7 @@ NSDictionary *encodingsDictionary = nil;
 {
 	if (!luaGlobalLock)
 	{
-		luaGlobalLock = [NSRecursiveLock new];
+		luaGlobalLock = [[MPSpinLock alloc] initWithLockClass: [NSRecursiveLock class]];
 	}
 	if (!locksDictionary)
 	{

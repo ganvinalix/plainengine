@@ -1,5 +1,6 @@
 #import <MPLuaHelpers.h>
 #import <parser.h>
+#import <MPUtility.h>
 
 void pushLuaTableFromStringDictionary(lua_State *lua, id dictionary)
 {
