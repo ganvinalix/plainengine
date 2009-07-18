@@ -16,6 +16,7 @@ libMPIrrlichtRenderSubject_LIBRARIES_DEPEND_UPON += -lMPUtility -lIrrlicht -lGL 
 libMPIrrlichtRenderSubject_OBJCC_FILES = \
 MPIrrlichtRenderSubject.mm \
 MPGraphical.mm \
+MPBillboardNode.mm \
 
 libMPIrrlichtRenderSubject_OBJC_FILES = \
 MPMouse.m \
@@ -26,6 +27,8 @@ MPIrrEventHandler.h \
 MPGraphical.h \
 MPIrrSceneNode.p \
 MPMouse.h \
+MPNodeStrategy.p \
+MPBillboardNode.h \
 
 include $(GNUSTEP_MAKEFILES)/library.make
 

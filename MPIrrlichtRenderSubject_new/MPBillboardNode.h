@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#import <MPIrrSceneNode.p>
+#import <MPNodeStrategy.p>
 #import <MPCore.h>
 #import <irrlicht.h>
 

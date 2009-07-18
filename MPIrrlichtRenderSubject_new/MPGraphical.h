@@ -1,17 +1,16 @@
 #import <Foundation/Foundation.h>
-#import <MPIrrSceneNode.p>
+#import <MPNodeStrategy.p>
 #import <MPCore.h>
 #import <irrlicht.h>
 
+/** Delegate class for "graphical" feature */
 @interface MPGraphical : NSObject <MPIrrSceneNode>
 {
-	//irr::scene::ISceneNode *node;
-	id nodeStrategy;
+	id<MPNodeStrategy> nodeStrategy;
 	irr::scene::ISceneManager *sceneManager;
 }
 
-
-- init;
+- init; // error
 - initWithObject: (id)anObject withSceneManager: (irr::scene::ISceneManager *)smgr;
 - (void) dealloc;
 

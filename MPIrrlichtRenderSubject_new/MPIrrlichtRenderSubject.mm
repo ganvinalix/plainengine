@@ -90,6 +90,10 @@ E_DRIVER_TYPE getDriverTypeByName(NSString *aName)
 - (void) start
 {
 	[log add: notice withFormat: @"Initializing Irrlicht..."];
+
+	MPInitProfiling(&frame_stat);
+	MPInitProfiling(&drawing_stat);
+
 	device = createDevice(winDriverType, dimension2d<s32>(winWidth, winHeight), winBpp, winFullscreen, false, false, NULL);
 
 	eventHandler = new MPIrrEventHandler(api, device);
@@ -102,13 +106,13 @@ E_DRIVER_TYPE getDriverTypeByName(NSString *aName)
 
 	strncpy(buf, [winCaption UTF8String], len);
 	wchar_t *capt = new wchar_t[len];
-	capt[len] = 0;
 	mbstowcs(capt, (char *)buf, len);
+	capt[len-1] = 0;
 
 	device->setWindowCaption(capt);
 
-	delete capt;
-	delete buf;
+	delete[] capt;
+	delete[] buf;
 	// end %)
 	
 	driver = device->getVideoDriver();
@@ -121,25 +125,27 @@ E_DRIVER_TYPE getDriverTypeByName(NSString *aName)
 	driver->setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, true);
 
 	ICameraSceneNode* cam = smgr->addCameraSceneNode(0, 
-				vector3df(0, 0, 10), // position
+				vector3df(0, 0, -10), // position
 				vector3df(0, 0, 0) //target
 				);
 	float aRatio = cam->getAspectRatio();
 	float scale = 1.0f;
-	//cam->setProjectionMatrix(matrix4().buildProjectionMatrixOrthoLH(
-				//aRatio*scale, scale, cam->getNearValue(), cam->getFarValue()
-				//), true);
+	cam->setProjectionMatrix(matrix4().buildProjectionMatrixOrthoLH(
+				2.0*aRatio*scale, 2.0*scale, cam->getNearValue(), cam->getFarValue()
+				), true);
 	smgr->addToDeletionQueue(cam);
 
-	IBillboardSceneNode* node = smgr->addBillboardSceneNode(0 /*parent*/);
+	IBillboardSceneNode* node = smgr->addBillboardSceneNode(0);
 	if (node)
 	{
-		node->setPosition(core::vector3df(1.0,1.0,0));
-		node->setSize(dimension2d<f32>(1, 1));
+		node->setPosition(core::vector3df(0,0,0));
+		node->setSize(dimension2d<f32>(2, 2));
 		node->setMaterialFlag(video::EMF_LIGHTING, false);
-		node->setMaterialTexture(0, driver->getTexture("./bubble.png"));
+		ITexture *tex1 = NULL;
+		tex1 = driver->getTexture("./bubble.png");
+		node->setMaterialTexture(0, tex1);
 		node->setMaterialType(EMT_TRANSPARENT_ALPHA_CHANNEL);
-	}	
+	}
 
 	[[api getObjectSystem] registerDelegate: [MPMouse class] forFeature: @"mouse"];
 
@@ -176,7 +182,7 @@ E_DRIVER_TYPE getDriverTypeByName(NSString *aName)
 	}
 	else
 	{
-		[api postMessageWithName: MPExitMessage];
+		[api postMessageWithName: @"exit"];
 	}
 	MPEndProfilingSession(&frame_stat);
 }

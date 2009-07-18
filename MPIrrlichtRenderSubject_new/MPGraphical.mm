@@ -14,6 +14,7 @@ NSLock *sceneManagerLock = nil;
 
 + (void) load
 {
+	// TODO Spin?
 	sceneManagerLock = [NSRecursiveLock new];
 }
 + newDelegateWithObject: (id)anObject withUserInfo: (void*)userInfo
@@ -30,14 +31,17 @@ NSLock *sceneManagerLock = nil;
 {
 	[super init];
 	//TODO
-	//Yes, it's correct. Strategey will be defined in setFeature;
-	nodeStrategy = nil;
+
+	nodeStrategy = nil; // Yes, it's correct. Strategey will be defined in setFeature;
+	sceneManager = smgr;
+	sceneManager->grab();
 
 	return self;
 }
 - (void) dealloc
 {
 	//TODO
+	sceneManager->drop();
 	[nodeStrategy release];	
 
 	[super dealloc];
@@ -46,6 +50,19 @@ NSLock *sceneManagerLock = nil;
 - (void) setFeature: (NSString *)name toValue: (id<MPVariant>)dt userInfo: (NSDictionary *)info
 {
 	//TODO
+
+	/*
+	 * For Node strategy creation:
+	 * 1) lock
+	 * 2) genID
+	 * 3) createStrategy object and init it unless existing strategy has a same type
+	 * 4) Synchronize with existing parts of MPIrr2DObject protocol!!!
+	 * 5) unlock
+	 */
+
+	[nodeStrategy setFeature: name toValue: dt userInfo: info];
+
+	// TODO
 }
 
 - (BOOL) isVisible
@@ -119,7 +136,6 @@ NSLock *sceneManagerLock = nil;
 
 - (NSUInteger) getInternalID
 {
-	//LOCK???
-	return [nodeStrategy getInternalID];
+	return [nodeStrategy getSceneNode]->getID();
 }
 @end

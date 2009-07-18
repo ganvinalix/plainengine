@@ -18,6 +18,11 @@ private:
 		Y = cc->getRelativePosition().Y;
 		X = 2.0*(X - 0.5); Y = -2.0*(Y - 0.5);
 
+		irr::scene::ICameraSceneNode *cam = device->getSceneManager()->getActiveCamera();
+		irr::core::vector3df camScale = cam->getProjectionMatrix().getScale();
+		// aspect ratio accounted in camScale.X;
+		X /= camScale.X; Y /= camScale.Y;
+
 		// TODO correction with camera pos/scale
 	}
 
@@ -92,12 +97,17 @@ public:
 	MPIrrEventHandler(id<MPAPI> theApi, irr::IrrlichtDevice *theDevice): device(theDevice), X(0.0), Y(0.0)
 	{
 		NSCAssert(device != NULL, @"MPIrrEventHandler: device is NULL!");
+		device->grab();
 		smgr = device->getSceneManager();
+		smgr->grab();
 
 		api = [theApi retain];
 	}
 	~MPIrrEventHandler()
 	{
+		smgr->drop();
+		device->drop();
+
 		[api release];
 	}
 };
