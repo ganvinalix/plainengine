@@ -3,7 +3,53 @@
 
 /* Too cripled implementation. TODO */
 
-/* ----------------Convertion functions----------------- */
+@implementation MPPointerWrapper
+
+-init
+{
+	return [self initWithPointer: NULL];
+}
+
+-initWithPointer: (void *)aPointer
+{
+	[super init];
+	pointer = aPointer;
+	hash = (NSUInteger)aPointer;
+	return self;
+}
+
+-(void *) pointer
+{
+	return pointer;
+}
+
+-(NSUInteger) hash
+{
+	return hash;
+}
+
+-(BOOL) isEqual: (id)anObject
+{
+	if (![anObject isKindOfClass: [self class]])
+	{
+		return NO;
+	}
+	return pointer == [anObject pointer];
+}
+
+-(id) copyWithZone: (NSZone *)zone
+{
+	return [[MPPointerWrapper allocWithZone: zone] initWithPointer: pointer];
+}
+
+-(NSString *) description
+{
+	return [NSString stringWithFormat: @"%p", pointer];
+}
+
+@end
+
+/* ----------------Conversion functions----------------- */
 
 NSString *pointerToString(void *pointer)
 {

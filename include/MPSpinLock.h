@@ -15,6 +15,7 @@
 -init; //uses MPLock as default lock class
 
 -(BOOL) isLocked;
+-(BOOL) tryLock;
 
 -(void) dealloc;
 

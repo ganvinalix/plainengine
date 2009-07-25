@@ -71,5 +71,14 @@
 	return locked;
 }
 
+-(BOOL) tryLock
+{
+	if ([lockDelegate tryLock])
+	{
+		locked = YES;
+	}
+	return locked;
+}
+
 @end
 

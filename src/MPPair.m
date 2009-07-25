@@ -22,8 +22,10 @@
 
 -(void) setObject1: (id)obj1 object2: (id)obj2
 {
-	[firstObject release];
-	[secondObject release];
+	//previous objects in pair must be released after new objects will be retained
+	//because one of new objects may be also an one of old objects
+	id oldFirstObject=firstObject, oldSecondObject=secondObject;
+
 	NSUInteger obj1hash = [obj1 hash], obj2hash = [obj2 hash];
 	if (obj1hash<obj2hash)
 	{
@@ -40,6 +42,8 @@
 		secondHash = obj1hash;
 	}
 	hashcollision = obj1hash==obj2hash;
+	[oldFirstObject release];
+	[secondObject release];
 }
 
 -(id) getFirstObject

@@ -78,6 +78,7 @@ MPUniversalDelegate.h \
 ClassInspection.h \
 MPConfigFacilities.h \
 MPSpinLock.h \
+MPSynchronizedQueue.h \
 
 libMPUtility_C_FILES = \
 dictionary.c \
@@ -102,6 +103,7 @@ MPUniversalDelegate.m \
 ClassInspection.m \
 MPConfigFacilities.m \
 MPSpinLock.m \
+MPSynchronizedQueue.m \
 
 include $(GNUSTEP_MAKEFILES)/library.make
 include $(GNUSTEP_MAKEFILES)/tool.make 

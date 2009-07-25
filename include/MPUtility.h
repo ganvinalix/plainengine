@@ -21,12 +21,31 @@ extern "C"
 #import <MPRemovalStableList.h>
 #import <MPUniversalDelegate.h>
 #import <MPSpinLock.h>
+#import <MPSynchronizedQueue.h>
 #import <ClassInspection.h>
 #import <common_defines.h>
 
 #import <dictionary.h>
 #import <release_bunch.h>
 
+/** Class for wrapping pointers to use them as keys in Foundation containers */
+@interface MPPointerWrapper: NSObject <NSCopying>
+{
+	void *pointer;
+	NSUInteger hash;
+}
+
+-init;
+-initWithPointer: (void *)aPointer;
+
+-(void *) pointer;
+
+-(NSUInteger) hash;
+-(BOOL) isEqual: (id)anObject;
+
+-(NSString *) description;
+
+@end
 
 /* Utilitary functions for encoding often-used types as strings
    for passing them as message params. No guarantee that strings
