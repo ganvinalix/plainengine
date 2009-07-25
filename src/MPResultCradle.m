@@ -29,11 +29,13 @@
 }
 - (void) setResult: (id<MPVariant>)aResult
 {
-	[_mutex lock];
-	[_result release];
-	_result = nil;
-	_result = [aResult retain];
-	[_mutex unlock];
+	if(_result != aResult)
+	{
+		[_mutex lock];
+		[_result release];
+		_result = [aResult retain];
+		[_mutex unlock];
+	}
 }
 @end
 

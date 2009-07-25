@@ -11,22 +11,23 @@
 	   parametersString: (NSString *)par;
 {
 	threadId = tId;
+	id old = nil;
 
-	[subjectName release];
-	subjectName = nil;
+	old = subjectName;
 	subjectName = [sName copy];
+	[old release];
 
-	[subjectAlias release];
-	subjectAlias = nil;
+	old = subjectAlias;
 	subjectAlias = [sAlias copy];
+	[old release];
 
-	[moduleName release];
-	moduleName = nil;
+	old = moduleName;
 	moduleName = [mName copy];
+	[old release];
 	
-	[params release];
-	params = nil;
+	old = params;
 	params = [par copy];
+	[old release];
 }
 
 #define CHECK_THAT_STRING(x) \
