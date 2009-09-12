@@ -1,7 +1,8 @@
 #import <Foundation/Foundation.h>
 #import <MPSpinLock.h>
+#import <MPQueue.p>
 
-@interface MPSynchronizedQueue: NSObject
+@interface MPSynchronizedQueue: NSObject <MPQueue>
 {
 	NSMutableArray *queue;
 	MPSpinLock *mutex;
@@ -9,9 +10,6 @@
 
 -init;
 -(void) dealloc;
-
--(void) push: (id)elem;
--(id) pop;
 
 @end
 

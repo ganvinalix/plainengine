@@ -320,3 +320,16 @@ float getHighPrecisionMilliseconds()
 
 #endif
 
+BOOL MPCompareAndSwapPointer(void * volatile *destination, void *comperand, void *exchange)
+{
+	#if __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ >= 1050
+		return (BOOL)OSAtomicCompareAndSwapPtr(comperand, exchange, destination);
+	#elif defined(_MSC_VER)
+		return (BOOL)InterlockedCompareExchange(destination, exchange, comperand);
+	#elif (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__) > 40100
+		return (BOOL)__sync_bool_compare_and_swap(destination, comperand, exchange);
+	#else
+		#error No implementation of MPCompareAndSwapPointer for this platform; 
+	#endif
+}
+

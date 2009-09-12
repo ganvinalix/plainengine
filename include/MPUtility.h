@@ -22,6 +22,7 @@ extern "C"
 #import <MPUniversalDelegate.h>
 #import <MPSpinLock.h>
 #import <MPSynchronizedQueue.h>
+#import <MPNonblockingQueue.h>
 #import <ClassInspection.h>
 #import <common_defines.h>
 
@@ -80,6 +81,8 @@ void getSelectorAndMethodSignature(id object, const char *methodName, SEL *selec
 
 NSUInteger getMilliseconds();
 float getHighPrecisionMilliseconds();
+
+BOOL MPCompareAndSwapPointer(void * volatile *destination, void *comperand, void *exchange);
 
 #ifdef __cplusplus
 }

@@ -43,7 +43,7 @@
 	}
 	hashcollision = obj1hash==obj2hash;
 	[oldFirstObject release];
-	[secondObject release];
+	[oldSecondObject release];
 }
 
 -(id) getFirstObject
@@ -58,7 +58,7 @@
 
 -(NSUInteger) hash
 {
-	return [firstObject hash] + [secondObject hash];
+	return firstHash + secondHash;
 }
 
 -(BOOL) isEqual: (id)anObject
