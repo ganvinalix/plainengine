@@ -79,8 +79,36 @@ NSDictionary *parseParamsString(NSString *params);
 /** Provides an abstraction over Apple or GNU runtime; Params selector and methodSignature may be NULL */
 void getSelectorAndMethodSignature(id object, const char *methodName, SEL *selector, NSMethodSignature **methodSignature);
 
+/** Returns number of milliseconds passed since some moment. It's guaranteed only that this moment would be the same while running. */
 NSUInteger getMilliseconds();
+/** Returns number of milliseconds passed since some moment. It's guaranteed only that this moment would be the same while running. */
 float getHighPrecisionMilliseconds();
+
+/** Checks if msecs was gone since last successful call and if it was, performs statement. (tag should be unique per block) <br>
+	Example:<br>
+	<code>
+		-(void) update
+		{
+			DO_WITH_MSECS_INTERVAL(1000, t)
+				printf("One second passed.\n")
+		}
+	</code>
+ */
+#define DO_WITH_MSECS_INTERVAL(msecs, tag)\
+		static NSUInteger __prev_time##tag = 0;\
+		if (!__prev_time##tag)\
+		{\
+			__prev_time##tag = getMilliseconds();\
+		}\
+		NSUInteger __cur_time##tag = getMilliseconds();\
+		BOOL __acting##tag = NO;\
+		if ((__cur_time##tag - __prev_time##tag) >= msecs)\
+		{\
+			__prev_time##tag = __cur_time##tag;\
+			__acting##tag = YES;\
+		}\
+		if (__acting##tag)
+
 
 BOOL MPCompareAndSwapPointer(void * volatile *destination, void *comperand, void *exchange);
 
